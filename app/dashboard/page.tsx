@@ -1,0 +1,87 @@
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuthStore } from "@/stores/auth-store"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { ParcelFilters } from "@/components/parcel/parcel-filters"
+import { ParcelTable } from "@/components/parcel/parcel-table"
+import { ParcelPagination } from "@/components/parcel/parcel-pagination"
+import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
+import { StatCard } from "@/components/ui/stat-card"
+import { useParcels } from "@/hooks/use-parcels"
+import { Package, TrendingUp, Clock, CheckCircle } from "lucide-react"
+
+export default function CustomerDashboard() {
+  const { user, isAuthenticated } = useAuthStore()
+  const router = useRouter()
+  const { loading, parcels } = useParcels()
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login")
+      return
+    }
+
+    if (user?.role !== "customer") {
+      router.push("/admin")
+      return
+    }
+  }, [isAuthenticated, user, router])
+
+  if (!isAuthenticated || user?.role !== "customer") {
+    return null
+  }
+
+  // Calculate stats
+  const totalParcels = parcels.length
+  const pendingParcels = parcels.filter((p) => p.status === "pending").length
+  const shippedParcels = parcels.filter((p) => p.status === "shipped").length
+  const deliveredParcels = parcels.filter((p) => p.status === "delivered").length
+
+  const breadcrumbs = [{ label: "Dashboard" }]
+
+  return (
+    <DashboardLayout breadcrumbs={breadcrumbs}>
+      <div className="space-y-6 sm:space-y-8">
+        {/* Header Section */}
+        <div className="stagger-item">
+          <h1 className="text-xl sm:text-heading font-bold text-[#212121] mb-1 sm:mb-2">Dashboard ลูกค้า</h1>
+          <p className="text-sm sm:text-subtitle text-gray-600 font-normal">จัดการและติดตามพัสดุของคุณ</p>
+        </div>
+
+        {/* Stats Grid - Mobile responsive */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <StatCard title="พัสดุทั้งหมด" value={totalParcels} subtitle="รายการ" icon={<Package />} variant="blue" />
+          <StatCard title="รอส่ง" value={pendingParcels} subtitle="รายการ" icon={<Clock />} variant="pink" />
+          <StatCard title="ส่งแล้ว" value={shippedParcels} subtitle="รายการ" icon={<TrendingUp />} variant="cyan" />
+          <StatCard title="ส่งถึงแล้ว" value={deliveredParcels} subtitle="รายการ" icon={<CheckCircle />} variant="green" />
+        </div>
+
+        {/* Filters Section */}
+        <div className="stagger-item">
+          <ParcelFilters />
+        </div>
+
+        {/* Table Section */}
+        <div className="stagger-item">
+          {loading ? (
+            <div className="glass-effect rounded-2xl p-8 sm:p-12 text-center shadow-material-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
+              <p className="text-sm sm:text-subtitle text-gray-600 font-medium">กำลังโหลดข้อมูล...</p>
+            </div>
+          ) : (
+            <div className="space-y-4 sm:space-y-6">
+              <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+                <ParcelTable showPaymentStatus={true} />
+              </div>
+              <ParcelPagination />
+            </div>
+          )}
+        </div>
+
+        <ParcelDetailModal />
+      </div>
+    </DashboardLayout>
+  )
+}
