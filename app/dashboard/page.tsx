@@ -35,7 +35,7 @@ export default function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
   // Fetch total from useParcelStore as it was used by ParcelPagination previously
-  const { parcels, loading, setSelectedParcel, total: totalParcelsFromStore } = useParcelStore()
+  const { parcels, loading, setSelectedParcel, total } = useParcelStore()
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [pagination, setPagination] = useState<PaginationState>({
@@ -150,11 +150,9 @@ export default function CustomerDashboard() {
           ) : (
             <div className="space-y-4 sm:space-y-6">
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
-                {/* Pass table instance to ParcelTable */}
                 <ParcelTable table={table} />
               </div>
-              {/* Pass table instance and totalItems to ParcelPagination */}
-              <ParcelPagination table={table} totalItems={totalParcelsFromStore} />
+              <ParcelPagination />
             </div>
           )}
         </div>

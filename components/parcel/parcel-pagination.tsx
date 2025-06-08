@@ -4,50 +4,39 @@ import { type Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useParcelStore } from "@/stores/parcel-store"
 
-interface ParcelPaginationProps<TData> {
-  table: Table<TData>
-  totalItems: number
-}
 
-export function ParcelPagination<TData>({ table, totalItems }: ParcelPaginationProps<TData>) {
-  const { pageIndex, pageSize } = table.getState().pagination
-  const totalPages = table.getPageCount()
-  const currentPage = pageIndex + 1
+export function ParcelPagination() {
+  const { total, pagination, setPagination } = useParcelStore()
 
-  // Calculate the range of items being shown
-  const firstItem = pageIndex * pageSize + 1
-  // For the last item, consider if it's the last page and totalItems
-  const lastItemOnPage = (pageIndex + 1) * pageSize
-  const lastItem = Math.min(lastItemOnPage, totalItems)
+  const totalPages = Math.ceil(total / pagination.pageSize)
+  const currentPage = pagination.pageIndex + 1
 
-  // If totalItems is 0 and table might not have data (e.g. initial load),
-  // or if table has no rows after filtering but totalItems might still be from a previous state.
-  // Prefer totalItems for the "No data" check if it's reliable.
-  if (totalItems === 0) {
-    // Optionally, could check table.getRowModel().rows.length === 0 as well,
-    // but totalItems should be the source of truth for whether *any* data exists globally.
-    return null
+  const handlePageChange = (newPage: number) => {
+    setPagination({ pageIndex: newPage - 1 })
   }
+
+  const handlePageSizeChange = (newPageSize: string) => {
+    setPagination({ pageIndex: 0, pageSize: Number.parseInt(newPageSize) })
+  }
+
+  if (total === 0) return null
 
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
       <div className="text-sm text-gray-600">
-        แสดง {firstItem} ถึง {lastItem} จาก {totalItems} รายการ
+        แสดง {pagination.pageIndex * pagination.pageSize + 1} ถึง{" "}
+        {Math.min((pagination.pageIndex + 1) * pagination.pageSize, total)} จาก {total} รายการ
       </div>
 
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <span className="text-sm">แสดงต่อหน้า:</span>
-          <Select
-            value={pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value))
-            }}
-          >
+          <Select value={pagination.pageSize.toString()} onValueChange={handlePageSizeChange}>
             <SelectTrigger className="w-20">
-              <SelectValue placeholder={pageSize} />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {[10, 20, 50].map((size) => (
@@ -63,21 +52,21 @@ export function ParcelPagination<TData>({ table, totalItems }: ParcelPaginationP
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
           <span className="text-sm">
-            หน้า {currentPage} จาก {totalPages > 0 ? totalPages : 1}
+            หน้า {currentPage} จาก {totalPages}
           </span>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

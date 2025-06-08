@@ -33,7 +33,7 @@ export default function AdminDashboard() {
 
   // Data from useParcels, setSelectedParcel from useParcelStore
   const { loading, refetch, parcels } = useParcels()
-  const { setSelectedParcel } = useParcelStore()
+  const { setSelectedParcel, total } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
