@@ -1,8 +1,20 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react" // Added useMemo
 import { useRouter } from "next/navigation"
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  type ColumnDef,
+  type SortingState,
+} from "@tanstack/react-table"
+
 import { useAuthStore } from "@/stores/auth-store"
+import { useParcelStore } from "@/stores/parcel-store" // Switch to useParcelStore
+import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns" // Import shared columns
+import type { Parcel } from "@/lib/types"
+
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ParcelFilters } from "@/components/parcel/parcel-filters"
 import { ParcelTable } from "@/components/parcel/parcel-table"
@@ -11,16 +23,44 @@ import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelForm } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
-import { useParcels } from "@/hooks/use-parcels"
+// import { useParcels } from "@/hooks/use-parcels" // Will use useParcelStore instead
 import { Button } from "@/components/ui/button"
 import { Plus, Package, DollarSign, Users, TrendingUp } from "lucide-react"
-import type { Parcel } from "@/lib/types"
+
 
 export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
-  const { loading, refetch, parcels } = useParcels()
+  // const { loading, refetch, parcels } = useParcels() // Switched to useParcelStore
+  const { parcels, loading, setSelectedParcel, fetchParcels } = useParcelStore() // Assuming fetchParcels action exists for refetch
+
   const [showParcelForm, setShowParcelForm] = useState(false)
+  const [sorting, setSorting] = useState<SortingState>([])
+
+  // Get columns from the shared function
+  const columns = useMemo<ColumnDef<Parcel>[]>(
+    () => getParcelTableColumns({ setSelectedParcel, showPaymentStatus: false }),
+    [setSelectedParcel]
+  );
+
+  const table = useReactTable({
+    data: parcels,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
+  });
+
+  useEffect(() => {
+    // Initial fetch of parcels if not already loaded by store
+    // This depends on how useParcelStore is implemented (e.g., if it fetches on init)
+    // For now, let's assume parcelStore handles initial loading.
+    // If a manual fetch is needed: fetchParcels();
+  }, [fetchParcels])
+
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -43,7 +83,7 @@ export default function AdminDashboard() {
       })
 
       if (response.ok) {
-        refetch()
+        fetchParcels() // Use fetchParcels from store to refresh data
         alert("เพิ่มรายการสินค้าสำเร็จ!")
       }
     } catch (error) {
@@ -61,7 +101,7 @@ export default function AdminDashboard() {
       })
 
       if (response.ok) {
-        refetch()
+        fetchParcels() // Use fetchParcels from store to refresh data
       }
     } catch (error) {
       console.error("Failed to import Excel data:", error)
@@ -73,7 +113,7 @@ export default function AdminDashboard() {
     return null
   }
 
-  // Calculate stats
+  // Calculate stats (parcels from store)
   const totalParcels = parcels.length
   const totalRevenue = parcels.reduce((sum, p) => sum + p.estimate, 0)
   const uniqueCustomers = new Set(parcels.map((p) => p.customerCode)).size
@@ -82,17 +122,28 @@ export default function AdminDashboard() {
   const breadcrumbs = [{ label: "Admin Dashboard" }]
 
   return (
+    // Note: tableInstance is not passed to DashboardLayout here, so ColumnVisibilityDropdown won't show for admin. This is fine.
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="space-y-6 sm:space-y-8">
         {/* Header Section */}
         <div className="stagger-item">
-          <h1 className="text-xl sm:text-heading font-bold text-[#212121] mb-1 sm:mb-2">Admin Dashboard</h1>
-          <p className="text-sm sm:text-subtitle text-gray-600 font-normal">จัดการข้อมูลพัสดุทั้งหมดในระบบ</p>
+          <h1 className="text-xl sm:text-heading font-bold text-[#212121] mb-1 sm:mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
+            จัดการข้อมูลพัสดุทั้งหมดในระบบ
+          </p>
         </div>
 
         {/* Stats Grid - Mobile responsive */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-          <StatCard title="พัสดุทั้งหมด" value={totalParcels} subtitle="รายการ" icon={<Package />} variant="blue" />
+          <StatCard
+            title="พัสดุทั้งหมด"
+            value={totalParcels}
+            subtitle="รายการ"
+            icon={<Package />}
+            variant="blue"
+          />
           <StatCard
             title="รายได้รวม"
             value={`฿${totalRevenue.toLocaleString()}`}
@@ -100,8 +151,20 @@ export default function AdminDashboard() {
             icon={<DollarSign />}
             variant="pink"
           />
-          <StatCard title="ลูกค้า" value={uniqueCustomers} subtitle="คน" icon={<Users />} variant="cyan" />
-          <StatCard title="รอดำเนินการ" value={pendingParcels} subtitle="รายการ" icon={<TrendingUp />} variant="green" />
+          <StatCard
+            title="ลูกค้า"
+            value={uniqueCustomers}
+            subtitle="คน"
+            icon={<Users />}
+            variant="cyan"
+          />
+          <StatCard
+            title="รอดำเนินการ"
+            value={pendingParcels}
+            subtitle="รายการ"
+            icon={<TrendingUp />}
+            variant="green"
+          />
         </div>
 
         {/* Excel Upload Section */}
@@ -116,7 +179,9 @@ export default function AdminDashboard() {
 
         {/* Action Header */}
         <div className="stagger-item flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-lg sm:text-title font-semibold text-[#212121]">รายการพัสดุในคลัง</h2>
+          <h2 className="text-lg sm:text-title font-semibold text-[#212121]">
+            รายการพัสดุในคลัง
+          </h2>
           <Button
             onClick={() => setShowParcelForm(true)}
             className="ripple bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
@@ -131,12 +196,15 @@ export default function AdminDashboard() {
           {loading ? (
             <div className="glass-effect rounded-2xl p-8 sm:p-12 text-center shadow-material-4">
               <div className="inline-block animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-              <p className="text-sm sm:text-subtitle text-gray-600 font-medium">กำลังโหลดข้อมูล...</p>
+              <p className="text-sm sm:text-subtitle text-gray-600 font-medium">
+                กำลังโหลดข้อมูล...
+              </p>
             </div>
           ) : (
             <div className="space-y-4 sm:space-y-6">
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
-                <ParcelTable showPaymentStatus={false} />
+                {/* Use ParcelTable with the table instance and correct typing */}
+                <ParcelTable<Parcel> table={table} />
               </div>
               <ParcelPagination />
             </div>
@@ -144,8 +212,12 @@ export default function AdminDashboard() {
         </div>
 
         <ParcelDetailModal />
-        <ParcelForm open={showParcelForm} onClose={() => setShowParcelForm(false)} onSubmit={handleAddParcel} />
+        <ParcelForm
+          open={showParcelForm}
+          onClose={() => setShowParcelForm(false)}
+          onSubmit={handleAddParcel}
+        />
       </div>
     </DashboardLayout>
-  )
+  );
 }
