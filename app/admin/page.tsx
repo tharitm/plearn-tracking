@@ -16,7 +16,8 @@ import { useParcelStore } from "@/stores/parcel-store"
 import { useParcels } from "@/hooks/use-parcels"
 import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 import type { Parcel } from "@/lib/types"
-import { ColumnVisibilityDropdown } from "@/components/ui/ColumnVisibilityDropdown" // Added
+import { ColumnVisibilityDropdown } from "@/components/ui/ColumnVisibilityDropdown"
+import { showToast } from '@/lib/toast-utils'; // Import showToast
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ParcelFilters } from "@/components/parcel/parcel-filters"
@@ -27,7 +28,7 @@ import { ParcelForm } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
-import { Plus, Package, DollarSign, Users, TrendingUp } from "lucide-react"
+import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
 
 export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
@@ -40,26 +41,30 @@ export default function AdminDashboard() {
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [editingParcel, setEditingParcel] = useState<Parcel | null>(null) // State for editing
+  const [editingParcel, setEditingParcel] = useState<Parcel | null>(null)
+  const [updatingStatusForId, setUpdatingStatusForId] = useState<string | null>(null); // New state
 
   const handleStatusChange = useCallback(async (parcelId: string, newStatus: Parcel["status"]) => {
-    console.log("Attempting to update status for parcel:", parcelId, "to", newStatus);
+    setUpdatingStatusForId(parcelId); // Set loading state
     try {
+      console.log("Attempting to update status for parcel:", parcelId, "to", newStatus);
       const response = await fetch(`/api/admin/parcel/${parcelId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
       if (response.ok) {
-        refetch(); // refetch is from useParcels
-        alert(`Parcel ${parcelId} status updated to ${newStatus}`);
+        refetch();
+        showToast(`พัสดุ ${parcelId} อัปเดตสถานะเป็น ${newStatus} แล้ว`, "success");
       } else {
         const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
-        alert(`Failed to update status for parcel ${parcelId}: ${errorData.message || response.statusText}`);
+        showToast(`ไม่สามารถอัปเดตสถานะพัสดุ ${parcelId}`, "error", { description: errorData.message || response.statusText });
       }
     } catch (error) {
       console.error("Failed to update status:", error);
-      alert(`Error updating status for parcel ${parcelId}`);
+      showToast(`เกิดข้อผิดพลาดในการอัปเดตสถานะพัสดุ ${parcelId}`, "error");
+    } finally {
+      setUpdatingStatusForId(null); // Clear loading state
     }
   }, [refetch]);
 
@@ -93,16 +98,20 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         refetch();
-        alert(editingParcel ? "Parcel updated successfully!" : "เพิ่มรายการสินค้าสำเร็จ!");
+        if (editingParcel) {
+          showToast("อัปเดตข้อมูลพัสดุสำเร็จ!", "success");
+        } else {
+          showToast("เพิ่มรายการสินค้าสำเร็จ!", "success");
+        }
         setShowParcelForm(false);
         setEditingParcel(null);
       } else {
         const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
-        alert(`Error: ${errorData.message || response.statusText}`);
+        showToast("เกิดข้อผิดพลาด", "error", { description: errorData.message || response.statusText });
       }
     } catch (error) {
       console.error("Failed to submit parcel form:", error);
-      alert("An unexpected error occurred.");
+      showToast("เกิดข้อผิดพลาดที่ไม่คาดคิด", "error");
     }
   };
 
@@ -111,9 +120,10 @@ export default function AdminDashboard() {
     () => getParcelTableColumns({
       setSelectedParcel,
       onStatusChange: handleStatusChange,
-      onEdit: handleEdit, // Corrected here
+      onEdit: handleEdit,
+      updatingStatusForId, // Pass new state
     }),
-    [setSelectedParcel, handleStatusChange, handleEdit]
+    [setSelectedParcel, handleStatusChange, handleEdit, updatingStatusForId] // Add to dependencies
   );
 
   const table = useReactTable({
@@ -178,7 +188,7 @@ export default function AdminDashboard() {
   const handleBulkDeliver = async () => {
     const selectedIds = table.getSelectedRowModel().flatRows.map(row => row.original.id);
     if (selectedIds.length === 0) {
-      alert("No parcels selected");
+      showToast("กรุณาเลือกพัสดุที่ต้องการดำเนินการ", "info");
       return;
     }
 
@@ -191,15 +201,15 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         refetch();
-        alert("Selected parcels marked as delivered.");
+        showToast("พัสดุที่เลือกถูกอัปเดตสถานะเป็น 'delivered' เรียบร้อยแล้ว", "success");
         setRowSelection({}); // Clear selection
       } else {
         const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
-        alert(`Failed to mark parcels as delivered: ${errorData.message || response.statusText}`);
+        showToast("ไม่สามารถอัปเดตสถานะพัสดุที่เลือก", "error", { description: errorData.message || response.statusText });
       }
     } catch (error) {
       console.error("Failed to mark parcels as delivered:", error);
-      alert("Error marking parcels as delivered.");
+      showToast("เกิดข้อผิดพลาดในการอัปเดตสถานะพัสดุที่เลือก", "error");
     }
   };
 
@@ -294,7 +304,7 @@ export default function AdminDashboard() {
                   variant="outline"
                   className="w-full sm:w-auto"
                 >
-                  Mark All Delivered ({Object.keys(rowSelection).length})
+                  <PackageCheck className="mr-2 h-4 w-4" /> Mark All Delivered ({Object.keys(rowSelection).length})
                 </Button>
                 <ColumnVisibilityDropdown table={table} />
               </div>

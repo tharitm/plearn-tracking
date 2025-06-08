@@ -1,6 +1,6 @@
 import React from "react"; // For JSX in getSortIcon
 import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, FilePenLine } from "lucide-react"; // Import FilePenLine
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -24,6 +24,7 @@ interface GetParcelTableColumnsProps {
   setSelectedParcel: (parcel: Parcel) => void;
   onStatusChange: (parcelId: string, newStatus: Parcel["status"]) => void;
   onEdit: (parcel: Parcel) => void;
+  updatingStatusForId?: string | null; // Add new optional prop
 }
 
 // Function to generate parcel column definitions
@@ -31,6 +32,7 @@ export const getParcelTableColumns = ({
   setSelectedParcel,
   onStatusChange,
   onEdit,
+  updatingStatusForId, // Destructure new prop
 }: GetParcelTableColumnsProps): ColumnDef<Parcel>[] => {
   const baseColumns: ColumnDef<Parcel>[] = [
     {
@@ -144,19 +146,29 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => (
-        <Select
-          value={row.getValue("status")}
-          onValueChange={(newStatus) =>
-            onStatusChange(row.original.id, newStatus as Parcel["status"])
-          }
-        >
-          <SelectTrigger className="w-auto border-none p-0 focus:ring-0">
-            <SelectValue
-              placeholder={<StatusBadge status={row.getValue("status")} type="parcel" />}
-            />
-          </SelectTrigger>
-          <SelectContent>
+      cell: ({ row }) => {
+        const isUpdating = row.original.id === updatingStatusForId;
+        return (
+          <Select
+            value={row.getValue("status")}
+            onValueChange={(newStatus) =>
+              onStatusChange(row.original.id, newStatus as Parcel["status"])
+            }
+            disabled={isUpdating} // Disable Select when updating
+          >
+            <SelectTrigger className="w-auto border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
+              {isUpdating ? (
+                <div className="flex items-center px-3 py-1"> {/* Adjusted padding */}
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </div>
+              ) : (
+                <SelectValue
+                  placeholder={<StatusBadge status={row.getValue("status")} type="parcel" />}
+                />
+              )}
+            </SelectTrigger>
+            <SelectContent>
             <SelectItem value="pending">
               <StatusBadge status="pending" type="parcel" />
             </SelectItem>
@@ -284,7 +296,7 @@ export const getParcelTableColumns = ({
     header: "Actions",
     cell: ({ row }) => (
       <Button variant="outline" size="sm" onClick={() => onEdit(row.original)}>
-        Edit
+        <FilePenLine className="mr-2 h-4 w-4" /> Edit
       </Button>
     ),
   });
