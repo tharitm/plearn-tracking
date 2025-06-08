@@ -169,21 +169,22 @@ export const getParcelTableColumns = ({
               )}
             </SelectTrigger>
             <SelectContent>
-            <SelectItem value="pending">
-              <StatusBadge status="pending" type="parcel" />
-            </SelectItem>
-            <SelectItem value="shipped">
-              <StatusBadge status="shipped" type="parcel" />
-            </SelectItem>
-            <SelectItem value="delivered">
-              <StatusBadge status="delivered" type="parcel" />
-            </SelectItem>
-            <SelectItem value="cancelled">
-              <StatusBadge status="cancelled" type="parcel" />
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      ),
+              <SelectItem value="pending">
+                <StatusBadge status="pending" type="parcel" />
+              </SelectItem>
+              <SelectItem value="shipped">
+                <StatusBadge status="shipped" type="parcel" />
+              </SelectItem>
+              <SelectItem value="delivered">
+                <StatusBadge status="delivered" type="parcel" />
+              </SelectItem>
+              <SelectItem value="cancelled">
+                <StatusBadge status="cancelled" type="parcel" />
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        )
+      }
     },
     {
       accessorKey: "cnTracking",
