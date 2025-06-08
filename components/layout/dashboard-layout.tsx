@@ -17,10 +17,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-interface DashboardLayoutProps<TData> { // Make it generic for Table<TData>
+interface DashboardLayoutProps<TData> {
   children: React.ReactNode
   breadcrumbs?: Array<{ label: string; href?: string }>
-  tableInstance?: Table<TData> // Optional table instance prop
+  tableInstance?: Table<TData>
 }
 
 export function DashboardLayout<TData>({

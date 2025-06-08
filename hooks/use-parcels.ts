@@ -7,7 +7,7 @@ import type { ParcelListResponse } from "@/lib/types"
 
 export function useParcels() {
   const { user } = useAuthStore()
-  const { parcels, total, loading, filters, pagination, setParcels, setLoading } = useParcelStore()
+  const { parcels, total, loading, filters, pagination, setParcels, setLoading, setSelectedParcel } = useParcelStore()
 
   const fetchParcels = async () => {
     if (!user) return
@@ -54,5 +54,6 @@ export function useParcels() {
     total,
     loading,
     refetch: fetchParcels,
+    setSelectedParcel
   }
 }

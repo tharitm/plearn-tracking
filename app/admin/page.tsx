@@ -33,19 +33,19 @@ export default function AdminDashboard() {
 
   // Data from useParcels, setSelectedParcel from useParcelStore
   const { loading, refetch, parcels } = useParcels()
-  const { setSelectedParcel, total } = useParcelStore()
+  const { setSelectedParcel } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
 
   // Get columns from the shared function
   const columns = useMemo<ColumnDef<Parcel>[]>(
-    () => getParcelTableColumns({ setSelectedParcel, showPaymentStatus: false }),
+    () => getParcelTableColumns({ setSelectedParcel }),
     [setSelectedParcel]
   );
 
   const table = useReactTable({
-    data: parcels, // Data from useParcels
+    data: parcels,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -55,7 +55,6 @@ export default function AdminDashboard() {
     },
   });
 
-  // Removed useEffect that called fetchParcels, as useParcels handles its own fetching.
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -96,7 +95,7 @@ export default function AdminDashboard() {
       })
 
       if (response.ok) {
-        refetch() // Use refetch from useParcels
+        refetch()
       }
     } catch (error) {
       console.error("Failed to import Excel data:", error)
@@ -108,7 +107,6 @@ export default function AdminDashboard() {
     return null
   }
 
-  // Calculate stats (parcels from useParcels)
   const totalParcels = parcels.length
   const totalRevenue = parcels.reduce((sum, p) => sum + p.estimate, 0)
   const uniqueCustomers = new Set(parcels.map((p) => p.customerCode)).size
@@ -117,8 +115,7 @@ export default function AdminDashboard() {
   const breadcrumbs = [{ label: "Admin Dashboard" }]
 
   return (
-    // Note: tableInstance is not passed to DashboardLayout here, so ColumnVisibilityDropdown won't show for admin. This is fine.
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <DashboardLayout breadcrumbs={breadcrumbs} tableInstance={table}>
       <div className="space-y-6 sm:space-y-8">
         {/* Header Section */}
         <div className="stagger-item">

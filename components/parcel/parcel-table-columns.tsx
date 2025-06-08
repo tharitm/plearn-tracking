@@ -14,13 +14,11 @@ export const getSortIcon = (isSorted: false | "asc" | "desc") => {
 
 interface GetParcelTableColumnsProps {
   setSelectedParcel: (parcel: Parcel) => void;
-  showPaymentStatus?: boolean; // To control visibility of paymentStatus column
 }
 
 // Function to generate parcel column definitions
 export const getParcelTableColumns = ({
   setSelectedParcel,
-  showPaymentStatus = true, // Default to true, can be overridden
 }: GetParcelTableColumnsProps): ColumnDef<Parcel>[] => {
   const baseColumns: ColumnDef<Parcel>[] = [
     {
@@ -205,23 +203,19 @@ export const getParcelTableColumns = ({
       cell: ({ row }) => row.getValue("thTracking") || "-",
     },
   ];
-
-  if (showPaymentStatus) {
-    baseColumns.push({
-      accessorKey: "paymentStatus",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-auto p-0 font-semibold hover:bg-transparent"
-        >
-          สถานะชำระเงิน
-          {getSortIcon(column.getIsSorted())}
-        </Button>
-      ),
-      cell: ({ row }) => <StatusBadge status={row.getValue("paymentStatus")} type="payment" />,
-    });
-  }
-
+  baseColumns.push({
+    accessorKey: "paymentStatus",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="h-auto p-0 font-semibold hover:bg-transparent"
+      >
+        สถานะชำระเงิน
+        {getSortIcon(column.getIsSorted())}
+      </Button>
+    ),
+    cell: ({ row }) => <StatusBadge status={row.getValue("paymentStatus")} type="payment" />,
+  });
   return baseColumns;
 };

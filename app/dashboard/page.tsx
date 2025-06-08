@@ -1,26 +1,20 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react" // Added useMemo, useState
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getPaginationRowModel, // Import for pagination
+  getPaginationRowModel,
   type ColumnDef,
   type SortingState,
-  type PaginationState, // Import for pagination state
-  // flexRender, // Not directly used here anymore
 } from "@tanstack/react-table"
-// Icons like ArrowUpDown are now used in parcel-table-columns.tsx
 import { Package, TrendingUp, Clock, CheckCircle } from "lucide-react"
 
 import { useAuthStore } from "@/stores/auth-store"
-import { useParcelStore } from "@/stores/parcel-store" // For parcels data, setSelectedParcel, and total
-import type { Parcel } from "@/lib/types" // For column definition
-// Button and StatusBadge are used within parcel-table-columns.tsx
+import type { Parcel } from "@/lib/types"
 
-// Import the new shared column definition function
 import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
@@ -29,23 +23,18 @@ import { ParcelTable } from "@/components/parcel/parcel-table"
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { StatCard } from "@/components/ui/stat-card"
-// import { useParcels } from "@/hooks/use-parcels"; // Data will come from useParcelStore
+import { useParcels } from "@/hooks/use-parcels"
 
 export default function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
-  // Fetch total from useParcelStore as it was used by ParcelPagination previously
-  const { parcels, loading, setSelectedParcel, total } = useParcelStore()
+  const { loading, parcels, setSelectedParcel } = useParcels()
 
   const [sorting, setSorting] = useState<SortingState>([])
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10, // Default page size
-  })
 
-  // Get columns from the shared function
+
   const columns = useMemo<ColumnDef<Parcel>[]>(
-    () => getParcelTableColumns({ setSelectedParcel, showPaymentStatus: true }),
+    () => getParcelTableColumns({ setSelectedParcel }),
     [setSelectedParcel] // Dependency: re-create columns if setSelectedParcel changes identity
   );
 
@@ -56,10 +45,8 @@ export default function CustomerDashboard() {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(), // Enable pagination
     onSortingChange: setSorting,
-    onPaginationChange: setPagination, // Wire up pagination state
     state: {
       sorting,
-      pagination, // Pass pagination state to table
     },
   });
 
@@ -76,7 +63,7 @@ export default function CustomerDashboard() {
   }, [isAuthenticated, user, router])
 
   if (!isAuthenticated || user?.role !== "customer") {
-    return null // Or a loading spinner, or a redirect message
+    return null
   }
 
   // Calculate stats from the store's parcels
@@ -88,7 +75,6 @@ export default function CustomerDashboard() {
   const breadcrumbs = [{ label: "Dashboard" }];
 
   return (
-    // Pass table instance to DashboardLayout
     <DashboardLayout breadcrumbs={breadcrumbs} tableInstance={table}>
       <div className="space-y-6 sm:space-y-8">
         {/* Header Section */}
