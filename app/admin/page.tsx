@@ -75,7 +75,6 @@ export default function AdminDashboard() {
     setShowParcelForm(true);
   }, []);
 
-  // Unified form submission (add/edit)
   const handleFormSubmit = async (data: Omit<Parcel, 'id' | 'status' | 'paymentStatus' | 'createdAt' | 'updatedAt'> & { receiveDate: string }) => {
     const url = editingParcel ? `/api/admin/parcel/${editingParcel.id}` : "/api/admin/parcel";
     const method = editingParcel ? "PUT" : "POST";
@@ -137,12 +136,12 @@ export default function AdminDashboard() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
-    enableRowSelection: true, // Enabled row selection
-    onRowSelectionChange: setRowSelection, // Added row selection handler
-    getRowId: (row) => row.id, // Added getRowId
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.id,
     state: {
       sorting,
-      rowSelection, // Added rowSelection to state
+      rowSelection,
     },
   });
 
@@ -291,13 +290,13 @@ export default function AdminDashboard() {
         {/* Table Section */}
         <div className="stagger-item">
           {loading ? (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
-            <ParcelTableSkeleton />
-          </div>
-          <ParcelPagination /> {/* Consider if pagination should also have a skeleton or be hidden */}
+            <div className="space-y-4 sm:space-y-6">
+              <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+                <ParcelTableSkeleton />
+              </div>
+              <ParcelPagination /> {/* Consider if pagination should also have a skeleton or be hidden */}
             </div>
-     ) : (
+          ) : (
             <div className="space-y-4 sm:space-y-6">
               <div className="flex flex-col sm:flex-row gap-2 items-center">
                 <Button

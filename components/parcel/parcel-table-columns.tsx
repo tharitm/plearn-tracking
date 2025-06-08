@@ -34,7 +34,7 @@ export const getSortIcon = (isSorted: false | "asc" | "desc") => {
 
 // Add userRole to the props
 interface GetParcelTableColumnsProps {
-  userRole: Role; // Added userRole
+  userRole: Role;
   setSelectedParcel: (parcel: Parcel) => void;
   onStatusChange?: (parcelId: string, newStatus: Parcel["status"]) => void;
   onEdit?: (parcel: Parcel) => void;
@@ -42,7 +42,7 @@ interface GetParcelTableColumnsProps {
 }
 
 export const getParcelTableColumns = ({
-  userRole, // Destructure userRole
+  userRole,
   setSelectedParcel,
   onStatusChange,
   onEdit,
@@ -173,7 +173,7 @@ export const getParcelTableColumns = ({
               value={parcelStatus}
               onValueChange={(newStatus) => {
                 if (onStatusChange) { // Ensure onStatusChange is provided
-                    onStatusChange(row.original.id, newStatus as Parcel["status"]);
+                  onStatusChange(row.original.id, newStatus as Parcel["status"]);
                 }
               }}
               disabled={isUpdating || !onStatusChange}
@@ -200,13 +200,12 @@ export const getParcelTableColumns = ({
             </Select>
           );
         }
-        // Read-only view for customer
         return <StatusBadge status={parcelStatus} type="parcel" />;
       },
     }),
     cnTracking: () => ({
       accessorKey: "cnTracking",
-       header: ({ column }) => (
+      header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -320,11 +319,11 @@ export const getParcelTableColumns = ({
       header: "Actions",
       cell: ({ row }) => (
         <Button variant="outline" size="sm" onClick={() => {
-            if (onEdit) { // Ensure onEdit is provided
-                onEdit(row.original);
-            }
+          if (onEdit) { // Ensure onEdit is provided
+            onEdit(row.original);
+          }
         }}
-        disabled={!onEdit} // Disable if onEdit is not provided
+          disabled={!onEdit} // Disable if onEdit is not provided
         >
           <FilePenLine className="mr-2 h-4 w-4" /> Edit
         </Button>

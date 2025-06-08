@@ -36,17 +36,14 @@ export default function CustomerDashboard() {
 
 
   const columns = useMemo<ColumnDef<Parcel>[]>(() => {
-    if (!user?.role) { // Guard clause
+    if (!user?.role) {
       return [];
     }
-    // For customer dashboard, onStatusChange and onEdit are not applicable
-    // updatingStatusForId is also not applicable
     return getParcelTableColumns({
-      userRole: user.role as Role, // Pass the user's role
-      setSelectedParcel, // setSelectedParcel is relevant for customers to view details
-      // onStatusChange, onEdit, updatingStatusForId are omitted as customers don't perform these actions
+      userRole: user.role as Role,
+      setSelectedParcel,
     });
-  }, [user?.role, setSelectedParcel]); // Add user.role to dependency array, ensure setSelectedParcel is stable or correctly memoized
+  }, [user?.role, setSelectedParcel]);
 
   const table = useReactTable({
     data: parcels,
