@@ -14,6 +14,7 @@ import { Package, TrendingUp, Clock, CheckCircle } from "lucide-react"
 
 import { useAuthStore } from "@/stores/auth-store"
 import type { Parcel } from "@/lib/types"
+import type { Role } from "@/lib/column-configs"; // Import Role type
 
 import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 
@@ -34,10 +35,18 @@ export default function CustomerDashboard() {
   const [sorting, setSorting] = useState<SortingState>([])
 
 
-  const columns = useMemo<ColumnDef<Parcel>[]>(
-    () => getParcelTableColumns({ setSelectedParcel }),
-    [setSelectedParcel] // Dependency: re-create columns if setSelectedParcel changes identity
-  );
+  const columns = useMemo<ColumnDef<Parcel>[]>(() => {
+    if (!user?.role) { // Guard clause
+      return [];
+    }
+    // For customer dashboard, onStatusChange and onEdit are not applicable
+    // updatingStatusForId is also not applicable
+    return getParcelTableColumns({
+      userRole: user.role as Role, // Pass the user's role
+      setSelectedParcel, // setSelectedParcel is relevant for customers to view details
+      // onStatusChange, onEdit, updatingStatusForId are omitted as customers don't perform these actions
+    });
+  }, [user?.role, setSelectedParcel]); // Add user.role to dependency array, ensure setSelectedParcel is stable or correctly memoized
 
   const table = useReactTable({
     data: parcels,

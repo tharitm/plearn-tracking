@@ -1,6 +1,6 @@
-import React from "react"; // For JSX in getSortIcon
+import React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, FilePenLine } from "lucide-react"; // Import FilePenLine
+import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, FilePenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -12,6 +12,12 @@ import {
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Parcel } from "@/lib/types";
+import {
+  type Role, // Import Role type
+  isColumnVisible,
+  isColumnEditable,
+  ALL_COLUMN_IDS // Import ALL_COLUMN_IDS
+} from "@/lib/column-configs"; // Import new configs
 
 const statusOptions: Parcel["status"][] = [
   "pending",
@@ -26,22 +32,28 @@ export const getSortIcon = (isSorted: false | "asc" | "desc") => {
   return <ArrowUpDown className="ml-2 h-4 w-4" />;
 };
 
+// Add userRole to the props
 interface GetParcelTableColumnsProps {
+  userRole: Role; // Added userRole
   setSelectedParcel: (parcel: Parcel) => void;
   onStatusChange?: (parcelId: string, newStatus: Parcel["status"]) => void;
   onEdit?: (parcel: Parcel) => void;
-  updatingStatusForId?: string | null; // Add new optional prop
+  updatingStatusForId?: string | null;
 }
 
-// Function to generate parcel column definitions
 export const getParcelTableColumns = ({
+  userRole, // Destructure userRole
   setSelectedParcel,
   onStatusChange,
   onEdit,
-  updatingStatusForId, // Destructure new prop
+  updatingStatusForId,
 }: GetParcelTableColumnsProps): ColumnDef<Parcel>[] => {
-  const baseColumns: ColumnDef<Parcel>[] = [
-    {
+  const columns: ColumnDef<Parcel>[] = [];
+
+  // Define all possible column configurations
+  // This maps columnId to its ColumnDef generator function
+  const columnDefinitions: Record<string, () => ColumnDef<Parcel>> = {
+    select: () => ({
       id: "select",
       header: ({ table }) => (
         <Checkbox
@@ -63,8 +75,8 @@ export const getParcelTableColumns = ({
       ),
       enableSorting: false,
       enableHiding: false,
-    },
-    {
+    }),
+    parcelRef: () => ({
       accessorKey: "parcelRef",
       header: ({ column }) => (
         <Button
@@ -85,8 +97,8 @@ export const getParcelTableColumns = ({
           {row.getValue("parcelRef")}
         </Button>
       ),
-    },
-    {
+    }),
+    receiveDate: () => ({
       accessorKey: "receiveDate",
       header: ({ column }) => (
         <Button
@@ -99,8 +111,8 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => new Date(row.getValue("receiveDate")).toLocaleDateString("th-TH"),
-    },
-    {
+    }),
+    customerCode: () => ({
       accessorKey: "customerCode",
       header: ({ column }) => (
         <Button
@@ -112,8 +124,8 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-    },
-    {
+    }),
+    shipment: () => ({
       accessorKey: "shipment",
       header: ({ column }) => (
         <Button
@@ -125,8 +137,8 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-    },
-    {
+    }),
+    estimate: () => ({
       accessorKey: "estimate",
       header: ({ column }) => (
         <Button
@@ -139,8 +151,8 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => `฿${row.getValue<number>("estimate").toLocaleString()}`,
-    },
-    {
+    }),
+    status: () => ({
       accessorKey: "status",
       header: ({ column }) => (
         <Button
@@ -153,41 +165,48 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => {
-        const isUpdating = row.original.id === updatingStatusForId;
-        return (
-          <Select
-            value={row.getValue("status")}
-            onValueChange={(newStatus) =>
-              onStatusChange!(row.original.id, newStatus as Parcel["status"])
-            }
-            disabled={isUpdating} // Disable Select when updating
-          >
-            <SelectTrigger className="w-auto border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
-              {isUpdating ? (
-                <div className="flex items-center px-3 py-1"> {/* Adjusted padding */}
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </div>
-              ) : (
-                <SelectValue
-                  placeholder={<StatusBadge status={row.getValue("status")} type="parcel" />}
-                />
-              )}
-            </SelectTrigger>
-            <SelectContent>
-              {statusOptions.map(statusOption => (
-                <SelectItem key={statusOption} value={statusOption}>
-                  <StatusBadge status={statusOption} type="parcel" />
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )
-      }
-    },
-    {
+        const parcelStatus = row.getValue<Parcel["status"]>("status");
+        if (isColumnEditable(userRole, "status")) {
+          const isUpdating = row.original.id === updatingStatusForId;
+          return (
+            <Select
+              value={parcelStatus}
+              onValueChange={(newStatus) => {
+                if (onStatusChange) { // Ensure onStatusChange is provided
+                    onStatusChange(row.original.id, newStatus as Parcel["status"]);
+                }
+              }}
+              disabled={isUpdating || !onStatusChange}
+            >
+              <SelectTrigger className="w-auto border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
+                {isUpdating ? (
+                  <div className="flex items-center px-3 py-1">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </div>
+                ) : (
+                  <SelectValue
+                    placeholder={<StatusBadge status={parcelStatus} type="parcel" />}
+                  />
+                )}
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map(statusOption => (
+                  <SelectItem key={statusOption} value={statusOption}>
+                    <StatusBadge status={statusOption} type="parcel" />
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        }
+        // Read-only view for customer
+        return <StatusBadge status={parcelStatus} type="parcel" />;
+      },
+    }),
+    cnTracking: () => ({
       accessorKey: "cnTracking",
-      header: ({ column }) => (
+       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -197,8 +216,8 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-    },
-    {
+    }),
+    volume: () => ({
       accessorKey: "volume",
       header: ({ column }) => (
         <Button
@@ -215,10 +234,10 @@ export const getParcelTableColumns = ({
         if (typeof volume === "number" && !isNaN(volume)) {
           return volume.toFixed(2);
         }
-        return "-"; // Or "N/A"
+        return "-";
       },
-    },
-    {
+    }),
+    weight: () => ({
       accessorKey: "weight",
       header: ({ column }) => (
         <Button
@@ -231,8 +250,8 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => row.getValue<number>("weight").toFixed(2),
-    },
-    {
+    }),
+    freight: () => ({
       accessorKey: "freight",
       header: ({ column }) => (
         <Button
@@ -245,8 +264,8 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => `฿${row.getValue<number>("freight").toLocaleString()}`,
-    },
-    {
+    }),
+    deliveryMethod: () => ({
       accessorKey: "deliveryMethod",
       header: ({ column }) => (
         <Button
@@ -267,8 +286,8 @@ export const getParcelTableColumns = ({
         };
         return methodMap[row.getValue("deliveryMethod") as string];
       },
-    },
-    {
+    }),
+    thTracking: () => ({
       accessorKey: "thTracking",
       header: ({ column }) => (
         <Button
@@ -281,30 +300,45 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => row.getValue("thTracking") || "-",
-    },
-  ];
-  baseColumns.push({
-    accessorKey: "paymentStatus",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="h-auto p-0 font-semibold hover:bg-transparent"
-      >
-        สถานะชำระเงิน
-        {getSortIcon(column.getIsSorted())}
-      </Button>
-    ),
-    cell: ({ row }) => <StatusBadge status={row.getValue("paymentStatus")} type="payment" />,
+    }),
+    paymentStatus: () => ({
+      accessorKey: "paymentStatus",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          สถานะชำระเงิน
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+      cell: ({ row }) => <StatusBadge status={row.getValue("paymentStatus")} type="payment" />,
+    }),
+    actions: () => ({
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button variant="outline" size="sm" onClick={() => {
+            if (onEdit) { // Ensure onEdit is provided
+                onEdit(row.original);
+            }
+        }}
+        disabled={!onEdit} // Disable if onEdit is not provided
+        >
+          <FilePenLine className="mr-2 h-4 w-4" /> Edit
+        </Button>
+      ),
+    }),
+  };
+
+  // Iterate over ALL_COLUMN_IDS to maintain a consistent order
+  // or specific order defined by ALL_COLUMN_IDS
+  ALL_COLUMN_IDS.forEach(columnId => {
+    if (isColumnVisible(userRole, columnId) && columnDefinitions[columnId]) {
+      columns.push(columnDefinitions[columnId]());
+    }
   });
-  baseColumns.push({
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <Button variant="outline" size="sm" onClick={() => onEdit!(row.original)}>
-        <FilePenLine className="mr-2 h-4 w-4" /> Edit
-      </Button>
-    ),
-  });
-  return baseColumns;
+
+  return columns;
 };
