@@ -14,7 +14,7 @@ export const BaseResponse: Record<BaseResponseStatus, {
   developerMessage: string;
 }> = {
   success: {
-    resultCode: 0,
+    resultCode: 20000,
     resultStatus: 'SUCCESS',
     developerMessage: 'Request processed successfully.',
   },
