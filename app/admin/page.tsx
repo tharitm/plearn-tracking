@@ -11,8 +11,9 @@ import {
 } from "@tanstack/react-table"
 
 import { useAuthStore } from "@/stores/auth-store"
-import { useParcelStore } from "@/stores/parcel-store" // Switch to useParcelStore
-import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns" // Import shared columns
+import { useParcelStore } from "@/stores/parcel-store" // Still needed for setSelectedParcel
+import { useParcels } from "@/hooks/use-parcels" // Reinstate useParcels
+import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 import type { Parcel } from "@/lib/types"
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
@@ -23,16 +24,16 @@ import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelForm } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
-// import { useParcels } from "@/hooks/use-parcels" // Will use useParcelStore instead
 import { Button } from "@/components/ui/button"
 import { Plus, Package, DollarSign, Users, TrendingUp } from "lucide-react"
-
 
 export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
-  // const { loading, refetch, parcels } = useParcels() // Switched to useParcelStore
-  const { parcels, loading, setSelectedParcel, fetchParcels } = useParcelStore() // Assuming fetchParcels action exists for refetch
+
+  // Data from useParcels, setSelectedParcel from useParcelStore
+  const { loading, refetch, parcels } = useParcels()
+  const { setSelectedParcel } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -44,7 +45,7 @@ export default function AdminDashboard() {
   );
 
   const table = useReactTable({
-    data: parcels,
+    data: parcels, // Data from useParcels
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -54,13 +55,7 @@ export default function AdminDashboard() {
     },
   });
 
-  useEffect(() => {
-    // Initial fetch of parcels if not already loaded by store
-    // This depends on how useParcelStore is implemented (e.g., if it fetches on init)
-    // For now, let's assume parcelStore handles initial loading.
-    // If a manual fetch is needed: fetchParcels();
-  }, [fetchParcels])
-
+  // Removed useEffect that called fetchParcels, as useParcels handles its own fetching.
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -83,7 +78,7 @@ export default function AdminDashboard() {
       })
 
       if (response.ok) {
-        fetchParcels() // Use fetchParcels from store to refresh data
+        refetch() // Use refetch from useParcels
         alert("เพิ่มรายการสินค้าสำเร็จ!")
       }
     } catch (error) {
@@ -101,7 +96,7 @@ export default function AdminDashboard() {
       })
 
       if (response.ok) {
-        fetchParcels() // Use fetchParcels from store to refresh data
+        refetch() // Use refetch from useParcels
       }
     } catch (error) {
       console.error("Failed to import Excel data:", error)
@@ -113,7 +108,7 @@ export default function AdminDashboard() {
     return null
   }
 
-  // Calculate stats (parcels from store)
+  // Calculate stats (parcels from useParcels)
   const totalParcels = parcels.length
   const totalRevenue = parcels.reduce((sum, p) => sum + p.estimate, 0)
   const uniqueCustomers = new Set(parcels.map((p) => p.customerCode)).size
