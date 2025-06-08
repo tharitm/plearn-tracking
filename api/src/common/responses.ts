@@ -15,42 +15,42 @@ export const BaseResponse: Record<BaseResponseStatus, {
 }> = {
   success: {
     resultCode: 20000,
-    resultStatus: 'SUCCESS',
+    resultStatus: 'Success',
     developerMessage: 'Request processed successfully.',
   },
   created: {
-    resultCode: 0,
-    resultStatus: 'CREATED',
+    resultCode: 20100,
+    resultStatus: 'Created',
     developerMessage: 'Resource created successfully.',
   },
   validationFail: {
-    resultCode: 1001,
-    resultStatus: 'VALIDATION_FAIL',
+    resultCode: 40000,
+    resultStatus: 'Validation failed',
     developerMessage: 'Invalid input data. Please check the provided values.',
   },
   notFound: {
-    resultCode: 1002,
-    resultStatus: 'NOT_FOUND',
+    resultCode: 40400,
+    resultStatus: 'Not found',
     developerMessage: 'The requested resource was not found.',
   },
   conflict: {
-    resultCode: 1003,
-    resultStatus: 'CONFLICT_ERROR',
+    resultCode: 40900,
+    resultStatus: 'Conflict',
     developerMessage: 'A conflict occurred, such as a duplicate entry or state mismatch.',
   },
   unauthorized: {
-    resultCode: 1004,
-    resultStatus: 'UNAUTHORIZED',
+    resultCode: 40100,
+    resultStatus: 'Unauthorized',
     developerMessage: 'Authentication failed or is required.',
   },
   forbidden: {
-    resultCode: 1005,
-    resultStatus: 'FORBIDDEN',
+    resultCode: 40300,
+    resultStatus: 'Forbidden',
     developerMessage: 'You do not have permission to access this resource or perform this action.',
   },
   internalError: {
-    resultCode: 2001,
-    resultStatus: 'INTERNAL_ERROR',
+    resultCode: 50000,
+    resultStatus: 'Internal error',
     developerMessage: 'An unexpected internal error occurred. Please try again later.',
   },
 };
