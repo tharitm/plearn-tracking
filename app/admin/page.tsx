@@ -16,6 +16,7 @@ import { useParcelStore } from "@/stores/parcel-store"
 import { useParcels } from "@/hooks/use-parcels"
 import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 import type { Parcel } from "@/lib/types"
+import type { Role } from "@/lib/column-configs"; // Import Role type
 import { ColumnVisibilityDropdown } from "@/components/ui/ColumnVisibilityDropdown"
 import { showToast } from '@/lib/toast-utils'; // Import showToast
 
@@ -117,15 +118,18 @@ export default function AdminDashboard() {
   };
 
   // Get columns from the shared function
-  const columns = useMemo<ColumnDef<Parcel>[]>(
-    () => getParcelTableColumns({
+  const columns = useMemo<ColumnDef<Parcel>[]>(() => {
+    if (!user?.role) { // Guard clause in case user or role is not yet available
+      return [];
+    }
+    return getParcelTableColumns({
+      userRole: user.role as Role, // Pass the user's role
       setSelectedParcel,
-      onStatusChange: handleStatusChange,
-      onEdit: handleEdit,
-      updatingStatusForId, // Pass new state
-    }),
-    [setSelectedParcel, handleStatusChange, handleEdit, updatingStatusForId] // Add to dependencies
-  );
+      onStatusChange: handleStatusChange, // Already passed
+      onEdit: handleEdit,                 // Already passed
+      updatingStatusForId,              // Already passed
+    });
+  }, [user?.role, setSelectedParcel, handleStatusChange, handleEdit, updatingStatusForId]); // Add user.role to dependency array
 
   const table = useReactTable({
     data: parcels,
