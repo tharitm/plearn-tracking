@@ -1,72 +1,15 @@
-export const definitions = {
-  ParcelStatus: {
-    $id: '#ParcelStatus',
-    type: 'string',
-    enum: ['pending', 'shipped', 'delivered', 'cancelled'],
-  },
-  PaymentStatus: {
-    $id: '#PaymentStatus',
-    type: 'string',
-    enum: ['unpaid', 'paid', 'partial'],
-  },
-  ParcelCore: {
-    $id: '#ParcelCore',
-    type: 'object',
-    properties: {
-      id: { type: 'string', format: 'uuid' },
-      parcelRef: { type: 'string' },
-      receiveDate: { type: 'string', format: 'date-time' },
-      customerCode: { type: 'string' },
-      shipment: { type: 'string' },
-      estimate: { type: 'number' },
-      status: { $ref: '#ParcelStatus' },
-      cnTracking: { type: 'string' },
-      volume: { type: 'number' },
-      weight: { type: 'number' },
-      freight: { type: 'number' },
-      deliveryMethod: { type: 'string' },
-      thTracking: { type: 'string' }, // Optional: not in required list
-      paymentStatus: { $ref: '#PaymentStatus' },
-      createdAt: { type: 'string', format: 'date-time' },
-      updatedAt: { type: 'string', format: 'date-time' },
-    },
-    required: [
-      'id',
-      'parcelRef',
-      'receiveDate',
-      'customerCode',
-      'shipment',
-      'estimate',
-      'status',
-      'cnTracking',
-      'volume',
-      'weight',
-      'freight',
-      'deliveryMethod',
-      // thTracking is optional
-      'paymentStatus',
-      'createdAt',
-      'updatedAt',
-    ],
-  },
-};
-
 export const ListParcelsQuerySchema = {
   type: 'object',
   properties: {
     page: { type: 'integer', minimum: 1, default: 1 },
     pageSize: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
     status: {
-      anyOf: [
-        { $ref: 'definitions#ParcelStatus' },
-        { type: 'string', const: 'all' },
-      ],
+      type: 'string',
+      enum: ['pending', 'shipped', 'delivered', 'cancelled', 'all'],
     },
     paymentStatus: {
-      anyOf: [
-        { $ref: 'definitions#PaymentStatus' },
-        { type: 'string', const: 'all' },
-      ],
+      type: 'string',
+      enum: ['unpaid', 'paid', 'partial', 'all'],
     },
     trackingNo: { type: 'string' },
     dateFrom: { type: 'string', format: 'date' },
@@ -75,18 +18,72 @@ export const ListParcelsQuerySchema = {
   },
 };
 
+const ParcelCoreSchema = {
+  type: 'object',
+  properties: {
+    id: { type: 'string', format: 'uuid' },
+    parcelRef: { type: 'string' },
+    receiveDate: { type: 'string', format: 'date-time' },
+    customerCode: { type: 'string' },
+    shipment: { type: 'string' },
+    estimate: { type: 'number' },
+    status: {
+      type: 'string',
+      enum: ['pending', 'shipped', 'delivered', 'cancelled'],
+    },
+    cnTracking: { type: 'string' },
+    volume: { type: 'number' },
+    weight: { type: 'number' },
+    freight: { type: 'number' },
+    deliveryMethod: { type: 'string' },
+    thTracking: { type: 'string' },
+    paymentStatus: {
+      type: 'string',
+      enum: ['unpaid', 'paid', 'partial'],
+    },
+    createdAt: { type: 'string', format: 'date-time' },
+    updatedAt: { type: 'string', format: 'date-time' },
+  },
+  required: [
+    'id',
+    'parcelRef',
+    'receiveDate',
+    'customerCode',
+    'shipment',
+    'estimate',
+    'status',
+    'cnTracking',
+    'volume',
+    'weight',
+    'freight',
+    'deliveryMethod',
+    'paymentStatus',
+    'createdAt',
+    'updatedAt',
+  ],
+};
+
 export const ListParcelsResponseSchema = {
   type: 'object',
   properties: {
-    parcels: {
-      type: 'array',
-      items: { $ref: 'definitions#ParcelCore' },
+    resultCode: { type: 'integer' },
+    resultStatus: { type: 'string' },
+    developerMessage: { type: 'string' },
+    resultData: {
+      type: 'object',
+      properties: {
+        parcels: {
+          type: 'array',
+          items: ParcelCoreSchema,
+        },
+        total: { type: 'integer' },
+        page: { type: 'integer' },
+        pageSize: { type: 'integer' },
+      },
+      required: ['parcels', 'total', 'page', 'pageSize'],
     },
-    total: { type: 'integer' },
-    page: { type: 'integer' },
-    pageSize: { type: 'integer' },
   },
-  required: ['parcels', 'total', 'page', 'pageSize'],
+  required: ['resultCode', 'resultStatus', 'developerMessage', 'resultData'],
 };
 
 export const GetParcelByIdParamsSchema = {
@@ -97,7 +94,16 @@ export const GetParcelByIdParamsSchema = {
   required: ['id'],
 };
 
-export const GetParcelByIdResponseSchema = { $ref: 'definitions#ParcelCore' };
+export const GetParcelByIdResponseSchema = {
+  type: 'object',
+  properties: {
+    resultCode: { type: 'integer' },
+    resultStatus: { type: 'string' },
+    developerMessage: { type: 'string' },
+    resultData: ParcelCoreSchema,
+  },
+  required: ['resultCode', 'resultStatus', 'developerMessage', 'resultData'],
+};
 
 export const UpdateParcelStatusParamsSchema = {
   type: 'object',
@@ -110,13 +116,25 @@ export const UpdateParcelStatusParamsSchema = {
 export const UpdateParcelStatusBodySchema = {
   type: 'object',
   properties: {
-    status: { $ref: 'definitions#ParcelStatus' },
+    status: {
+      type: 'string',
+      enum: ['pending', 'shipped', 'delivered', 'cancelled'],
+    },
     notify: { type: 'boolean', default: false },
   },
   required: ['status'],
 };
 
-export const UpdateParcelStatusResponseSchema = { $ref: 'definitions#ParcelCore' };
+export const UpdateParcelStatusResponseSchema = {
+  type: 'object',
+  properties: {
+    resultCode: { type: 'integer' },
+    resultStatus: { type: 'string' },
+    developerMessage: { type: 'string' },
+    resultData: ParcelCoreSchema,
+  },
+  required: ['resultCode', 'resultStatus', 'developerMessage', 'resultData'],
+};
 
 export const ErrorSchema = {
   type: 'object',

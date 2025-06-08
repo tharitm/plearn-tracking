@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { ParcelController } from './parcel.controller';
 import {
-  definitions, // Import the definitions object
   ListParcelsQuerySchema,
   ListParcelsResponseSchema,
   GetParcelByIdParamsSchema,
@@ -13,12 +12,7 @@ import {
 } from './parcel.schema';
 
 export default async function parcelRoutes(fastify: FastifyInstance, options: FastifyPluginOptions): Promise<void> {
-  // Add shared schemas to Fastify instance
-  for (const schema of Object.values(definitions)) {
-    fastify.addSchema(schema);
-  }
-
-  const parcelController = new ParcelController(); // Instantiate controller
+  const parcelController = new ParcelController();
 
   fastify.route({
     method: 'GET',
@@ -29,7 +23,6 @@ export default async function parcelRoutes(fastify: FastifyInstance, options: Fa
       querystring: ListParcelsQuerySchema,
       response: {
         200: ListParcelsResponseSchema,
-        500: ErrorSchema,
       },
     },
     handler: parcelController.listParcels.bind(parcelController),
@@ -43,9 +36,7 @@ export default async function parcelRoutes(fastify: FastifyInstance, options: Fa
       tags: ['Parcel'],
       params: GetParcelByIdParamsSchema,
       response: {
-        200: GetParcelByIdResponseSchema, // This now refers to a schema that might use $ref to #ParcelCore
-        404: ErrorSchema,
-        500: ErrorSchema,
+        200: GetParcelByIdResponseSchema,
       },
     },
     handler: parcelController.getParcelById.bind(parcelController),
@@ -61,10 +52,7 @@ export default async function parcelRoutes(fastify: FastifyInstance, options: Fa
       params: UpdateParcelStatusParamsSchema,
       body: UpdateParcelStatusBodySchema,
       response: {
-        200: UpdateParcelStatusResponseSchema, // This also might use $ref to #ParcelCore
-        400: ErrorSchema,
-        404: ErrorSchema,
-        500: ErrorSchema,
+        200: UpdateParcelStatusResponseSchema,
       },
     },
     handler: parcelController.updateParcelStatus.bind(parcelController),

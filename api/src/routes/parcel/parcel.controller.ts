@@ -25,7 +25,6 @@ export class ParcelController {
       const responseData = ParcelService.toListResponse(parcels, total, query.page || 1, query.pageSize || 10);
       sendSuccess(reply, responseData);
     } catch (error) {
-      // request.log.error(error, 'Error listing parcels'); // Logging is now handled by sendError
       sendError(reply, 'internalError', error as Error, 'Failed to list parcels.');
     }
   }
