@@ -42,7 +42,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/ui/status-badge"
-import { ArrowUpDown, ArrowUp, ArrowDown, MixerHorizontalIcon, PencilIcon } from "lucide-react"
+import { ArrowUpDown, ArrowUp, ArrowDown, MoreHorizontalIcon, PencilIcon } from "lucide-react"
 import type { Parcel } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
 
@@ -490,7 +490,7 @@ export function ParcelTable({ showPaymentStatus = true, onSelectionChange, refet
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              <MixerHorizontalIcon className="mr-2 h-4 w-4" /> Columns
+              <MoreHorizontalIcon className="mr-2 h-4 w-4" /> Columns
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -517,97 +517,97 @@ export function ParcelTable({ showPaymentStatus = true, onSelectionChange, refet
       <div className="rounded-md border bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1200px]">
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b bg-gray-50">
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-900"
-                  >
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-b hover:bg-gray-50">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 sm:px-4 py-3 text-xs sm:text-sm">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id} className="border-b bg-gray-50">
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-900"
+                    >
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="border-b hover:bg-gray-50">
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-3 sm:px-4 py-3 text-xs sm:text-sm">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {parcels.length === 0 && <div className="text-center py-8 text-gray-500 text-sm sm:text-base">ไม่พบข้อมูล</div>}
       </div>
 
-      {parcels.length === 0 && <div className="text-center py-8 text-gray-500 text-sm sm:text-base">ไม่พบข้อมูล</div>}
-    </div>
-
-    {editingParcel && (
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Parcel: {editingParcel.parcelRef}</DialogTitle>
-            <DialogDescription>
-              Make changes to the parcel details below. Click save when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <form id="parcel-edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveChanges(); }}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="customerCode" className="text-right">
-                  รหัสลูกค้า
-                </Label>
-                <Input
-                  id="customerCode"
-                  name="customerCode"
-                  value={editFormData.customerCode}
-                  onChange={handleEditFormChange}
-                  className="col-span-3"
-                />
+      {editingParcel && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit Parcel: {editingParcel.parcelRef}</DialogTitle>
+              <DialogDescription>
+                Make changes to the parcel details below. Click save when you're done.
+              </DialogDescription>
+            </DialogHeader>
+            <form id="parcel-edit-form" onSubmit={(e) => { e.preventDefault(); handleSaveChanges(); }}>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="customerCode" className="text-right">
+                    รหัสลูกค้า
+                  </Label>
+                  <Input
+                    id="customerCode"
+                    name="customerCode"
+                    value={editFormData.customerCode}
+                    onChange={handleEditFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="weight" className="text-right">
+                    น้ำหนัก (KG)
+                  </Label>
+                  <Input
+                    id="weight"
+                    name="weight"
+                    type="number"
+                    value={editFormData.weight}
+                    onChange={handleEditFormChange}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="volume" className="text-right">
+                    ปริมาณ (CBM)
+                  </Label>
+                  <Input
+                    id="volume"
+                    name="volume"
+                    type="number"
+                    value={editFormData.volume}
+                    onChange={handleEditFormChange}
+                    className="col-span-3"
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="weight" className="text-right">
-                  น้ำหนัก (KG)
-                </Label>
-                <Input
-                  id="weight"
-                  name="weight"
-                  type="number"
-                  value={editFormData.weight}
-                  onChange={handleEditFormChange}
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="volume" className="text-right">
-                  ปริมาณ (CBM)
-                </Label>
-                <Input
-                  id="volume"
-                  name="volume"
-                  type="number"
-                  value={editFormData.volume}
-                  onChange={handleEditFormChange}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-          </form>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit" form="parcel-edit-form">Save changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    )}
+            </form>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button type="submit" form="parcel-edit-form">Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
