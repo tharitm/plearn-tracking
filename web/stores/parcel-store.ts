@@ -5,12 +5,14 @@ interface ParcelState {
   parcels: Parcel[]
   total: number
   loading: boolean
+  error: string | null; // Added error state
   filters: ParcelFilters
   pagination: PaginationState
   selectedParcel: Parcel | null
 
   setParcels: (parcels: Parcel[], total: number) => void
   setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void; // Added setError action
   setFilters: (filters: Partial<ParcelFilters>) => void
   setPagination: (pagination: Partial<PaginationState>) => void
   setSelectedParcel: (parcel: Parcel | null) => void
@@ -39,9 +41,11 @@ export const useParcelStore = create<ParcelState>((set) => ({
   filters: initialFilters,
   pagination: initialPagination,
   selectedParcel: null,
+  error: null, // Initialized error state
 
   setParcels: (parcels, total) => set({ parcels, total }),
   setLoading: (loading) => set({ loading }),
+  setError: (error: string | null) => set({ error }), // Implemented setError action
   setFilters: (newFilters) =>
     set((state) => ({
       filters: { ...state.filters, ...newFilters },

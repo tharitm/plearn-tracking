@@ -4,21 +4,35 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "dev": "nodemon src/server.ts",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/config/ormconfig.ts",
+    "migration:generate": "npm run typeorm migration:generate db/migrations/$1",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sinclair/typebox": "^0.34.33",
+    "dotenv": "^16.5.0",
     "fastify": "^5.3.3",
     "fastify-cors": "^6.1.0",
+    "pg": "^8.16.0",
+    "reflect-metadata": "^0.2.2",
     "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.24"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",
+    "@types/pg": "^8.15.4",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }
 }
