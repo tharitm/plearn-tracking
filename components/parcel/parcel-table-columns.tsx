@@ -13,7 +13,13 @@ import {
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Parcel } from "@/lib/types";
 
-// Helper for sort icons
+const statusOptions: Parcel["status"][] = [
+  "pending",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
+
 export const getSortIcon = (isSorted: false | "asc" | "desc") => {
   if (isSorted === "asc") return <ArrowUp className="ml-2 h-4 w-4" />;
   if (isSorted === "desc") return <ArrowDown className="ml-2 h-4 w-4" />;
@@ -169,18 +175,11 @@ export const getParcelTableColumns = ({
               )}
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending">
-                <StatusBadge status="pending" type="parcel" />
-              </SelectItem>
-              <SelectItem value="shipped">
-                <StatusBadge status="shipped" type="parcel" />
-              </SelectItem>
-              <SelectItem value="delivered">
-                <StatusBadge status="delivered" type="parcel" />
-              </SelectItem>
-              <SelectItem value="cancelled">
-                <StatusBadge status="cancelled" type="parcel" />
-              </SelectItem>
+              {statusOptions.map(statusOption => (
+                <SelectItem key={statusOption} value={statusOption}>
+                  <StatusBadge status={statusOption} type="parcel" />
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         )

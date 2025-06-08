@@ -34,7 +34,6 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
 
-  // Data from useParcels, setSelectedParcel from useParcelStore
   const { loading, refetch, parcels } = useParcels()
   const { setSelectedParcel } = useParcelStore()
 
@@ -54,7 +53,6 @@ export default function AdminDashboard() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (response.ok) {
-        refetch();
         showToast(`พัสดุ ${parcelId} อัปเดตสถานะเป็น ${newStatus} แล้ว`, "success");
       } else {
         const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
@@ -64,7 +62,7 @@ export default function AdminDashboard() {
       console.error("Failed to update status:", error);
       showToast(`เกิดข้อผิดพลาดในการอัปเดตสถานะพัสดุ ${parcelId}`, "error");
     } finally {
-      setUpdatingStatusForId(null); // Clear loading state
+      setUpdatingStatusForId(null);
     }
   }, [refetch]);
 
@@ -154,8 +152,6 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, user, router])
 
-  // handleAddParcel is now part of handleFormSubmit
-  // const handleAddParcel = async (data: any) => { ... }
 
   const handleExcelImport = async (data: Partial<Parcel>[]) => {
     try {

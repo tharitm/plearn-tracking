@@ -1,42 +1,17 @@
 "use client"
 
-import { useMemo } from "react"
 import {
-  getCoreRowModel,
-  getSortedRowModel,
-  type ColumnDef, // Will be passed from parent
   type Table, // To type the table prop
   flexRender,
 } from "@tanstack/react-table"
-// import { useState } from "react" // sorting state will be managed by parent
-import { useParcelStore } from "@/stores/parcel-store" // Still needed for setSelectedParcel
-import { Button } from "@/components/ui/button"
-// import { StatusBadge } from "@/components/ui/status-badge" // Will be part of columns definition
-// import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react" // Will be part of columns definition
-import type { Parcel } from "@/lib/types" // Still needed for setSelectedParcel if that stays
+import { useParcelStore } from "@/stores/parcel-store"
 
 interface ParcelTableProps<TData> {
-  // showPaymentStatus?: boolean // This will be handled by the columns definition passed in
-  table: Table<TData> // Expect table instance as a prop
-  // parcels: Parcel[] // Expect data to be fed into the table instance by parent
+  table: Table<TData>
 }
 
-// Note: ParcelTable is now generic TData to align with Table<TData>
 export function ParcelTable<TData>({ table }: ParcelTableProps<TData>) {
-  // const { parcels, setSelectedParcel } = useParcelStore() // parcels come from table instance, setSelectedParcel might stay or be lifted
-  const { setSelectedParcel } = useParcelStore() // Keep for now
-
-  // const [sorting, setSorting] = useState<SortingState>([]) // Managed by parent
-
-  // const getSortIcon = (isSorted: false | "asc" | "desc") => { ... } // Moved to parent
-
-  // const columns = useMemo<ColumnDef<Parcel>[]>(() => { ... }, [showPaymentStatus, setSelectedParcel]) // Moved to parent
-
-  // const table = useReactTable({ ... }) // Instance is now passed as a prop
-
-  // Check if there are rows to display, otherwise show "No data" message
   const hasRows = table.getRowModel().rows && table.getRowModel().rows.length > 0
-
   return (
     <div className="rounded-md border bg-white">
       {hasRows ? (
@@ -54,9 +29,9 @@ export function ParcelTable<TData>({ table }: ParcelTableProps<TData>) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </th>
                   ))}
                 </tr>
