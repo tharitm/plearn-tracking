@@ -20,6 +20,7 @@ import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ParcelFilters } from "@/components/parcel/parcel-filters"
 import { ParcelTable } from "@/components/parcel/parcel-table"
+import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { StatCard } from "@/components/ui/stat-card"

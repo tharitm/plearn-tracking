@@ -22,6 +22,7 @@ import { showToast } from '@/lib/toast-utils'; // Import showToast
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ParcelFilters } from "@/components/parcel/parcel-filters"
 import { ParcelTable } from "@/components/parcel/parcel-table"
+import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelForm } from "@/components/admin/parcel-form"
@@ -286,13 +287,13 @@ export default function AdminDashboard() {
         {/* Table Section */}
         <div className="stagger-item">
           {loading ? (
-            <div className="glass-effect rounded-2xl p-8 sm:p-12 text-center shadow-material-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-              <p className="text-sm sm:text-subtitle text-gray-600 font-medium">
-                กำลังโหลดข้อมูล...
-              </p>
+        <div className="space-y-4 sm:space-y-6">
+          <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+            <ParcelTableSkeleton />
+          </div>
+          <ParcelPagination /> {/* Consider if pagination should also have a skeleton or be hidden */}
             </div>
-          ) : (
+     ) : (
             <div className="space-y-4 sm:space-y-6">
               <div className="flex flex-col sm:flex-row gap-2 items-center">
                 <Button
