@@ -1,44 +1,60 @@
 "use client"
 
-import { useParcelStore } from "@/stores/parcel-store"
+import { type Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-export function ParcelPagination() {
-  const { total, pagination, setPagination } = useParcelStore()
+interface ParcelPaginationProps<TData> {
+  table: Table<TData>
+  totalItems: number
+}
 
-  const totalPages = Math.ceil(total / pagination.pageSize)
-  const currentPage = pagination.pageIndex + 1
+export function ParcelPagination<TData>({ table, totalItems }: ParcelPaginationProps<TData>) {
+  const { pageIndex, pageSize } = table.getState().pagination
+  const totalPages = table.getPageCount()
+  const currentPage = pageIndex + 1
 
-  const handlePageChange = (newPage: number) => {
-    setPagination({ pageIndex: newPage - 1 })
+  // Calculate the range of items being shown
+  const firstItem = pageIndex * pageSize + 1
+  // For the last item, consider if it's the last page and totalItems
+  const lastItemOnPage = (pageIndex + 1) * pageSize
+  const lastItem = Math.min(lastItemOnPage, totalItems)
+
+  // If totalItems is 0 and table might not have data (e.g. initial load),
+  // or if table has no rows after filtering but totalItems might still be from a previous state.
+  // Prefer totalItems for the "No data" check if it's reliable.
+  if (totalItems === 0) {
+    // Optionally, could check table.getRowModel().rows.length === 0 as well,
+    // but totalItems should be the source of truth for whether *any* data exists globally.
+    return null
   }
 
-  const handlePageSizeChange = (newPageSize: string) => {
-    setPagination({ pageIndex: 0, pageSize: Number.parseInt(newPageSize) })
-  }
-
-  if (total === 0) return null
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
       <div className="text-sm text-gray-600">
-        แสดง {pagination.pageIndex * pagination.pageSize + 1} ถึง{" "}
-        {Math.min((pagination.pageIndex + 1) * pagination.pageSize, total)} จาก {total} รายการ
+        แสดง {firstItem} ถึง {lastItem} จาก {totalItems} รายการ
       </div>
 
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <span className="text-sm">แสดงต่อหน้า:</span>
-          <Select value={pagination.pageSize.toString()} onValueChange={handlePageSizeChange}>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(value) => {
+              table.setPageSize(Number(value))
+            }}
+          >
             <SelectTrigger className="w-20">
-              <SelectValue />
+              <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
+              {[10, 20, 50].map((size) => (
+                <SelectItem key={size} value={size.toString()}>
+                  {size}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -47,21 +63,21 @@ export function ParcelPagination() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
           <span className="text-sm">
-            หน้า {currentPage} จาก {totalPages}
+            หน้า {currentPage} จาก {totalPages > 0 ? totalPages : 1}
           </span>
 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

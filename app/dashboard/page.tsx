@@ -6,15 +6,17 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getPaginationRowModel, // Import for pagination
   type ColumnDef,
   type SortingState,
+  type PaginationState, // Import for pagination state
   // flexRender, // Not directly used here anymore
 } from "@tanstack/react-table"
 // Icons like ArrowUpDown are now used in parcel-table-columns.tsx
 import { Package, TrendingUp, Clock, CheckCircle } from "lucide-react"
 
 import { useAuthStore } from "@/stores/auth-store"
-import { useParcelStore } from "@/stores/parcel-store" // For parcels data and setSelectedParcel
+import { useParcelStore } from "@/stores/parcel-store" // For parcels data, setSelectedParcel, and total
 import type { Parcel } from "@/lib/types" // For column definition
 // Button and StatusBadge are used within parcel-table-columns.tsx
 
@@ -32,9 +34,14 @@ import { StatCard } from "@/components/ui/stat-card"
 export default function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
-  const { parcels, loading, setSelectedParcel } = useParcelStore()
+  // Fetch total from useParcelStore as it was used by ParcelPagination previously
+  const { parcels, loading, setSelectedParcel, total: totalParcelsFromStore } = useParcelStore()
 
   const [sorting, setSorting] = useState<SortingState>([])
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10, // Default page size
+  })
 
   // Get columns from the shared function
   const columns = useMemo<ColumnDef<Parcel>[]>(
@@ -47,9 +54,12 @@ export default function CustomerDashboard() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(), // Enable pagination
     onSortingChange: setSorting,
+    onPaginationChange: setPagination, // Wire up pagination state
     state: {
       sorting,
+      pagination, // Pass pagination state to table
     },
   });
 
@@ -143,7 +153,8 @@ export default function CustomerDashboard() {
                 {/* Pass table instance to ParcelTable */}
                 <ParcelTable table={table} />
               </div>
-              <ParcelPagination /> {/* This might need table instance too if it controls table pagination state */}
+              {/* Pass table instance and totalItems to ParcelPagination */}
+              <ParcelPagination table={table} totalItems={totalParcelsFromStore} />
             </div>
           )}
         </div>
