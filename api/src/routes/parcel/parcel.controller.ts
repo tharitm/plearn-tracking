@@ -1,15 +1,11 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ParcelService } from './parcel.service';
-// Import the new TypeScript interfaces
 import {
   ListParcelsQuery,
   GetParcelByIdParams,
-  // ParcelCore, // Not directly used for request typing here, response is by schema
-  // ListParcelsResponse, // Not directly used for request typing here, response is by schema
   UpdateParcelStatusParams,
   UpdateParcelStatusBody
 } from './parcel.types';
-// Schemas are still used by Fastify for validation, but not for TS types here directly
 
 export class ParcelController {
   private parcelService: ParcelService;
@@ -26,7 +22,6 @@ export class ParcelController {
       const query = request.query; // query is now typed as ListParcelsQuery
       const { parcels, total } = await this.parcelService.findMany(query);
 
-      // ParcelService.toListResponse will return the structure matching ListParcelsResponseSchema
       const response = ParcelService.toListResponse(parcels, total, query.page || 1, query.pageSize || 10);
       reply.send(response);
     } catch (error) {

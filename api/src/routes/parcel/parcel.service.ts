@@ -1,13 +1,11 @@
-import { FindOptionsWhere, Between, Repository } from 'typeorm'; // Removed ILike as it's used in queryBuilder
+import { FindOptionsWhere, Between, Repository } from 'typeorm';
 import AppDataSource from '../../config/ormconfig';
 import { Parcel } from '../../models/parcel.model';
-// Import the new TypeScript interfaces and types
 import {
   ListParcelsQuery,
   ParcelCore,
   ListParcelsResponse,
   ParcelStatus,
-  PaymentStatus // Ensure PaymentStatus is also imported if used as a type
 } from './parcel.types';
 
 export class ParcelService {
@@ -17,7 +15,7 @@ export class ParcelService {
     this.parcelRepository = AppDataSource.getRepository(Parcel);
   }
 
-  async findMany(query: ListParcelsQuery): Promise<{ parcels: Parcel[]; total: number }> { // Use new interface
+  async findMany(query: ListParcelsQuery): Promise<{ parcels: Parcel[]; total: number }> {
     const {
       page = 1,
       pageSize = 10,
@@ -73,7 +71,7 @@ export class ParcelService {
       return null;
     }
 
-    parcel.status = newStatus; // newStatus is already ParcelStatus
+    parcel.status = newStatus;
 
     const updatedParcel = await this.parcelRepository.save(parcel);
 
@@ -84,8 +82,6 @@ export class ParcelService {
     return updatedParcel;
   }
 
-  // Static methods to transform Parcel entity to response shapes
-  // These now return the new interface types
 
   static toResponse(parcel: Parcel): ParcelCore { // Return ParcelCore interface
     return {
@@ -93,8 +89,7 @@ export class ParcelService {
       receiveDate: parcel.receiveDate.toISOString(),
       createdAt: parcel.createdAt.toISOString(),
       updatedAt: parcel.updatedAt.toISOString(),
-      // status and paymentStatus from entity should match ParcelStatus/PaymentStatus types
-      // No explicit casting needed if entity types align with ParcelStatus/PaymentStatus
+
       estimate: Number(parcel.estimate),
       volume: Number(parcel.volume),
       weight: Number(parcel.weight),
@@ -102,7 +97,7 @@ export class ParcelService {
     };
   }
 
-  static toListResponse(parcels: Parcel[], total: number, page: number, pageSize: number): ListParcelsResponse { // Return ListParcelsResponse interface
+  static toListResponse(parcels: Parcel[], total: number, page: number, pageSize: number): ListParcelsResponse {
     return {
       parcels: parcels.map(p => ParcelService.toResponse(p)),
       total,

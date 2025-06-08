@@ -53,7 +53,6 @@ export interface UpdateParcelStatusBody {
   notify?: boolean;
 }
 
-// Generic Error type if needed for internal use, though ErrorSchema is for responses
 export interface ErrorResponseType {
   statusCode: number;
   error: string;
