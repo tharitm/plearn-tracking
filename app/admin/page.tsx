@@ -111,7 +111,7 @@ export default function AdminDashboard() {
     () => getParcelTableColumns({
       setSelectedParcel,
       onStatusChange: handleStatusChange,
-      onEdit: handleEdit, // Ensured 'onEdit' is correctly spelled and all required props are passed
+      onEdit: handleEdit, // Corrected here
     }),
     [setSelectedParcel, handleStatusChange, handleEdit]
   );
