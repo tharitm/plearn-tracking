@@ -1,6 +1,8 @@
 "use client"
 
-import { useForm } from "react-hook-form"
+import { useEffect } from "react" // Added useEffect
+import { useForm, Controller } from "react-hook-form" // Added Controller for Select
+import type { Parcel } from "@/lib/types" // Added Parcel type
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,38 +16,118 @@ interface ParcelFormData {
   weight: number
   volume: number
   freight: number
-  deliveryMethod: string
+  deliveryMethod: Parcel['deliveryMethod'] // Use string literal type from Parcel
   estimate: number
   shipment: string
+  receiveDate: string // HTML date input returns string
+  thTracking?: string
 }
 
 interface ParcelFormProps {
   open: boolean
   onClose: () => void
   onSubmit: (data: ParcelFormData) => void
+  initialData?: Parcel // For editing
+  isEditMode?: boolean // To toggle UI and behavior
 }
 
-export function ParcelForm({ open, onClose, onSubmit }: ParcelFormProps) {
+export function ParcelForm({
+  open,
+  onClose,
+  onSubmit,
+  initialData,
+  isEditMode = false,
+}: ParcelFormProps) {
   const {
     register,
     handleSubmit,
     reset,
     setValue,
-    formState: { errors },
-  } = useForm<ParcelFormData>()
+    control, // Added control for Controller
+    formState: { errors, isDirty }, // Added isDirty to check if form has been touched
+  } = useForm<ParcelFormData>({
+    defaultValues: isEditMode && initialData
+      ? {
+          ...initialData,
+          // Ensure date is in YYYY-MM-DD for input type="date"
+          receiveDate: initialData.receiveDate ? new Date(initialData.receiveDate).toISOString().split('T')[0] : "",
+        }
+      : {
+          parcelRef: "",
+          customerCode: "",
+          cnTracking: "",
+          weight: 0,
+          volume: 0,
+          freight: 0,
+          deliveryMethod: "pickup", // Default or ensure it's a valid Parcel['deliveryMethod']
+          estimate: 0,
+          shipment: "",
+          receiveDate: new Date().toISOString().split('T')[0], // Default to today for new entries
+          thTracking: "",
+        },
+  })
+
+  useEffect(() => {
+    if (open) { // Only reset/initialize when sheet opens
+      if (isEditMode && initialData) {
+        const formData: ParcelFormData = {
+          ...initialData,
+          receiveDate: initialData.receiveDate ? new Date(initialData.receiveDate).toISOString().split('T')[0] : "",
+        };
+        reset(formData);
+      } else {
+        // Reset to default new form values, including a default receiveDate
+        reset({
+          parcelRef: "",
+          customerCode: "",
+          cnTracking: "",
+          weight: 0,
+          volume: 0,
+          freight: 0,
+          deliveryMethod: "pickup",
+          estimate: 0,
+          shipment: "",
+          receiveDate: new Date().toISOString().split('T')[0],
+          thTracking: "",
+        });
+      }
+    }
+  }, [open, isEditMode, initialData, reset]);
 
   const handleFormSubmit = (data: ParcelFormData) => {
-    onSubmit(data)
-    reset()
-    onClose()
-  }
+    onSubmit(data);
+    if (!isEditMode) {
+      // Only reset fully if creating a new parcel.
+      // For edit, parent might close or keep it open with current data.
+      reset({ // Reset to default new form values
+        parcelRef: "",
+        customerCode: "",
+        cnTracking: "",
+        weight: 0,
+        volume: 0,
+        freight: 0,
+        deliveryMethod: "pickup",
+        estimate: 0,
+        shipment: "",
+        receiveDate: new Date().toISOString().split('T')[0],
+        thTracking: "",
+      });
+    }
+    // onClose(); // Parent should decide if form closes after submit, especially in edit mode
+  };
+
+  const title = isEditMode ? "แก้ไขข้อมูลพัสดุ" : "เพิ่มรายการสินค้าใหม่";
+  const description = isEditMode
+    ? "แก้ไขข้อมูลพัสดุที่มีอยู่ในระบบ"
+    : "กรอกข้อมูลพัสดุใหม่ลงในระบบ";
+  const submitButtonText = isEditMode ? "บันทึกการเปลี่ยนแปลง" : "เพิ่มสินค้า";
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>เพิ่มรายการสินค้าใหม่</SheetTitle>
-          <SheetDescription>กรอกข้อมูลพัสดุใหม่ลงในระบบ</SheetDescription>
+          <SheetTitle>{title}</SheetTitle>
+          <SheetDescription>{description}</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-6">
@@ -55,8 +137,19 @@ export function ParcelForm({ open, onClose, onSubmit }: ParcelFormProps) {
               id="parcelRef"
               {...register("parcelRef", { required: "กรุณาใส่เลขที่รับพัสดุ" })}
               placeholder="เช่น P2024001"
+              readOnly={isEditMode} // Read-only in edit mode
             />
             {errors.parcelRef && <p className="text-sm text-red-600">{errors.parcelRef.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="receiveDate">วันที่รับ *</Label>
+            <Input
+              id="receiveDate"
+              type="date"
+              {...register("receiveDate", { required: "กรุณาใส่วันที่รับ" })}
+            />
+            {errors.receiveDate && <p className="text-sm text-red-600">{errors.receiveDate.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -156,26 +249,64 @@ export function ParcelForm({ open, onClose, onSubmit }: ParcelFormProps) {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="thTracking">TRACKING ไทย (ถ้ามี)</Label>
+            <Input
+              id="thTracking"
+              {...register("thTracking")}
+              placeholder="เช่น TH123456789"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label>วิธีการจัดส่ง *</Label>
-            <Select onValueChange={(value) => setValue("deliveryMethod", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="เลือกวิธีการจัดส่ง" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pickup">รับที่โกดัง</SelectItem>
-                <SelectItem value="delivery">จัดส่งถึงบ้าน</SelectItem>
-                <SelectItem value="express">Express</SelectItem>
-                <SelectItem value="economy">Economy</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="deliveryMethod"
+              control={control}
+              rules={{ required: "กรุณาเลือกวิธีการจัดส่ง" }}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value} // Ensure value is correctly bound
+                  defaultValue={isEditMode && initialData ? initialData.deliveryMethod : "pickup"}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือกวิธีการจัดส่ง" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pickup">รับที่โกดัง</SelectItem>
+                    <SelectItem value="delivery">จัดส่งถึงบ้าน</SelectItem>
+                    <SelectItem value="express">Express</SelectItem>
+                    <SelectItem value="economy">Economy</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.deliveryMethod && (
+              <p className="text-sm text-red-600">{errors.deliveryMethod.message}</p>
+            )}
           </div>
 
           <div className="flex space-x-2 pt-4">
             <Button type="submit" className="flex-1">
-              บันทึก
+              {submitButtonText}
             </Button>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={() => {
+              if (isEditMode && isDirty) { // Or some other logic to confirm discard
+                if (confirm("คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก ต้องการยกเลิกหรือไม่?")) {
+                  onClose();
+                }
+              } else {
+                onClose();
+              }
+            }}>
               ยกเลิก
+            </Button>
+          </div>
+        </form>
+      </SheetContent>
+    </Sheet>
+  )
+}
             </Button>
           </div>
         </form>

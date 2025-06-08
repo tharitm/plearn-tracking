@@ -2,6 +2,14 @@ import React from "react"; // For JSX in getSortIcon
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Parcel } from "@/lib/types";
 
@@ -14,13 +22,40 @@ export const getSortIcon = (isSorted: false | "asc" | "desc") => {
 
 interface GetParcelTableColumnsProps {
   setSelectedParcel: (parcel: Parcel) => void;
+  onStatusChange: (parcelId: string, newStatus: Parcel["status"]) => void;
+  onEdit: (parcel: Parcel) => void;
 }
 
 // Function to generate parcel column definitions
 export const getParcelTableColumns = ({
   setSelectedParcel,
+  onStatusChange,
+  onEdit,
 }: GetParcelTableColumnsProps): ColumnDef<Parcel>[] => {
   const baseColumns: ColumnDef<Parcel>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          disabled={!row.getCanSelect()}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "parcelRef",
       header: ({ column }) => (
@@ -109,7 +144,34 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => <StatusBadge status={row.getValue("status")} type="parcel" />,
+      cell: ({ row }) => (
+        <Select
+          value={row.getValue("status")}
+          onValueChange={(newStatus) =>
+            onStatusChange(row.original.id, newStatus as Parcel["status"])
+          }
+        >
+          <SelectTrigger className="w-auto border-none p-0 focus:ring-0">
+            <SelectValue
+              placeholder={<StatusBadge status={row.getValue("status")} type="parcel" />}
+            />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">
+              <StatusBadge status="pending" type="parcel" />
+            </SelectItem>
+            <SelectItem value="shipped">
+              <StatusBadge status="shipped" type="parcel" />
+            </SelectItem>
+            <SelectItem value="delivered">
+              <StatusBadge status="delivered" type="parcel" />
+            </SelectItem>
+            <SelectItem value="cancelled">
+              <StatusBadge status="cancelled" type="parcel" />
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      ),
     },
     {
       accessorKey: "cnTracking",
@@ -216,6 +278,15 @@ export const getParcelTableColumns = ({
       </Button>
     ),
     cell: ({ row }) => <StatusBadge status={row.getValue("paymentStatus")} type="payment" />,
+  });
+  baseColumns.push({
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <Button variant="outline" size="sm" onClick={() => onEdit(row.original)}>
+        Edit
+      </Button>
+    ),
   });
   return baseColumns;
 };
