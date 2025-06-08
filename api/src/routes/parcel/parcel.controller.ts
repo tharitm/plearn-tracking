@@ -1,15 +1,12 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ParcelService } from './parcel.service';
-// Import the new TypeScript interfaces
 import {
   ListParcelsQuery,
   GetParcelByIdParams,
-  // ParcelCore, // Not directly used for request typing here, response is by schema
-  // ListParcelsResponse, // Not directly used for request typing here, response is by schema
   UpdateParcelStatusParams,
   UpdateParcelStatusBody
 } from './parcel.types';
-// Schemas are still used by Fastify for validation, but not for TS types here directly
+import { sendSuccess, sendError } from '../../handlers/response.handler'; // Import new handlers
 
 export class ParcelController {
   private parcelService: ParcelService;
@@ -19,64 +16,66 @@ export class ParcelController {
   }
 
   async listParcels(
-    request: FastifyRequest<{ Querystring: ListParcelsQuery }>, // Use new interface
+    request: FastifyRequest<{ Querystring: ListParcelsQuery }>,
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const query = request.query; // query is now typed as ListParcelsQuery
+      const query = request.query;
       const { parcels, total } = await this.parcelService.findMany(query);
-
-      // ParcelService.toListResponse will return the structure matching ListParcelsResponseSchema
-      const response = ParcelService.toListResponse(parcels, total, query.page || 1, query.pageSize || 10);
-      reply.send(response);
+      const responseData = ParcelService.toListResponse(parcels, total, query.page || 1, query.pageSize || 10);
+      sendSuccess(reply, responseData);
     } catch (error) {
-      request.log.error(error, 'Error listing parcels');
-      const message = error instanceof Error ? error.message : 'An unexpected error occurred';
-      reply.status(500).send({ statusCode: 500, error: 'Internal Server Error', message });
+      // request.log.error(error, 'Error listing parcels'); // Logging is now handled by sendError
+      sendError(reply, 'internalError', error as Error, 'Failed to list parcels.');
     }
   }
 
   async getParcelById(
-    request: FastifyRequest<{ Params: GetParcelByIdParams }>, // Use new interface
+    request: FastifyRequest<{ Params: GetParcelByIdParams }>,
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { id } = request.params; // id is string due to GetParcelByIdParams
+      const { id } = request.params;
       const parcel = await this.parcelService.findOneById(id);
 
       if (!parcel) {
-        reply.status(404).send({ statusCode: 404, error: 'Not Found', message: 'Parcel not found' });
+        sendError(reply, 'notFound', undefined, 'Parcel not found.');
         return;
       }
-      // ParcelService.toResponse will return the structure matching ParcelCoreSchema
-      reply.send(ParcelService.toResponse(parcel));
+      sendSuccess(reply, ParcelService.toResponse(parcel));
     } catch (error) {
-      request.log.error(error, 'Error getting parcel by ID');
-      const message = error instanceof Error ? error.message : 'An unexpected error occurred';
-      reply.status(500).send({ statusCode: 500, error: 'Internal Server Error', message });
+      // request.log.error(error, 'Error getting parcel by ID');
+      sendError(reply, 'internalError', error as Error, 'Failed to retrieve parcel.');
     }
   }
 
   async updateParcelStatus(
-    request: FastifyRequest<{ Params: UpdateParcelStatusParams; Body: UpdateParcelStatusBody }>, // Use new interfaces
+    request: FastifyRequest<{ Params: UpdateParcelStatusParams; Body: UpdateParcelStatusBody }>,
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { id } = request.params; // id is string
-      const { status, notify } = request.body; // status and notify are typed
+      const { id } = request.params;
+      const { status, notify } = request.body;
+
+      // Basic input validation example (though schema validation should catch this)
+      // if (!status) {
+      //   sendError(reply, 'validationFail', undefined, 'Status is required in the body.');
+      //   return;
+      // }
 
       const updatedParcel = await this.parcelService.updateStatus(id, status, notify);
 
       if (!updatedParcel) {
-        reply.status(404).send({ statusCode: 404, error: 'Not Found', message: 'Parcel not found or status not changed' });
+        // This could be 'notFound' or a specific business logic error like 'conflict' if status cannot be updated
+        sendError(reply, 'notFound', undefined, 'Parcel not found or status not changed.');
         return;
       }
-      // ParcelService.toResponse will return the structure matching ParcelCoreSchema
-      reply.send(ParcelService.toResponse(updatedParcel));
+      sendSuccess(reply, ParcelService.toResponse(updatedParcel));
     } catch (error) {
-      request.log.error(error, 'Error updating parcel status');
-      const message = error instanceof Error ? error.message : 'An unexpected error occurred';
-      reply.status(500).send({ statusCode: 500, error: 'Internal Server Error', message });
+      // request.log.error(error, 'Error updating parcel status');
+      // Consider if some errors from service layer should map to different error keys
+      // e.g. if service throws a specific "VersionConflictError" -> sendError(reply, 'conflict', error)
+      sendError(reply, 'internalError', error as Error, 'Failed to update parcel status.');
     }
   }
 }
