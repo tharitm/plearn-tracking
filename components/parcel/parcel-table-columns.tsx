@@ -210,7 +210,13 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => row.getValue<number>("volume").toFixed(2),
+      cell: ({ row }) => {
+        const volume = row.getValue<number | undefined | null>("volume");
+        if (typeof volume === "number" && !isNaN(volume)) {
+          return volume.toFixed(2);
+        }
+        return "-"; // Or "N/A"
+      },
     },
     {
       accessorKey: "weight",
