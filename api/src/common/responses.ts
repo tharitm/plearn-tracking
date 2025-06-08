@@ -1,14 +1,15 @@
-export type BaseResponseStatus =
-  | 'success'
-  | 'created'
-  | 'validationFail'
-  | 'notFound'
-  | 'conflict'
-  | 'unauthorized'
-  | 'forbidden'
-  | 'internalError';
+export const RESPONSE_TYPE = {
+  SUCCESS: 'success',
+  CREATED: 'created',
+  VALIDATION_FAIL: 'validationFail',
+  NOT_FOUND: 'notFound',
+  CONFLICT: 'conflict',
+  UNAUTHORIZED: 'unauthorized',
+  FORBIDDEN: 'forbidden',
+  INTERNAL_ERROR: 'internalError',
+} as const;
 
-export const BaseResponse: Record<BaseResponseStatus, {
+export const BaseResponse: Record<BaseResponseKey, {
   resultCode: number;
   resultStatus: string;
   developerMessage: string;
@@ -55,7 +56,7 @@ export const BaseResponse: Record<BaseResponseStatus, {
   },
 };
 
-export type BaseResponseKey = keyof typeof BaseResponse;
+export type BaseResponseKey = typeof RESPONSE_TYPE[keyof typeof RESPONSE_TYPE];
 
 export interface ApiResponse<T = null> {
   resultCode: number;

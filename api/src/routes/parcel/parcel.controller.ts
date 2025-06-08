@@ -7,6 +7,7 @@ import {
   UpdateParcelStatusBody
 } from './parcel.types';
 import { sendSuccess, sendError } from '../../handlers/response.handler'; // Import new handlers
+import { RESPONSE_TYPE } from '../../common/responses';
 
 export class ParcelController {
   private parcelService: ParcelService;
@@ -23,9 +24,9 @@ export class ParcelController {
       const query = request.query;
       const { parcels, total } = await this.parcelService.findMany(query);
       const responseData = ParcelService.toListResponse(parcels, total, query.page || 1, query.pageSize || 10);
-      sendSuccess(reply, responseData);
+      sendSuccess(reply, responseData, RESPONSE_TYPE.SUCCESS);
     } catch (error) {
-      sendError(reply, 'internalError', error as Error, 'Failed to list parcels.');
+      sendError(reply, RESPONSE_TYPE.INTERNAL_ERROR, error as Error, 'Failed to list parcels.');
     }
   }
 
@@ -38,13 +39,13 @@ export class ParcelController {
       const parcel = await this.parcelService.findOneById(id);
 
       if (!parcel) {
-        sendError(reply, 'notFound', undefined, 'Parcel not found.');
+        sendError(reply, RESPONSE_TYPE.NOT_FOUND, undefined, 'Parcel not found.');
         return;
       }
-      sendSuccess(reply, ParcelService.toResponse(parcel));
+      sendSuccess(reply, ParcelService.toResponse(parcel), RESPONSE_TYPE.SUCCESS);
     } catch (error) {
       // request.log.error(error, 'Error getting parcel by ID');
-      sendError(reply, 'internalError', error as Error, 'Failed to retrieve parcel.');
+      sendError(reply, RESPONSE_TYPE.INTERNAL_ERROR, error as Error, 'Failed to retrieve parcel.');
     }
   }
 
@@ -66,15 +67,15 @@ export class ParcelController {
 
       if (!updatedParcel) {
         // This could be 'notFound' or a specific business logic error like 'conflict' if status cannot be updated
-        sendError(reply, 'notFound', undefined, 'Parcel not found or status not changed.');
+        sendError(reply, RESPONSE_TYPE.NOT_FOUND, undefined, 'Parcel not found or status not changed.');
         return;
       }
-      sendSuccess(reply, ParcelService.toResponse(updatedParcel));
+      sendSuccess(reply, ParcelService.toResponse(updatedParcel), RESPONSE_TYPE.SUCCESS);
     } catch (error) {
       // request.log.error(error, 'Error updating parcel status');
       // Consider if some errors from service layer should map to different error keys
       // e.g. if service throws a specific "VersionConflictError" -> sendError(reply, 'conflict', error)
-      sendError(reply, 'internalError', error as Error, 'Failed to update parcel status.');
+      sendError(reply, RESPONSE_TYPE.INTERNAL_ERROR, error as Error, 'Failed to update parcel status.');
     }
   }
 }
