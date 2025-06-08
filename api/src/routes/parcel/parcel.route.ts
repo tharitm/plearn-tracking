@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
-import { ParcelController } from './parcel.controller';
+import { ParcelController } from '../../controllers/parcel.controller';
 import {
   ListParcelsQuerySchema,
   ListParcelsResponseSchema,
