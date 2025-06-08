@@ -83,13 +83,12 @@ export class ParcelService {
   }
 
 
-  static toResponse(parcel: Parcel): ParcelCore { // Return ParcelCore interface
+  toResponse(parcel: Parcel): ParcelCore {
     return {
-      ...parcel, // Spread the TypeORM entity
+      ...parcel,
       receiveDate: parcel.receiveDate.toISOString(),
       createdAt: parcel.createdAt.toISOString(),
       updatedAt: parcel.updatedAt.toISOString(),
-
       estimate: Number(parcel.estimate),
       volume: Number(parcel.volume),
       weight: Number(parcel.weight),
@@ -97,9 +96,9 @@ export class ParcelService {
     };
   }
 
-  static toListResponse(parcels: Parcel[], total: number, page: number, pageSize: number): ListParcelsResponse {
+  toListResponse(parcels: Parcel[], total: number, page: number, pageSize: number): ListParcelsResponse {
     return {
-      parcels: parcels.map(p => ParcelService.toResponse(p)),
+      parcels: parcels.map(p => this.toResponse(p)),
       total,
       page,
       pageSize
