@@ -1,6 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ENV } from './env';
-import { Parcel } from '../modules/parcel/parcel.entity';
+import { Parcel } from '../models/parcel.model';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 

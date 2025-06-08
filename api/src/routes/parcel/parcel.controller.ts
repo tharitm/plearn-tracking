@@ -1,14 +1,15 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ParcelService } from './parcel.service';
+// Import the new TypeScript interfaces
 import {
-  ListParcelsQueryType,
-  GetParcelByIdParamsType,
-  ParcelCoreType,
-  ListParcelsResponseType,
-  UpdateParcelStatusParamsType,
-  UpdateParcelStatusBodyType,
-  // ParcelStatusType is implicitly part of UpdateParcelStatusBodyType
-} from './parcel.schema';
+  ListParcelsQuery,
+  GetParcelByIdParams,
+  // ParcelCore, // Not directly used for request typing here, response is by schema
+  // ListParcelsResponse, // Not directly used for request typing here, response is by schema
+  UpdateParcelStatusParams,
+  UpdateParcelStatusBody
+} from './parcel.types';
+// Schemas are still used by Fastify for validation, but not for TS types here directly
 
 export class ParcelController {
   private parcelService: ParcelService;
@@ -18,13 +19,14 @@ export class ParcelController {
   }
 
   async listParcels(
-    request: FastifyRequest<{ Querystring: ListParcelsQueryType }>,
+    request: FastifyRequest<{ Querystring: ListParcelsQuery }>, // Use new interface
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const query = request.query;
+      const query = request.query; // query is now typed as ListParcelsQuery
       const { parcels, total } = await this.parcelService.findMany(query);
 
+      // ParcelService.toListResponse will return the structure matching ListParcelsResponseSchema
       const response = ParcelService.toListResponse(parcels, total, query.page || 1, query.pageSize || 10);
       reply.send(response);
     } catch (error) {
@@ -35,17 +37,18 @@ export class ParcelController {
   }
 
   async getParcelById(
-    request: FastifyRequest<{ Params: GetParcelByIdParamsType }>,
+    request: FastifyRequest<{ Params: GetParcelByIdParams }>, // Use new interface
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { id } = request.params;
+      const { id } = request.params; // id is string due to GetParcelByIdParams
       const parcel = await this.parcelService.findOneById(id);
 
       if (!parcel) {
         reply.status(404).send({ statusCode: 404, error: 'Not Found', message: 'Parcel not found' });
         return;
       }
+      // ParcelService.toResponse will return the structure matching ParcelCoreSchema
       reply.send(ParcelService.toResponse(parcel));
     } catch (error) {
       request.log.error(error, 'Error getting parcel by ID');
@@ -55,19 +58,12 @@ export class ParcelController {
   }
 
   async updateParcelStatus(
-    request: FastifyRequest<{ Params: UpdateParcelStatusParamsType; Body: UpdateParcelStatusBodyType }>,
+    request: FastifyRequest<{ Params: UpdateParcelStatusParams; Body: UpdateParcelStatusBody }>, // Use new interfaces
     reply: FastifyReply
   ): Promise<void> {
     try {
-      const { id } = request.params;
-      const { status, notify } = request.body;
-
-      // Schema validation should handle if status is missing, but an explicit check can be a safeguard
-      // However, relying on Fastify's schema validation is generally preferred.
-      // if (!status) {
-      //     reply.status(400).send({ statusCode: 400, error: 'Bad Request', message: 'Status is required in the body.' });
-      //     return;
-      // }
+      const { id } = request.params; // id is string
+      const { status, notify } = request.body; // status and notify are typed
 
       const updatedParcel = await this.parcelService.updateStatus(id, status, notify);
 
@@ -75,6 +71,7 @@ export class ParcelController {
         reply.status(404).send({ statusCode: 404, error: 'Not Found', message: 'Parcel not found or status not changed' });
         return;
       }
+      // ParcelService.toResponse will return the structure matching ParcelCoreSchema
       reply.send(ParcelService.toResponse(updatedParcel));
     } catch (error) {
       request.log.error(error, 'Error updating parcel status');

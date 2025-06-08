@@ -1,14 +1,15 @@
 import Fastify from 'fastify';
-import parcelRoutes from './modules/parcel/parcel.route';
+import registerAllRoutes from './routes/routes'; // Import the new central router
 
 const app = Fastify({
   logger: true,
 });
 
-app.register(parcelRoutes, { prefix: '/api' });
+// Register all application routes under the /api prefix
+app.register(registerAllRoutes, { prefix: '/api' });
 
 app.get('/', async (request, reply) => {
-  return { hello: 'world' };
+  return { hello: 'world' }; // This root route is outside /api
 });
 
 export default app;
