@@ -5,6 +5,8 @@ import React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
 import { UserMenu } from "./user-menu"
+import { ColumnVisibilityDropdown } from "@/components/ui/ColumnVisibilityDropdown" // Import the new component
+import { type Table } from "@tanstack/react-table" // To type the tableInstance prop
 import { Separator } from "@/components/ui/separator"
 import {
   Breadcrumb,
@@ -15,12 +17,17 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-interface DashboardLayoutProps {
+interface DashboardLayoutProps<TData> { // Make it generic for Table<TData>
   children: React.ReactNode
   breadcrumbs?: Array<{ label: string; href?: string }>
+  tableInstance?: Table<TData> // Optional table instance prop
 }
 
-export function DashboardLayout({ children, breadcrumbs = [] }: DashboardLayoutProps) {
+export function DashboardLayout<TData>({
+  children,
+  breadcrumbs = [],
+  tableInstance,
+}: DashboardLayoutProps<TData>) {
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
@@ -55,7 +62,13 @@ export function DashboardLayout({ children, breadcrumbs = [] }: DashboardLayoutP
             </Breadcrumb>
           )}
 
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            {tableInstance && (
+              <ColumnVisibilityDropdown
+                table={tableInstance}
+                localStorageKey="dashboardColumnVisibility"
+              />
+            )}
             <UserMenu />
           </div>
         </header>
