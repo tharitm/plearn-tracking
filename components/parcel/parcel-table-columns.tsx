@@ -28,8 +28,8 @@ export const getSortIcon = (isSorted: false | "asc" | "desc") => {
 
 interface GetParcelTableColumnsProps {
   setSelectedParcel: (parcel: Parcel) => void;
-  onStatusChange: (parcelId: string, newStatus: Parcel["status"]) => void;
-  onEdit: (parcel: Parcel) => void;
+  onStatusChange?: (parcelId: string, newStatus: Parcel["status"]) => void;
+  onEdit?: (parcel: Parcel) => void;
   updatingStatusForId?: string | null; // Add new optional prop
 }
 
@@ -158,7 +158,7 @@ export const getParcelTableColumns = ({
           <Select
             value={row.getValue("status")}
             onValueChange={(newStatus) =>
-              onStatusChange(row.original.id, newStatus as Parcel["status"])
+              onStatusChange!(row.original.id, newStatus as Parcel["status"])
             }
             disabled={isUpdating} // Disable Select when updating
           >
@@ -265,7 +265,7 @@ export const getParcelTableColumns = ({
           express: "Express",
           economy: "Economy",
         };
-        return methodMap[row.getValue("deliveryMethod")] || row.getValue("deliveryMethod");
+        return methodMap[row.getValue("deliveryMethod") as string];
       },
     },
     {
@@ -301,7 +301,7 @@ export const getParcelTableColumns = ({
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <Button variant="outline" size="sm" onClick={() => onEdit(row.original)}>
+      <Button variant="outline" size="sm" onClick={() => onEdit!(row.original)}>
         <FilePenLine className="mr-2 h-4 w-4" /> Edit
       </Button>
     ),

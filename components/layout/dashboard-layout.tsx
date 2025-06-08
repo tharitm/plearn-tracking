@@ -63,12 +63,6 @@ export function DashboardLayout<TData>({
           )}
 
           <div className="ml-auto flex items-center gap-2">
-            {tableInstance && (
-              <ColumnVisibilityDropdown
-                table={tableInstance}
-                localStorageKey="dashboardColumnVisibility"
-              />
-            )}
             <UserMenu />
           </div>
         </header>

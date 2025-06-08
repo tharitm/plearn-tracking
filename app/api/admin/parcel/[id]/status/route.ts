@@ -9,41 +9,32 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
     const { status } = await request.json() as { status: Parcel['status'] };
     if (!status) {
-      // Basic validation for allowed status values
       const allowedStatuses: Parcel['status'][] = ["pending", "shipped", "delivered", "cancelled"];
       if (!allowedStatuses.includes(status)) {
         return NextResponse.json({ message: `Invalid status value. Must be one of: ${allowedStatuses.join(", ")}` }, { status: 400 });
       }
       return NextResponse.json({ message: 'Status is required' }, { status: 400 });
     }
-    // In a real app, you'd validate status and update the database
     console.log(`Updating status for parcel ${parcelId} to: ${status}`);
-    // Simulate update
 
     // For simulation, we'll create a mock parcel object with the updated status:
     const mockUpdatedParcel: Partial<Parcel> = {
       id: parcelId,
-      status: status,
-      // Add other fields with placeholder values if they are expected by the frontend
-      parcelRef: "SIMULATED_REF", // Placeholder
-      receiveDate: new Date().toISOString(), // Placeholder
-      customerCode: "SIM_CUSTOMER", // Placeholder
-      shipment: "SIM_SHIPMENT", // Placeholder
-      estimate: 0, // Placeholder
-      // Ensure all fields from Parcel type are present if needed, or use a fetched original object
-      // For example, if these were part of Parcel type and required:
-      name: "Simulated Parcel",
-      address: "123 Simulated St",
-      city: "Simulation City",
-      country: "Simuland",
-      phone: "555-SIMULATE",
-      paymentStatus: "paid", // default or fetched
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      trackingNo: `SIM-${parcelId.substring(0, 8)}`,
-      weight: 1.0, // Placeholder
-      dimensions: "10x10x10", // Placeholder
-      notes: "Simulated update", // Placeholder
+      parcelRef: "P2024001",
+      receiveDate: "2024-01-15",
+      customerCode: "C001",
+      shipment: "SH2024001",
+      estimate: 1500,
+      status: "shipped",
+      cnTracking: "CN123456789",
+      volume: 0.5,
+      weight: 2.5,
+      freight: 300,
+      deliveryMethod: "pickup",
+      thTracking: "TH987654321",
+      paymentStatus: "paid",
+      createdAt: "2024-01-15T10:00:00Z",
+      updatedAt: "2024-01-15T10:00:00Z",
     };
     return NextResponse.json(mockUpdatedParcel, { status: 200 });
   } catch (error) {

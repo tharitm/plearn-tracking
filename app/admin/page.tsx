@@ -294,7 +294,6 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="space-y-4 sm:space-y-6">
-              {/* Action buttons above table */}
               <div className="flex flex-col sm:flex-row gap-2 items-center">
                 <Button
                   onClick={handleBulkDeliver}
