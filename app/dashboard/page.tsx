@@ -36,15 +36,14 @@ export default function CustomerDashboard() {
 
   const columns = useMemo<ColumnDef<Parcel>[]>(
     () => getParcelTableColumns({ setSelectedParcel }),
-    [setSelectedParcel] // Dependency: re-create columns if setSelectedParcel changes identity
+    [setSelectedParcel]
   );
-
   const table = useReactTable({
     data: parcels,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(), // Enable pagination
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     state: {
       sorting,
@@ -128,11 +127,11 @@ export default function CustomerDashboard() {
         {/* Table Section */}
         <div className="stagger-item">
           {loading ? ( // loading state from useParcelStore
-            <div className="glass-effect rounded-2xl p-8 sm:p-12 text-center shadow-material-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
-              <p className="text-sm sm:text-subtitle text-gray-600 font-medium">
-                กำลังโหลดข้อมูล...
-              </p>
+            <div className="space-y-4 sm:space-y-6">
+              <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+                <ParcelTableSkeleton />
+              </div>
+              <ParcelPagination /> {/* Consider if pagination should also have a skeleton or be hidden */}
             </div>
           ) : (
             <div className="space-y-4 sm:space-y-6">

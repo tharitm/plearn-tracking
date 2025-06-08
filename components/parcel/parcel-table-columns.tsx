@@ -30,15 +30,14 @@ interface GetParcelTableColumnsProps {
   setSelectedParcel: (parcel: Parcel) => void;
   onStatusChange?: (parcelId: string, newStatus: Parcel["status"]) => void;
   onEdit?: (parcel: Parcel) => void;
-  updatingStatusForId?: string | null; // Add new optional prop
+  updatingStatusForId?: string | null;
 }
 
-// Function to generate parcel column definitions
 export const getParcelTableColumns = ({
   setSelectedParcel,
   onStatusChange,
   onEdit,
-  updatingStatusForId, // Destructure new prop
+  updatingStatusForId,
 }: GetParcelTableColumnsProps): ColumnDef<Parcel>[] => {
   const baseColumns: ColumnDef<Parcel>[] = [
     {
