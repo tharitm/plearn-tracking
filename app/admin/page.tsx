@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   const { loading, refetch, parcels } = useParcels()
-  const { setSelectedParcel } = useParcelStore()
+  const { setSelectedParcel, updateParcel } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -53,6 +53,8 @@ export default function AdminDashboard() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (response.ok) {
+        const updatedParcel = await response.json();
+        updateParcel(updatedParcel);
         showToast(`พัสดุ ${parcelId} อัปเดตสถานะเป็น ${newStatus} แล้ว`, "success");
       } else {
         const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
@@ -64,7 +66,7 @@ export default function AdminDashboard() {
     } finally {
       setUpdatingStatusForId(null);
     }
-  }, [refetch]);
+  }, [updateParcel]);
 
   const handleEdit = useCallback((parcel: Parcel) => {
     setEditingParcel(parcel);

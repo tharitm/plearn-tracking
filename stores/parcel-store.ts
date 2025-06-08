@@ -15,6 +15,7 @@ interface ParcelState {
   setPagination: (pagination: Partial<PaginationState>) => void
   setSelectedParcel: (parcel: Parcel | null) => void
   resetFilters: () => void
+  updateParcel: (parcel: Parcel) => void
 }
 
 const initialFilters: ParcelFilters = {
@@ -52,4 +53,14 @@ export const useParcelStore = create<ParcelState>((set) => ({
     })),
   setSelectedParcel: (selectedParcel) => set({ selectedParcel }),
   resetFilters: () => set({ filters: initialFilters, pagination: initialPagination }),
+  updateParcel: (parcel) =>
+    set((state) => {
+      const index = state.parcels.findIndex((p) => p.id === parcel.id)
+      if (index !== -1) {
+        const newParcels = [...state.parcels]
+        newParcels[index] = parcel
+        return { parcels: newParcels }
+      }
+      return {}
+    }),
 }))
