@@ -111,9 +111,9 @@ export default function AdminDashboard() {
     () => getParcelTableColumns({
       setSelectedParcel,
       onStatusChange: handleStatusChange,
-      onEdit: handleEdit
+      onEdit: handleEdit, // Ensured 'onEdit' is correctly spelled and all required props are passed
     }),
-    [setSelectedParcel, handleStatusChange, handleEdit] // Added dependencies
+    [setSelectedParcel, handleStatusChange, handleEdit]
   );
 
   const table = useReactTable({
