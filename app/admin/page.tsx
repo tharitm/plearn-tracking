@@ -13,7 +13,7 @@ import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { useParcels } from "@/hooks/use-parcels"
 import { Button } from "@/components/ui/button"
-import { Plus, Package, DollarSign, Users, TrendingUp } from "lucide-react"
+import { Plus, Package, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react"
 import type { Parcel } from "@/lib/types"
 
 export default function AdminDashboard() {
@@ -21,6 +21,8 @@ export default function AdminDashboard() {
   const router = useRouter()
   const { loading, refetch, parcels } = useParcels()
   const [showParcelForm, setShowParcelForm] = useState(false)
+  const [selectedParcels, setSelectedParcels] = useState<Parcel[]>([])
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -69,6 +71,42 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleBulkDeliver = async () => {
+    const selectedIds = selectedParcels.map(p => p.id);
+
+    if (selectedIds.length === 0) {
+      alert("No parcels selected."); // Replace with toast if available
+      return;
+    }
+
+    setIsBulkUpdating(true);
+    try {
+      const response = await fetch('/api/admin/parcel/bulk-update-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ parcelIds: selectedIds }),
+      });
+
+      if (response.ok) {
+        await refetch();
+        alert("สถานะพัสดุอัปเดตสำเร็จแล้ว!"); // Parcel statuses updated successfully!
+        setSelectedParcels([]); // Clear local selection state
+        // Note: ParcelTable internal selection state is not directly cleared here.
+        // This would require a ref to the table instance or further prop drilling.
+      } else {
+        const errorData = await response.json();
+        alert(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${errorData.message || response.statusText}`);
+      }
+    } catch (error) {
+      console.error("Failed to bulk update parcel statuses:", error);
+      alert(`เกิดข้อผิดพลาดในการเชื่อมต่อ: ${(error as Error).message}`);
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
   if (!isAuthenticated || user?.role !== "admin") {
     return null
   }
@@ -116,14 +154,32 @@ export default function AdminDashboard() {
 
         {/* Action Header */}
         <div className="stagger-item flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-lg sm:text-title font-semibold text-[#212121]">รายการพัสดุในคลัง</h2>
-          <Button
-            onClick={() => setShowParcelForm(true)}
-            className="ripple bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
-          >
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            <span className="text-sm sm:text-base">เพิ่มรายการสินค้า</span>
-          </Button>
+          <div className="flex-grow">
+            <h2 className="text-lg sm:text-title font-semibold text-[#212121]">รายการพัสดุในคลัง</h2>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              onClick={handleBulkDeliver}
+              disabled={selectedParcels.length === 0 || isBulkUpdating}
+              className="ripple bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-medium px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
+            >
+              {isBulkUpdating ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              ) : (
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              )}
+              <span className="text-sm sm:text-base">
+                {isBulkUpdating ? "กำลังปรับปรุง..." : "ปรับสถานะจัดส่งทั้งหมด"}
+              </span>
+            </Button>
+            <Button
+              onClick={() => setShowParcelForm(true)}
+              className="ripple bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+              <span className="text-sm sm:text-base">เพิ่มรายการสินค้า</span>
+            </Button>
+          </div>
         </div>
 
         {/* Table Section */}
@@ -136,7 +192,7 @@ export default function AdminDashboard() {
           ) : (
             <div className="space-y-4 sm:space-y-6">
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
-                <ParcelTable showPaymentStatus={false} />
+                <ParcelTable showPaymentStatus={false} onSelectionChange={setSelectedParcels} />
               </div>
               <ParcelPagination />
             </div>
