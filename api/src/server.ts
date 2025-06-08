@@ -9,7 +9,6 @@ const start = async () => {
     app.log.info('Data Source has been initialized!');
 
     await app.listen({ port: Number(ENV.PORT), host: ENV.HOST });
-    // No need to log here, Fastify's logger should handle it or app.listen callback
   } catch (err) {
     app.log.error('Error during server startup or DB initialization:', err);
     process.exit(1);
