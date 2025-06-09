@@ -30,7 +30,7 @@ import { useParcels } from "@/hooks/use-parcels"
 export default function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
-  const { loading, parcels, setSelectedParcel } = useParcels()
+  const { loading, parcels = [], setSelectedParcel } = useParcels()
 
   const [sorting, setSorting] = useState<SortingState>([])
 

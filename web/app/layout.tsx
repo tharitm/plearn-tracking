@@ -4,16 +4,9 @@ import { Noto_Sans_Thai } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 
-const notoSansThai = Noto_Sans_Thai({
-  subsets: ["thai", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-})
-
 export const metadata: Metadata = {
   title: "Parcel Management Dashboard",
   description: "ระบบจัดการเลขพัสดุ",
-  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -23,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th">
-      <body className={notoSansThai.className}>
+      <body className='font-sans'>
         {children}
         <Toaster richColors position="top-right" />
       </body>

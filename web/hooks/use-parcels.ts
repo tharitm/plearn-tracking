@@ -23,16 +23,13 @@ export function useParcels() {
   // The actual function that calls the service
   const loadParcels = useCallback(async () => {
     if (!user) {
-      // Potentially clear parcels or set an appropriate state if user logs out
-      // setParcels([], 0); // Example: Clear parcels if no user
       return;
     }
 
     setLoading(true);
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
-      // Prepare parameters for the service call
       const serviceFilters: ParcelFilters & { page?: number; pageSize?: number; customerCode?: string } = {
         ...filters, // Spread the filters from the store (status, paymentStatus, trackingNo, dateFrom, dateTo, search)
         page: pagination.pageIndex + 1, // Convert 0-based pageIndex to 1-based page

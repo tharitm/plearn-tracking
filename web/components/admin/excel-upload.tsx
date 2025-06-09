@@ -31,8 +31,6 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
         const sheetName = workbook.SheetNames[0]
         const worksheet = workbook.Sheets[sheetName]
         const jsonData = XLSX.utils.sheet_to_json(worksheet)
-
-        debugger
         // Map Excel columns to our data structure
         const mappedData = jsonData.slice(0, 5).map((row: any) => ({
           parcelRef: row["เลขที่รับพัสดุ"] || row["parcelRef"] || "",

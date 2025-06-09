@@ -2,9 +2,18 @@ import Fastify, { FastifyError, FastifyRequest, FastifyReply } from 'fastify';
 import registerAllRoutes from './routes/routes';
 import { sendError } from './handlers/response.handler';
 import { BaseResponse } from './common/responses';
+import cors from '@fastify/cors';
 
 const app = Fastify({
   logger: true,
+});
+
+// enable CORS for your frontend origin
+app.register(cors, {
+  origin: ['http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 });
 
 app.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {

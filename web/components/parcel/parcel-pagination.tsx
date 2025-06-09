@@ -8,9 +8,10 @@ import { useParcelStore } from "@/stores/parcel-store"
 
 
 export function ParcelPagination() {
-  const { total, pagination, setPagination } = useParcelStore()
+  const { total = 0, pagination, setPagination } = useParcelStore()
 
-  const totalPages = Math.ceil(total / pagination.pageSize)
+  const totalPages = total > 0 ? Math.ceil(total / pagination.pageSize) : 0
+  if (total === 0) return null
   const currentPage = pagination.pageIndex + 1
 
   const handlePageChange = (newPage: number) => {
@@ -20,9 +21,6 @@ export function ParcelPagination() {
   const handlePageSizeChange = (newPageSize: string) => {
     setPagination({ pageIndex: 0, pageSize: Number.parseInt(newPageSize) })
   }
-
-  if (total === 0) return null
-
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
@@ -53,7 +51,7 @@ export function ParcelPagination() {
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || totalPages === 0}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -66,7 +64,7 @@ export function ParcelPagination() {
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

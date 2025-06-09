@@ -36,7 +36,7 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
 
-  const { loading, refetch, parcels } = useParcels()
+  const { loading, refetch, parcels = [] } = useParcels()
   const { setSelectedParcel, updateParcel } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
