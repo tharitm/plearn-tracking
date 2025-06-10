@@ -10,7 +10,7 @@ const app = Fastify({
 
 // enable CORS for your frontend origin
 app.register(cors, {
-  origin: ['http://localhost:3000'],
+  origin: ['http://localhost:3005'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
