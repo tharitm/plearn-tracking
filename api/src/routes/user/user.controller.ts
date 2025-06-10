@@ -3,13 +3,10 @@
  *  ไฟล์นี้จัดการตรรกะสำหรับเส้นทาง (routes) ที่เกี่ยวข้องกับการจัดการผู้ใช้
  */
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { sendSuccess, sendError } from '../../../handlers/response.handler';
 import { createUser, getAllUsers, findUserById, CreateUserDto } from './user.service';
-// User entity might not be directly needed if DTO and schema cover typing
-// import { User, UserRole } from '../../../entities/user.entity';
-import { BaseResponseKey, DeveloperMessages } from '../../../common/constants';
+import { BaseResponseKey, DeveloperMessages } from '../../common/constants';
+import { sendSuccess, sendError } from '../../handlers/response.handler';
 
-// Helper function to exclude password hash from user object
 // ฟังก์ชันช่วยในการลบ passwordHash ออกจากอ็อบเจกต์ผู้ใช้
 const sanitizeUser = (user: any) => {
   if (user && typeof user === 'object' && 'passwordHash' in user) {
@@ -50,7 +47,7 @@ export const createUserController = async (
     ) {
       sendError(reply, BaseResponseKey.VALIDATION_FAIL, error, error.message);
     } else {
-      sendError(reply, BaseResponseKey.INTERNAL_ERROR, new Error(DeveloperMessages.INTERNAL_ERROR));
+      sendError(reply, BaseResponseKey.INTERNAL_ERROR);
     }
   }
 };
@@ -66,8 +63,8 @@ export const getAllUsersController = async (request: FastifyRequest, reply: Fast
     const users = await getAllUsers();
     sendSuccess(reply, sanitizeUsers(users));
   } catch (error: any) {
-    request.log.error(error, 'Get all users error'); // บันทึกข้อผิดพลาด
-    sendError(reply, BaseResponseKey.INTERNAL_ERROR, new Error(DeveloperMessages.INTERNAL_ERROR));
+    request.log.error(error, 'Get all users error');
+    sendError(reply, BaseResponseKey.INTERNAL_ERROR);
   }
 };
 
@@ -89,7 +86,7 @@ export const getUserByIdController = async (
     }
     sendSuccess(reply, sanitizeUser(user));
   } catch (error: any) {
-    request.log.error(error, `Get user by ID (${id}) error`); // บันทึกข้อผิดพลาด
-    sendError(reply, BaseResponseKey.INTERNAL_ERROR, new Error(DeveloperMessages.INTERNAL_ERROR));
+    request.log.error(error, `Get user by ID (${id}) error`);
+    sendError(reply, BaseResponseKey.INTERNAL_ERROR);
   }
 };

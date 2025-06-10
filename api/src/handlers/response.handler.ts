@@ -56,10 +56,7 @@ export function sendError(
   const responseTemplate = BaseResponse[messageKey] || BaseResponse.internalError; // Fallback to internalError
   const statusCode = getStatusCode(messageKey);
 
-  // Log the actual error for server-side debugging, especially for internal errors
   if (error) {
-    // Fastify's logger can be accessed via reply.request.log or if the handler is part of a plugin, this.log
-    // For a generic utility, console.error is a fallback. In a real app, inject or use Fastify's logger.
     console.error(`[ErrorHandler] Key: ${messageKey}, Status: ${statusCode}, Error:`, error);
   } else {
     console.error(`[ErrorHandler] Key: ${messageKey}, Status: ${statusCode}, CustomMessage: ${customMessage || responseTemplate.developerMessage}`);
@@ -75,12 +72,9 @@ export function sendError(
   if (additionalErrorDetails) {
     responsePayload.errorDetails = additionalErrorDetails;
   } else if (error instanceof Error && messageKey === 'validationFail') {
-    // Simple example: include error message for validation fail
-    // In a real app, you might have a structured error object from a validation library
     responsePayload.errorDetails = { message: error.message };
   } else if (error instanceof Error && process.env.NODE_ENV !== 'production' && messageKey === 'internalError') {
-      // Optionally include stack in non-production for internal errors
-      responsePayload.errorDetails = { message: error.message, stack: error.stack };
+    responsePayload.errorDetails = { message: error.message, stack: error.stack };
   }
 
 

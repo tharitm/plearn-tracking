@@ -29,23 +29,15 @@ const userRoutes = async (fastify: FastifyInstance, options: FastifyPluginOption
   fastify.addHook('preHandler', authorizeAdmin);
 
   fastify.post(
-    // The prompt mentioned /customers, but this module is user-centric.
-    // Using /users for creating any user type (admin can specify role).
-    // If /customers is specifically for UserRole.CUSTOMER, a separate route/controller might be cleaner.
-    // คำแนะนำกล่าวถึง /customers แต่โมดูลนี้เน้นผู้ใช้
-    // ใช้ /users สำหรับการสร้างผู้ใช้ประเภทใดก็ได้ (ผู้ดูแลระบบสามารถระบุบทบาทได้)
-    // หาก /customers มีไว้สำหรับ UserRole.CUSTOMER โดยเฉพาะ เส้นทาง/คอนโทรลเลอร์ที่แยกจากกันอาจจะชัดเจนกว่า
     '/users',
     {
       schema: {
         body: createUserBodySchema,
         response: {
-          201: userResponseSchema, // HTTP 201 for created resource (สำหรับทรัพยากรที่สร้างขึ้น)
-          // Define other responses like 400, 401, 403, 500 here
-          // กำหนดการตอบกลับอื่นๆ เช่น 400, 401, 403, 500 ที่นี่
+          201: userResponseSchema,
         },
         tags: ['Admin - Users'], // OpenAPI/Swagger tag
-        summary: 'Create a new user', // สรุปสำหรับเอกสาร API
+        summary: 'Create a new user',
         description: 'Allows an admin to create a new user (customer or other roles).', // คำอธิบายโดยละเอียด
       },
     },
@@ -88,8 +80,6 @@ const userRoutes = async (fastify: FastifyInstance, options: FastifyPluginOption
     getUserByIdController
   );
 
-  // Add other user management routes here (e.g., update user, delete user)
-  // เพิ่มเส้นทางอื่นๆ สำหรับการจัดการผู้ใช้ที่นี่ (เช่น อัปเดตผู้ใช้, ลบผู้ใช้)
 };
 
 export default userRoutes;

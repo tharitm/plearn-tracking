@@ -4,9 +4,9 @@
  */
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { ENV } from '../../config/env'; // Updated path
+import { ENV } from '../../config/env';
 
-const SALT_ROUNDS = 10; // จำนวนรอบสำหรับการสร้าง salt (Number of rounds for salt generation)
+const SALT_ROUNDS = 10;
 
 /**
  * Hashes a password using bcrypt.

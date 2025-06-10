@@ -3,7 +3,7 @@
  *  Middleware สำหรับการยืนยันตัวตนและการอนุญาต
  */
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { verifyToken } from '../modules/auth/auth.service'; // Updated path
+import { verifyToken } from '../routes/auth/auth.service'; // Updated path
 import { sendError } from '../handlers/response.handler';
 import { UserRole } from '../entities/user.entity';
 import { BaseResponseKey, DeveloperMessages, JWTConstants } from '../common/constants'; // Import constants
@@ -44,22 +44,15 @@ export const authenticateToken = async (request: FastifyRequest, reply: FastifyR
   try {
     const decodedToken = verifyToken(token);
     if (!decodedToken) {
-      // โทเค็นไม่ถูกต้องหรือหมดอายุ
       return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages.INVALID_TOKEN));
     }
 
-    // Ensure the payload matches TokenUserPayload (ตรวจสอบว่าข้อมูลสอดคล้องกับ TokenUserPayload)
-    // This check can be more robust depending on the exact structure of decodedToken
-    // การตรวจสอบนี้สามารถทำให้เข้มงวดมากขึ้นได้ขึ้นอยู่กับโครงสร้างที่แน่นอนของ decodedToken
     if (typeof decodedToken.userId !== 'string' || typeof decodedToken.role !== 'string') {
-        // โทเค็นมีข้อมูลที่ไม่ถูกต้อง
-        return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages.INVALID_TOKEN_PAYLOAD || 'Token payload is invalid')); // Added a fallback message
+      return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages.INVALID_TOKEN || 'Token payload is invalid'));
     }
     request.user = decodedToken as TokenUserPayload; // Cast after validation (แปลงประเภทหลังจากการตรวจสอบ)
   } catch (error) {
-    // Log the error for debugging if necessary (บันทึกข้อผิดพลาดเพื่อดีบักหากจำเป็น)
     request.log.error(error, 'Token verification error');
-    // การตรวจสอบโทเค็นล้มเหลว
     return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages.INVALID_TOKEN));
   }
 };
@@ -72,11 +65,6 @@ export const authenticateToken = async (request: FastifyRequest, reply: FastifyR
  */
 export const authorizeAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
   if (!request.user || request.user.role !== UserRole.ADMIN) {
-    // ต้องการสิทธิ์ผู้ดูแลระบบ
-    // Using the generic FORBIDDEN message as FORBIDDEN_ADMIN_ACCESS was not explicitly in constants.ts
-    // For more specificity, add a 'FORBIDDEN_ADMIN_ACCESS' to DeveloperMessages.
-    // ใช้ข้อความ FORBIDDEN ทั่วไปเนื่องจาก FORBIDDEN_ADMIN_ACCESS ไม่ได้ระบุไว้อย่างชัดเจนใน constants.ts
-    // หากต้องการความเฉพาะเจาะจงมากขึ้น ให้เพิ่ม 'FORBIDDEN_ADMIN_ACCESS' ใน DeveloperMessages
-    return sendError(reply, BaseResponseKey.FORBIDDEN, new Error(DeveloperMessages.FORBIDDEN));
+    return sendError(reply, BaseResponseKey.FORBIDDEN, new Error(DeveloperMessages.forbidden));
   }
 };

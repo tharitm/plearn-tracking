@@ -2,10 +2,10 @@
  * @fileoverview Service for user management operations.
  *  บริการสำหรับการจัดการผู้ใช้
  */
-import { User, UserRole } from '../../entities/user.entity'; // Adjusted path
-import { AppDataSource } from '../../config/ormconfig'; // Adjusted path
-import { hashPassword } from '../auth/auth.service'; // Adjusted path
-import { DeveloperMessages } from '../../common/constants'; // For specific error messages
+import { User, UserRole } from '../../entities/user.entity';
+import AppDataSource from '../../config/ormconfig';
+import { hashPassword } from '../auth/auth.service';
+import { DeveloperMessages } from '../../common/constants';
 
 /**
  * Interface for Data Transfer Object for creating a user.

@@ -3,12 +3,12 @@
  *  ไฟล์นี้จัดการตรรกะสำหรับเส้นทาง (routes) ที่เกี่ยวข้องกับการยืนยันตัวตน
  */
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { sendSuccess, sendError } from '../../../handlers/response.handler';
+import { sendSuccess, sendError } from '../../handlers/response.handler';
 // Assuming User entity will be moved or accessible from a common entities path
 // import { User } from '../../../entities/user.entity';
 import { findUserByCustomerCode } from '../user/user.service'; // This path assumes user module is structured similarly
 import { comparePassword, generateToken } from './auth.service';
-import { BaseResponseKey, DeveloperMessages } from '../../../common/constants';
+import { BaseResponseKey, DeveloperMessages } from '../../common/constants';
 
 interface LoginRequestBody {
   customerCode: string;
@@ -33,13 +33,13 @@ export const loginController = async (
     if (!user) {
       // Using a generic message for invalid credentials to avoid user enumeration
       // ใช้ข้อความทั่วไปสำหรับข้อมูลประจำตัวที่ไม่ถูกต้องเพื่อหลีกเลี่ยงการแจงนับผู้ใช้
-      return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages.UNAUTHORIZED));
+      return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages[BaseResponseKey.UNAUTHORIZED]));
     }
 
     const isPasswordValid = await comparePassword(password, user.passwordHash);
 
     if (!isPasswordValid) {
-      return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages.UNAUTHORIZED));
+      return sendError(reply, BaseResponseKey.UNAUTHORIZED, new Error(DeveloperMessages[BaseResponseKey.UNAUTHORIZED]));
     }
 
     const token = generateToken({ userId: user.id, role: user.role });
@@ -55,9 +55,7 @@ export const loginController = async (
 
     sendSuccess(reply, { token, user: userResponse }, BaseResponseKey.SUCCESS);
   } catch (error: any) {
-    request.log.error(error, `Login error for customerCode: ${customerCode}`); // Log the error with context (บันทึกข้อผิดพลาดพร้อมบริบท)
-    // Send a generic internal error message to the client
-    // ส่งข้อความข้อผิดพลาดภายในทั่วไปไปยังไคลเอ็นต์
-    sendError(reply, BaseResponseKey.INTERNAL_ERROR, new Error(DeveloperMessages.INTERNAL_ERROR));
+    request.log.error(error, `Login error for customerCode: ${customerCode}`);
+    sendError(reply, BaseResponseKey.INTERNAL_ERROR, new Error(DeveloperMessages[BaseResponseKey.INTERNAL_ERROR]));
   }
 };

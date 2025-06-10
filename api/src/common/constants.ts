@@ -21,8 +21,6 @@ export enum BaseResponseKey {
 /**
  * DeveloperMessages provides a mapping from BaseResponseKey to human-readable messages.
  * These are primarily for developer understanding but can also form the basis of user-facing messages.
- *  ข้อความสำหรับนักพัฒนาที่แมปจาก BaseResponseKey ไปยังข้อความที่มนุษย์อ่านได้
- *  มีไว้สำหรับความเข้าใจของนักพัฒนาเป็นหลัก แต่ก็สามารถใช้เป็นพื้นฐานสำหรับข้อความที่ผู้ใช้เห็นได้เช่นกัน
  */
 export const DeveloperMessages = {
   [BaseResponseKey.SUCCESS]: 'Operation was successful.', // การดำเนินการสำเร็จ
@@ -64,6 +62,4 @@ export const DefaultPagination = {
 export const Roles = {
   ADMIN: 'ADMIN',
   CUSTOMER: 'CUSTOMER',
-  // Add other roles as needed, e.g., SHIPPER, MANAGER
-  // เพิ่มบทบาทอื่นๆ ตามต้องการ เช่น SHIPPER, MANAGER
 };
