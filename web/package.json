@@ -1,9 +1,9 @@
 {
-  "name": "my-v0-project",
+  "name": "plearn-cargo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3005",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

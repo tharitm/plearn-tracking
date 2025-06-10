@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
 
 export default function AdminDashboard() {
+  console.log('==== Admin Dashboard Page ====')
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
 
@@ -78,16 +79,8 @@ export default function AdminDashboard() {
   const handleFormSubmit = async (data: Omit<Parcel, 'id' | 'status' | 'paymentStatus' | 'createdAt' | 'updatedAt'> & { receiveDate: string }) => {
     const url = editingParcel ? `/api/admin/parcel/${editingParcel.id}` : "/api/admin/parcel";
     const method = editingParcel ? "PUT" : "POST";
-
-    // Construct payload, ensuring numeric fields are numbers if necessary from form data
-    // ParcelForm already uses valueAsNumber for these, but good to be mindful
     const payload = {
       ...data,
-      // Convert receiveDate string from form to Date object or ISO string if API expects it
-      // For now, assuming API can handle string or it's processed in API route
-      // If API expects Date: receiveDate: new Date(data.receiveDate),
-      // If API expects specific string format, ensure it here.
-      // The current API placeholder for PUT [id]/route.ts just logs the body.
     };
 
     try {
@@ -151,7 +144,6 @@ export default function AdminDashboard() {
       router.push("/login")
       return
     }
-
     if (user?.role !== "admin") {
       router.push("/dashboard")
       return
@@ -269,6 +261,7 @@ export default function AdminDashboard() {
         <div className="stagger-item">
           <ParcelFilters />
         </div>
+
 
         {/* Action Header */}
         <div className="stagger-item flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

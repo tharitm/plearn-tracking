@@ -77,7 +77,6 @@ export async function fetchParcels(
     return data as ParcelListResponse;
 
   } catch (error) {
-    debugger
     console.error('fetchParcels error:', error);
     throw error;
   }

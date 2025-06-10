@@ -15,9 +15,8 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       login: (user) => {
-        // Ensure customer has a customerCode
         if (user.role === "customer" && !user.customerCode) {
-          user.customerCode = "C001" // Default customer code
+          user.customerCode = "C001"
         }
         set({ user, isAuthenticated: true })
       },
