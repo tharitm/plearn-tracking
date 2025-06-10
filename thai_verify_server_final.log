@@ -1,0 +1,16 @@
+Script started on 2025-06-10 20:55:04+00:00 [COMMAND="npm run dev" <not executed on terminal>]
+
+> be@1.0.0 dev
+> nodemon src/server.ts
+
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `ts-node src/server.ts`[39m
+{"level":30,"time":1749588910457,"pid":6678,"hostname":"devbox","msg":"Server listening at http://127.0.0.1:3001"}
+{"level":30,"time":1749588910458,"pid":6678,"hostname":"devbox","msg":"Server listening at http://192.168.0.2:3001"}
+{"level":30,"time":1749588924303,"pid":6678,"hostname":"devbox","reqId":"req-1","req":{"method":"GET","url":"/documentation/json","host":"localhost:3001","remoteAddress":"127.0.0.1","remotePort":60950},"msg":"incoming request"}
+{"level":30,"time":1749588924320,"pid":6678,"hostname":"devbox","reqId":"req-1","res":{"statusCode":200},"responseTime":15.875529999961145,"msg":"request completed"}
+
+Script done on 2025-06-10 20:55:26+00:00 [COMMAND_EXIT_CODE="0"]
