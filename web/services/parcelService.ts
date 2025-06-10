@@ -1,115 +1,94 @@
 import type { Parcel, ParcelFilters, ParcelListResponse } from '@/lib/types';
-import { withErrorHandling } from './apiService'; // Adjusted path
+// Correctly import the new API response structure types
+import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/apiTypes';
+import { isApiErrorResponse } from '@/lib/apiTypes';
+import { withErrorHandling } from './apiService';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 if (!API_BASE_URL) {
-  // Consider throwing an error here or handling it more gracefully
-  // For now, console.warn is kept.
   console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
 }
 
-// Original function (now "private" by convention with underscore)
+// Service function to fetch parcels
 async function _fetchParcels(
   filters?: ParcelFilters & { page?: number; pageSize?: number; customerCode?: string }
-): Promise<ParcelListResponse> {
+): Promise<ParcelListResponse> { // This is the type for the 'data' field
   const params: Record<string, string> = {
     page: String(filters?.page || 1),
     pageSize: String(filters?.pageSize || 10),
   };
-
-  // Add filters to params
-  if (filters?.status && filters.status !== 'all') {
-    params.status = filters.status;
-  }
-  if (filters?.paymentStatus && filters.paymentStatus !== 'all') {
-    params.paymentStatus = filters.paymentStatus;
-  }
-  if (filters?.trackingNo) {
-    params.trackingNo = filters.trackingNo;
-  }
-  if (filters?.dateFrom) {
-    params.dateFrom = filters.dateFrom;
-  }
-  if (filters?.dateTo) {
-    params.dateTo = filters.dateTo;
-  }
-  if (filters?.customerCode) {
-    params.customerCode = filters.customerCode;
-  }
-  if (filters?.search) {
-    // Assuming 'search' maps to 'trackingNo' based on original code
-    params.trackingNo = filters.search;
-  }
+  // Add filters to params as before
+  if (filters?.status && filters.status !== 'all') params.status = filters.status;
+  if (filters?.paymentStatus && filters.paymentStatus !== 'all') params.paymentStatus = filters.paymentStatus;
+  if (filters?.trackingNo) params.trackingNo = filters.trackingNo;
+  if (filters?.dateFrom) params.dateFrom = filters.dateFrom;
+  if (filters?.dateTo) params.dateTo = filters.dateTo;
+  if (filters?.customerCode) params.customerCode = filters.customerCode;
+  if (filters?.search) params.trackingNo = filters.search;
 
   const queryString = new URLSearchParams(params).toString();
-  // Ensure API_BASE_URL is actually defined before making the call
   const url = `${API_BASE_URL || ''}/api/parcel?${queryString}`;
 
-  // The try/catch here is still useful for parsing specific API error messages
   try {
     const res = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
 
-    if (!res.ok) {
-      let errorData = { message: `HTTP error ${res.status}: Failed to fetch parcels` };
-      try {
-        errorData = await res.json();
-      } catch (parseError) {
-        // Could log parseError if needed, but primary error is HTTP status
-      }
-      // Ensure a message property exists
-      throw new Error(errorData.message || `HTTP error ${res.status}: Failed to fetch parcels`);
+    // Parse the full API response
+    const apiResponse: ApiResponse<ParcelListResponse> = await res.json();
+
+    // Check if the response is an error using the type guard or by checking res.ok and then result codes
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      // Ensure apiResponse is treated as ApiErrorResponse if isApiErrorResponse is true or !res.ok
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `HTTP error ${res.status} (no developer message)`);
     }
 
-    return await res.json() as ParcelListResponse;
+    // If it's a success response (implicitly ApiSuccessResponse<ParcelListResponse>), return the data
+    // Type assertion might be needed if isApiErrorResponse isn't exhaustive enough for TS to infer success path
+    return (apiResponse as ApiSuccessResponse<ParcelListResponse>).data;
+
   } catch (error) {
     // Log specific service error and re-throw for the wrapper to catch
-    console.error('[_fetchParcels specific error]:', error);
-    throw error;
+    // If error is already Error instance with developerMessage, it will propagate
+    // If it's a new error from this block (e.g. network error before res.json()), it's caught.
+    console.error('[_fetchParcels service error]:', error instanceof Error ? error.message : error);
+    throw error; // Re-throw for withErrorHandling
   }
 }
 
-// Original function (now "private")
+// Service function to update parcel status
 async function _updateParcelStatus(
   id: string,
   status: Parcel['status'],
   notify: boolean = true
-): Promise<Parcel> {
+): Promise<Parcel> { // This is the type for the 'data' field
   const url = `${API_BASE_URL || ''}/api/admin/parcel/${id}/status`;
-  const body = {
-    status,
-    notify,
-  };
+  const body = { status, notify };
 
   try {
     const res = await fetch(url, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
-      let errorData = { message: `HTTP error ${res.status}: Failed to update parcel status` };
-      try {
-        errorData = await res.json();
-      } catch (parseError) {
-        // Silent catch for parsing error, focus on HTTP error
-      }
-      throw new Error(errorData.message || `HTTP error ${res.status}: Failed to update parcel status`);
+    const apiResponse: ApiResponse<Parcel> = await res.json();
+
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `HTTP error ${res.status} (no developer message)`);
     }
-    return await res.json() as Parcel;
+
+    return (apiResponse as ApiSuccessResponse<Parcel>).data;
+
   } catch (error) {
-    console.error('[_updateParcelStatus specific error]:', error);
-    throw error;
+    console.error('[_updateParcelStatus service error]:', error instanceof Error ? error.message : error);
+    throw error; // Re-throw for withErrorHandling
   }
 }
 
