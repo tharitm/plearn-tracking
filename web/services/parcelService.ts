@@ -28,7 +28,7 @@ async function _fetchParcels(
   if (filters?.search) params.trackingNo = filters.search;
 
   const queryString = new URLSearchParams(params).toString();
-  const url = `${API_BASE_URL || ''}/api/parcel?${queryString}`;
+  const url = `${API_BASE_URL || ''}/api/parcels/parcel?${queryString}`;
 
   try {
     const res = await fetch(url, {
@@ -37,19 +37,13 @@ async function _fetchParcels(
       credentials: 'include',
     });
 
-    // Parse the full API response
     const apiResponse: ApiResponse<ParcelListResponse> = await res.json();
-
-    // Check if the response is an error using the type guard or by checking res.ok and then result codes
     if (!res.ok || isApiErrorResponse(apiResponse)) {
-      // Ensure apiResponse is treated as ApiErrorResponse if isApiErrorResponse is true or !res.ok
       const errorResponse = apiResponse as ApiErrorResponse;
       throw new Error(errorResponse.developerMessage || `HTTP error ${res.status} (no developer message)`);
     }
 
-    // If it's a success response (implicitly ApiSuccessResponse<ParcelListResponse>), return the data
-    // Type assertion might be needed if isApiErrorResponse isn't exhaustive enough for TS to infer success path
-    return (apiResponse as ApiSuccessResponse<ParcelListResponse>).data;
+    return (apiResponse as ApiSuccessResponse<ParcelListResponse>).resultData;
 
   } catch (error) {
     // Log specific service error and re-throw for the wrapper to catch
@@ -84,7 +78,7 @@ async function _updateParcelStatus(
       throw new Error(errorResponse.developerMessage || `HTTP error ${res.status} (no developer message)`);
     }
 
-    return (apiResponse as ApiSuccessResponse<Parcel>).data;
+    return (apiResponse as ApiSuccessResponse<Parcel>).resultData;
 
   } catch (error) {
     console.error('[_updateParcelStatus service error]:', error instanceof Error ? error.message : error);

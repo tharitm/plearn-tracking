@@ -1,6 +1,5 @@
 import { useGlobalErrorStore } from '@/stores/globalErrorStore';
 
-// Define a generic type for an API service function
 type ApiServiceFunction<T extends any[], R> = (...args: T) => Promise<R>;
 
 export function withErrorHandling<T extends any[], R>(
@@ -21,9 +20,3 @@ export function withErrorHandling<T extends any[], R>(
     }
   };
 }
-
-// Example of how you might wrap and export existing services later:
-// import { fetchParcels, updateParcelStatus } from './parcelService'; // Assuming original services
-//
-// export const fetchParcelsWithHandling = withErrorHandling(fetchParcels);
-// export const updateParcelStatusWithHandling = withErrorHandling(updateParcelStatus);
