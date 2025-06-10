@@ -27,20 +27,7 @@ app.register(fastifySwagger, {
       version: '1.0.0'
     },
     components: {
-      // If you use JWT authentication, you can define it here
-      // securitySchemes: {
-      //   bearerAuth: {
-      //     type: 'http',
-      //     scheme: 'bearer',
-      //     bearerFormat: 'JWT',
-      //   }
-      // }
     },
-    // security: [
-    //   {
-    //     bearerAuth: []
-    //   }
-    // ]
   }
 });
 

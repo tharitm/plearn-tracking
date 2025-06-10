@@ -5,8 +5,8 @@ import AppDataSource from './config/ormconfig';
 
 const start = async () => {
   try {
-    // await AppDataSource.initialize();
-    // app.log.info('Data Source has been initialized!');
+    await AppDataSource.initialize();
+    app.log.info('Data Source has been initialized!');
 
     await app.listen({ port: Number(ENV.PORT), host: ENV.HOST });
   } catch (err) {
