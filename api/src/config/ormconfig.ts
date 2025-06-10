@@ -1,13 +1,14 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { ENV } from './env';
-import { Parcel } from '../models/parcel.model';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   url: ENV.DATABASE_URL,
-  entities: [Parcel],
+  entities: [
+    `${__dirname}/../entities/*.entity{.ts,.js}`,
+  ],
   synchronize: NODE_ENV === 'development',
   logging: NODE_ENV === 'development' ? true : ['error'],
   migrationsTableName: 'migrations',

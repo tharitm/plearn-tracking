@@ -1,6 +1,6 @@
 import { FindOptionsWhere, Between, Repository } from 'typeorm';
 import AppDataSource from '../../config/ormconfig';
-import { Parcel } from '../../models/parcel.model';
+import { Parcel } from '../../entities/parcel.entity';
 import {
   ListParcelsQuery,
   ParcelCore,
@@ -20,34 +20,36 @@ export class ParcelService {
       page = 1,
       pageSize = 10,
       status,
-      paymentStatus,
       trackingNo,
       dateFrom,
       dateTo,
       customerCode,
     } = query;
 
-    const whereConditions: FindOptionsWhere<Parcel> = {};
+    let queryBuilder = this.parcelRepository
+      .createQueryBuilder('parcel')
+      .leftJoinAndSelect('parcel.customer', 'customer')
+      .leftJoinAndSelect('parcel.carrier', 'carrier');
 
-    if (customerCode) whereConditions.customerCode = customerCode;
-
-    if (status && status !== 'all') whereConditions.status = status; // status is already ParcelStatus
-    if (paymentStatus && paymentStatus !== 'all') whereConditions.paymentStatus = paymentStatus; // paymentStatus is already PaymentStatus
-
-    if (dateFrom && dateTo) {
-      whereConditions.receiveDate = Between(new Date(dateFrom), new Date(dateTo));
-    } else if (dateFrom) {
-      whereConditions.receiveDate = Between(new Date(dateFrom), new Date('9999-12-31'));
-    } else if (dateTo) {
-      whereConditions.receiveDate = Between(new Date('0001-01-01'), new Date(dateTo));
+    if (customerCode) {
+      queryBuilder.andWhere('customer.customerCode = :customerCode', { customerCode });
     }
-
-    let queryBuilder = this.parcelRepository.createQueryBuilder('parcel');
-    queryBuilder = queryBuilder.where(whereConditions);
-
+    if (status && status !== 'all') {
+      queryBuilder.andWhere('parcel.status = :status', { status });
+    }
+    if (dateFrom && dateTo) {
+      queryBuilder.andWhere('parcel.receiveDate BETWEEN :from AND :to', {
+        from: new Date(dateFrom),
+        to: new Date(dateTo),
+      });
+    } else if (dateFrom) {
+      queryBuilder.andWhere('parcel.receiveDate >= :from', { from: new Date(dateFrom) });
+    } else if (dateTo) {
+      queryBuilder.andWhere('parcel.receiveDate <= :to', { to: new Date(dateTo) });
+    }
     if (trackingNo) {
-      queryBuilder = queryBuilder.andWhere(
-        '(parcel.cnTracking ILIKE :trackingNo OR parcel.thTracking ILIKE :trackingNo OR parcel.parcelRef ILIKE :trackingNo)',
+      queryBuilder.andWhere(
+        '(parcel.tracking ILIKE :trackingNo OR parcel.containerCode ILIKE :trackingNo OR parcel.parcelRef ILIKE :trackingNo)',
         { trackingNo: `%${trackingNo}%` }
       );
     }
@@ -85,14 +87,24 @@ export class ParcelService {
 
   toResponse(parcel: Parcel): ParcelCore {
     return {
-      ...parcel,
+      id: parcel.id,
+      parcelRef: parcel.parcelRef,
       receiveDate: parcel.receiveDate.toISOString(),
+      description: parcel.description,
+      pack: parcel.pack,
+      weight: Number(parcel.weight),
+      length: parcel.length,
+      width: parcel.width,
+      height: parcel.height,
+      cbm: Number(parcel.cbm),
+      tracking: parcel.tracking,
+      containerCode: parcel.containerCode,
+      estimatedDate: parcel.estimatedDate?.toISOString(),
+      status: parcel.status,
+      customerCode: parcel.customer.customerCode,
+      carrierId: parcel.carrier?.id,
       createdAt: parcel.createdAt.toISOString(),
       updatedAt: parcel.updatedAt.toISOString(),
-      estimate: Number(parcel.estimate),
-      volume: Number(parcel.volume),
-      weight: Number(parcel.weight),
-      freight: Number(parcel.freight),
     };
   }
 

@@ -6,20 +6,22 @@ export type PaymentStatus = 'unpaid' | 'paid' | 'partial';
 export interface ParcelCore {
   id: string;
   parcelRef: string;
-  receiveDate: string; // ISO date-time string
-  customerCode: string;
-  shipment: string;
-  estimate: number;
-  status: ParcelStatus;
-  cnTracking: string;
-  volume: number;
+  receiveDate: string;
+  description: string;
+  pack: number;
   weight: number;
-  freight: number;
-  deliveryMethod: string;
-  thTracking?: string; // Optional property
-  paymentStatus: PaymentStatus;
-  createdAt: string; // ISO date-time string
-  updatedAt: string; // ISO date-time string
+  length: number;
+  width: number;
+  height: number;
+  cbm: number;
+  tracking?: string;
+  containerCode?: string;
+  estimatedDate?: string;
+  status: ParcelStatus;
+  customerCode: string;
+  carrierId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ListParcelsQuery {
