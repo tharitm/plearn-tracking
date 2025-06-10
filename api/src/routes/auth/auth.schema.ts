@@ -7,7 +7,7 @@ export const loginBodySchema = {
   type: 'object',
   required: ['customerCode', 'password'],
   properties: {
-    customerCode: { type: 'string', description: 'รหัสลูกค้า (Customer Code)' },
-    password: { type: 'string', description: 'รหัสผ่าน (Password)' },
+    customerCode: { type: 'string', description: 'รหัสลูกค้า' },
+    password: { type: 'string', description: 'รหัสผ่าน' },
   },
 };

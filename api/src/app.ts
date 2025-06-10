@@ -3,6 +3,8 @@ import registerAllRoutes from './routes/routes';
 import { sendError } from './handlers/response.handler';
 import { BaseResponse } from './common/responses';
 import cors from '@fastify/cors';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUI from '@fastify/swagger-ui';
 
 const app = Fastify({
   logger: true,
@@ -14,6 +16,43 @@ app.register(cors, {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
+});
+
+// Register Swagger
+app.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: 'เอกสาร API สำหรับ Backend',
+      description: 'เอกสาร API สำหรับบริการส่วนหลังบ้านของระบบ',
+      version: '1.0.0'
+    },
+    components: {
+      // If you use JWT authentication, you can define it here
+      // securitySchemes: {
+      //   bearerAuth: {
+      //     type: 'http',
+      //     scheme: 'bearer',
+      //     bearerFormat: 'JWT',
+      //   }
+      // }
+    },
+    // security: [
+    //   {
+    //     bearerAuth: []
+    //   }
+    // ]
+  }
+});
+
+// Register Swagger UI
+app.register(fastifySwaggerUI, {
+  routePrefix: '/documentation', // Or any other path you prefer e.g., /api-docs
+  uiConfig: {
+    docExpansion: 'list', // How the UI should expand documents (none, list, full)
+    deepLinking: false
+  },
+  staticCSP: true, // Content Security Policy
+  transformSpecificationClone: true // Allows for specification modification without affecting the original
 });
 
 app.setErrorHandler((error: FastifyError, request: FastifyRequest, reply: FastifyReply) => {

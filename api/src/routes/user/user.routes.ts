@@ -36,9 +36,9 @@ const userRoutes = async (fastify: FastifyInstance, options: FastifyPluginOption
         response: {
           201: userResponseSchema,
         },
-        tags: ['Admin - Users'], // OpenAPI/Swagger tag
-        summary: 'Create a new user',
-        description: 'Allows an admin to create a new user (customer or other roles).', // คำอธิบายโดยละเอียด
+        tags: ['การจัดการผู้ใช้ (Admin)'], // OpenAPI/Swagger tag
+        summary: 'สร้างผู้ใช้ใหม่',
+        description: 'อนุญาตให้ผู้ดูแลระบบสร้างผู้ใช้ใหม่ (ลูกค้าหรือบทบาทอื่น ๆ)',
       },
     },
     createUserController
@@ -55,9 +55,9 @@ const userRoutes = async (fastify: FastifyInstance, options: FastifyPluginOption
           },
           // Define other responses
         },
-        tags: ['Admin - Users'],
-        summary: 'Get all users',
-        description: 'Retrieves a list of all users.',
+        tags: ['การจัดการผู้ใช้ (Admin)'],
+        summary: 'ดูรายชื่อผู้ใช้ทั้งหมด',
+        description: 'ดึงข้อมูลรายชื่อผู้ใช้ทั้งหมด',
       },
     },
     getAllUsersController
@@ -72,9 +72,9 @@ const userRoutes = async (fastify: FastifyInstance, options: FastifyPluginOption
           200: userResponseSchema,
           // Define 404, etc.
         },
-        tags: ['Admin - Users'],
-        summary: 'Get user by ID',
-        description: 'Retrieves a specific user by their ID.',
+        tags: ['การจัดการผู้ใช้ (Admin)'],
+        summary: 'ดูข้อมูลผู้ใช้ตาม ID',
+        description: 'ดึงข้อมูลผู้ใช้เฉพาะตาม ID',
       },
     },
     getUserByIdController

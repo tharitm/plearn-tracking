@@ -18,8 +18,8 @@ export default async function parcelRoutes(fastify: FastifyInstance, options: Fa
     method: 'GET',
     url: '/parcel',
     schema: {
-      summary: 'List all parcels with pagination and filtering',
-      tags: ['Parcel'],
+      summary: 'รายการพัสดุ (พร้อมตัวกรองและการแบ่งหน้า)',
+      tags: ['การจัดการพัสดุ'],
       querystring: ListParcelsQuerySchema,
       response: {
         200: ListParcelsResponseSchema,
@@ -32,8 +32,8 @@ export default async function parcelRoutes(fastify: FastifyInstance, options: Fa
     method: 'GET',
     url: '/parcel/:id',
     schema: {
-      summary: 'Get a single parcel by its ID',
-      tags: ['Parcel'],
+      summary: 'ดูข้อมูลพัสดุตาม ID',
+      tags: ['การจัดการพัสดุ'],
       params: GetParcelByIdParamsSchema,
       response: {
         200: GetParcelByIdResponseSchema,
@@ -46,9 +46,9 @@ export default async function parcelRoutes(fastify: FastifyInstance, options: Fa
     method: 'PATCH',
     url: '/admin/parcel/:id/status',
     schema: {
-      summary: 'Update parcel status',
-      description: 'Allows updating the status of a specific parcel. Optionally, a notification can be triggered.',
-      tags: ['Parcel Admin'],
+      summary: 'อัปเดตสถานะพัสดุ',
+      description: 'อนุญาตให้อัปเดตสถานะของพัสดุ สามารถเลือกส่งการแจ้งเตือนได้',
+      tags: ['การจัดการพัสดุ (Admin)'],
       params: UpdateParcelStatusParamsSchema,
       body: UpdateParcelStatusBodySchema,
       response: {

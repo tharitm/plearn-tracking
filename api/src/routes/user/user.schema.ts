@@ -8,27 +8,27 @@ export const createUserBodySchema = {
   type: 'object',
   required: ['firstName', 'lastName', 'email', 'phone', 'customerCode', 'address', 'password'],
   properties: {
-    firstName: { type: 'string', description: 'ชื่อจริง (First Name)' },
-    lastName: { type: 'string', description: 'นามสกุล (Last Name)' },
-    email: { type: 'string', format: 'email', description: 'อีเมล (Email)' },
-    phone: { type: 'string', description: 'หมายเลขโทรศัพท์ (Phone Number)' },
+    firstName: { type: 'string', description: "ชื่อจริง" },
+    lastName: { type: 'string', description: "นามสกุล" },
+    email: { type: 'string', format: 'email', description: "อีเมล" },
+    phone: { type: 'string', description: "หมายเลขโทรศัพท์" },
     customerCode: {
       type: 'string',
       minLength: 4,
       maxLength: 10,
-      description: 'รหัสลูกค้า (Customer Code), 4-10 ตัวอักษร'
+      description: "รหัสลูกค้า (4-10 ตัวอักษร)"
     },
-    address: { type: 'string', description: 'ที่อยู่ (Address)' },
+    address: { type: 'string', description: "ที่อยู่" },
     password: {
       type: 'string',
       minLength: 8, // Increased minLength for better security
-      description: 'รหัสผ่าน (Password), อย่างน้อย 8 ตัวอักษร'
+      description: "รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)"
     },
     role: {
       type: 'string',
       enum: Object.values(UserRole),
       default: UserRole.CUSTOMER,
-      description: `บทบาทผู้ใช้ (User Role), ค่าเริ่มต้นคือ ${UserRole.CUSTOMER}`
+      description: `บทบาทผู้ใช้. ค่าเริ่มต้นคือ ${UserRole.CUSTOMER}. ค่าที่เป็นไปได้: ${Object.values(UserRole).join(', ')}`
     },
   },
 };
@@ -37,7 +37,7 @@ export const userIdParamsSchema = {
   type: 'object',
   required: ['id'],
   properties: {
-    id: { type: 'string', description: 'รหัสผู้ใช้ (User ID)' }, // Assuming ID is a string (UUID or DB ID)
+    id: { type: 'string', description: 'รหัสผู้ใช้' }, // Assuming ID is a string (UUID or DB ID)
   },
 };
 
@@ -46,16 +46,16 @@ export const userIdParamsSchema = {
 export const userResponseSchema = {
   type: 'object',
   properties: {
-    id: { type: 'string' },
-    firstName: { type: 'string' },
-    lastName: { type: 'string' },
-    email: { type: 'string' },
-    phone: { type: 'string' },
-    customerCode: { type: 'string' },
-    address: { type: 'string' },
-    role: { type: 'string', enum: Object.values(UserRole) },
-    createdAt: { type: 'string', format: 'date-time' },
-    updatedAt: { type: 'string', format: 'date-time' },
+    id: { type: 'string', description: 'รหัสผู้ใช้' },
+    firstName: { type: 'string', description: "ชื่อจริง" },
+    lastName: { type: 'string', description: "นามสกุล" },
+    email: { type: 'string', format: 'email', description: "อีเมล" },
+    phone: { type: 'string', description: "หมายเลขโทรศัพท์" },
+    customerCode: { type: 'string', description: "รหัสลูกค้า" },
+    address: { type: 'string', description: "ที่อยู่" },
+    role: { type: 'string', enum: Object.values(UserRole), description: `บทบาทผู้ใช้. ค่าที่เป็นไปได้: ${Object.values(UserRole).join(', ')}` },
+    createdAt: { type: 'string', format: 'date-time', description: 'สร้างเมื่อ' },
+    updatedAt: { type: 'string', format: 'date-time', description: 'อัปเดตล่าสุดเมื่อ' },
     // passwordHash should NOT be in responses
     // passwordHash ไม่ควรอยู่ในผลลัพธ์การตอบกลับ
   },

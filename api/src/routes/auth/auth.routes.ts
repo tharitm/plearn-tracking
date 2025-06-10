@@ -25,9 +25,9 @@ const authRoutes = async (fastify: FastifyInstance, options: FastifyPluginOption
         //   200: loginSuccessResponseSchema, // Example
         //   401: errorResponseSchema, // Example
         // },
-        tags: ['Auth'], // Add Swagger/OpenAPI tags if used
-        summary: 'User login', // Summary for API documentation
-        description: 'Authenticates a user and returns a JWT token along with user details.', // Detailed description
+        tags: ['Authentication'], // Add Swagger/OpenAPI tags if used
+        summary: 'ยืนยันตัวตนผู้ใช้และรับ JWT token', // Summary for API documentation
+        description: 'ยืนยันตัวตนผู้ใช้และส่งคืน JWT token พร้อมรายละเอียดผู้ใช้', // Detailed description
       },
     },
     loginController
