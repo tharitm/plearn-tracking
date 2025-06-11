@@ -30,21 +30,18 @@ import { ResetPasswordModal } from "@/components/admin/customer/reset-password-m
 import { showToast } from '@/lib/toast-utils';
 
 export default function AdminCustomersPage() {
+  console.log('==== Admin User Management Page ====')
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
 
   const {
     customers,
     loading,
-    refetch,
   } = useCustomers();
 
-  // Get setters and specific actions directly from the store
   const storeSetFilters = useCustomerStore((state) => state.setFilters);
   const storeUpdateCustomerOptimistic = useCustomerStore((state) => state.updateCustomer);
-  // const storeSetSelectedCustomer = useCustomerStore((state) => state.setSelectedCustomer); // If needed
 
-  // Modal states
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
@@ -52,34 +49,18 @@ export default function AdminCustomersPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for CRUD actions
 
-  // Effect to handle server-side sorting
-  useEffect(() => {
-    if (sorting.length > 0) {
-      const sortRule = sorting[0];
-      storeSetFilters({
-        sortBy: sortRule.id,
-        sortOrder: sortRule.desc ? 'DESC' : 'ASC'
-      } as Partial<CustomerQuery>);
-      // Changing filters in store will trigger refetch via useCustomers hook's useEffect
-    } else {
-      // Optional: If sorting is cleared, reset to default sort in store if necessary
-      // storeSetFilters({ sortBy: 'createdAt', sortOrder: 'DESC' } as Partial<CustomerQuery>);
-    }
-  }, [sorting, storeSetFilters]);
 
-  // Authentication and Authorization Check
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");
       return;
     }
     if (user?.role !== "admin") {
-      router.push("/dashboard"); // Or a relevant non-admin page
+      router.push("/dashboard");
       return;
     }
   }, [isAuthenticated, user, router]);
 
-  // Column definitions
   const columns = useMemo(() => getCustomerColumns({
     onEdit: (customer) => {
       setEditingCustomer(customer);
@@ -119,22 +100,14 @@ export default function AdminCustomersPage() {
           setIsFormModalOpen(false);
           setEditingCustomer(null);
         }
-        // Error toast is handled by withErrorHandling from service if it throws
       } else {
         const newCustomer = await customerService.addCustomer(data as CreateCustomerPayload);
         if (newCustomer) {
           showToast("Customer created successfully!", "success");
           setIsFormModalOpen(false);
-          refetch(); // Refetch the list
         }
-        // Error toast is handled by withErrorHandling from service if it throws
       }
     } catch (err: any) {
-      // This catch is for unexpected errors not caught by withErrorHandling (e.g. network down before fetch)
-      // or if withErrorHandling re-throws.
-      // showToast is likely already called by global error handler via withErrorHandling.
-      // If not, or for additional local feedback:
-      // showToast("An unexpected error occurred during submission.", "error", { description: err.message });
       console.error("Form submission error:", err);
     } finally {
       setIsSubmitting(false);
@@ -157,10 +130,8 @@ export default function AdminCustomersPage() {
     }
   };
 
-  // Breadcrumbs for DashboardLayout
   const breadcrumbs = [{ label: "Admin", href: "/admin" }, { label: "Customers" }];
 
-  // Render null if not authenticated/authorized (useEffect handles redirect)
   if (!isAuthenticated || user?.role !== "admin") {
     return null;
   }
@@ -185,7 +156,7 @@ export default function AdminCustomersPage() {
 
           {/* Filters */}
           <div className="mb-6">
-            <CustomerFilters />
+            {/* <CustomerFilters /> */}
           </div>
 
           {/* Table and Pagination */}
@@ -194,13 +165,13 @@ export default function AdminCustomersPage() {
               <CustomerTableSkeleton />
               <div className="mt-4">
                 {/* You might want a pagination skeleton or hide it during initial full load */}
-                <CustomerPagination />
+                {/* <CustomerPagination /> */}
               </div>
             </>
           ) : (
             <>
-              <CustomerTable table={table} />
-              <CustomerPagination />
+              {/* <CustomerTable table={table} />
+              <CustomerPagination /> */}
             </>
           )}
         </div>

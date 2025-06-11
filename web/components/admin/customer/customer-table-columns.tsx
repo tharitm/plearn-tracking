@@ -5,6 +5,7 @@ import { Customer, UserStatus } from "@/lib/types"; // Assuming Customer and Use
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Define a type for the props if you need to pass callbacks for actions
 export type CustomerTableActions = {

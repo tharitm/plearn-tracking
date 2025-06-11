@@ -40,8 +40,6 @@ export function CustomerFilters() {
       status: localStatus === "all" ? undefined : localStatus,
     };
     setFilters(newFilters);
-    // refetch will be called by the useEffect in useCustomers due to filters changing
-    // Or, explicitly call it: refetch();
   };
 
   const handleResetFilters = () => {
