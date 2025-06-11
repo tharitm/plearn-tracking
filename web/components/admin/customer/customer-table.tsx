@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-table";
 
 import {
-  Table,
+  Table, // This is the ShadCN UI Table component
   TableBody,
   TableCell,
   TableHead,
@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/table";
 
 interface DataTableProps<TData> {
-  table: TanstackTable<TData>;
+  table: TanstackTable<TData>; // Expect the fully configured table instance
+  // columns prop is implicitly part of the table instance
 }
 
 export function CustomerTable<TData>({
@@ -24,7 +25,7 @@ export function CustomerTable<TData>({
 }: DataTableProps<TData>) {
   return (
     <div className="rounded-md border">
-      <Table>
+      <Table> {/* Using ShadCN UI Table component */}
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
