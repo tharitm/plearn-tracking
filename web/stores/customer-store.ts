@@ -5,79 +5,10 @@ import type {
   CreateCustomerPayload,
   UpdateCustomerPayload,
   PaginationState,
-  // ApiResponse, // Not directly used in store state setters if following parcel-store pattern
   CustomerListResponse,
-  UserStatus,
+  // UserStatus, // Not directly used in this file anymore
 } from "@/lib/types";
-
-// This would ideally be in a customerService.ts
-const fetchCustomersFromApi = async (query: CustomerQuery): Promise<CustomerListResponse> => {
-  const q = new URLSearchParams();
-  if (query.page) q.append("page", query.page.toString());
-  if (query.limit) q.append("limit", query.limit.toString());
-  if (query.sortBy) q.append("sortBy", query.sortBy);
-  if (query.sortOrder) q.append("sortOrder", query.sortOrder);
-  if (query.name) q.append("name", query.name);
-  if (query.email) q.append("email", query.email);
-  if (query.status) q.append("status", query.status);
-
-  const response = await fetch(`/api/users?${q.toString()}`);
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({ message: "Unknown error" })); // Ensure errData has a message
-    throw new Error(errData.message || `Failed to fetch customers: ${response.statusText}`);
-  }
-  return response.json();
-};
-
-// These would also be in customerService.ts
-const addCustomerApi = async (customerData: CreateCustomerPayload): Promise<Customer> => {
-  const response = await fetch("/api/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(customerData),
-  });
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({ message: "Unknown error" }));
-    throw new Error(errData.message || "Failed to add customer");
-  }
-  return response.json();
-};
-
-const updateCustomerApi = async (customerId: string, customerData: UpdateCustomerPayload): Promise<Customer> => {
-  const response = await fetch(`/api/users/${customerId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(customerData),
-  });
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({ message: "Unknown error" }));
-    throw new Error(errData.message || "Failed to update customer");
-  }
-  return response.json();
-};
-
-const deleteCustomerApi = async (customerId: string): Promise<{success: boolean, message: string}> => {
-    const response = await fetch(`/api/users/${customerId}`, {
-        method: "DELETE",
-    });
-    if (!response.ok) {
-        const errData = await response.json().catch(() => ({ message: "Unknown error" }));
-        throw new Error(errData.message || "Failed to delete customer");
-    }
-    return response.json(); // Assuming backend returns {success: true, message: ""}
-};
-
-const resetPasswordApi = async (customerId: string): Promise<{success: boolean, message: string}> => {
-    const response = await fetch(`/api/users/${customerId}/reset-password`, {
-        method: "POST",
-    });
-    if (!response.ok) {
-        const errData = await response.json().catch(() => ({ message: "Unknown error" }));
-        throw new Error(errData.message || "Failed to reset password");
-    }
-    return response.json();
-};
-
+import * as customerService from "@/services/customerService"; // Import the service
 
 // Store Interface
 interface CustomerState {
@@ -90,7 +21,7 @@ interface CustomerState {
   filters: Partial<CustomerQuery>;
 
   // Direct setters like in parcel-store
-  setCustomers: (customers: Customer[], total: number) => void;
+  setCustomers: (customers: Customer[], total: number) => void; // Added for consistency if needed, though fetchCustomers handles it
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 
@@ -100,7 +31,7 @@ interface CustomerState {
   resetFilters: () => void;
 
   // Data manipulation actions
-  fetchCustomers: (queryParams?: CustomerQuery) => Promise<void>; // Kept for now, called by hook
+  fetchCustomers: (queryParams?: CustomerQuery) => Promise<void>;
   addCustomer: (customerData: CreateCustomerPayload) => Promise<Customer | null>;
   updateCustomer: (customerId: string, customerData: UpdateCustomerPayload) => Promise<Customer | null>;
   deleteCustomer: (customerId: string) => Promise<boolean>;
@@ -112,7 +43,7 @@ interface CustomerState {
 const initialFilters: Partial<CustomerQuery> = {
   name: "",
   email: "",
-  status: undefined,
+  status: undefined, // Or a default UserStatus like UserStatus.ACTIVE
   sortBy: "createdAt",
   sortOrder: "DESC",
 };
@@ -132,15 +63,15 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
   filters: initialFilters,
 
   // Direct setters
-  setCustomers: (customers, total) => set({ customers, total, error: null }), // Clear error on successful data set
+  setCustomers: (customers, total) => set({ customers, total, error: null, loading: false }),
   setLoading: (loading) => set({ loading }),
-  setError: (error) => set({ error, loading: false }), // Ensure loading is false on error
+  setError: (error) => set({ error, loading: false }),
 
-  // Filter and pagination actions - aligned with parcel-store
+  // Filter and pagination actions
   setFilters: (newFilters) =>
     set((state) => ({
       filters: { ...state.filters, ...newFilters },
-      pagination: { ...state.pagination, pageIndex: 0 }, // Reset to first page
+      pagination: { ...state.pagination, pageIndex: 0 },
     })),
   setPagination: (newPagination) =>
     set((state) => ({
@@ -152,41 +83,40 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
 
   // Data fetching action (to be called by useCustomers hook)
   fetchCustomers: async (queryParams?: CustomerQuery) => {
-    set({ loading: true }); // No need to set error: null here, setError or setCustomers will handle it
+    set({ loading: true });
     const state = get();
-    const query = {
+    const query: CustomerQuery = { // Ensure query is fully formed CustomerQuery
       ...state.filters,
-      page: state.pagination.pageIndex + 1, // Backend is 1-indexed
+      page: state.pagination.pageIndex + 1,
       limit: state.pagination.pageSize,
       ...queryParams,
     };
 
     try {
-      const result = await fetchCustomersFromApi(query);
+      // Use the imported service
+      const result: CustomerListResponse = await customerService.fetchCustomers(query);
       set({
         customers: result.data,
         total: result.pagination.total,
-        // Update pagination from response, ensuring pageIndex is 0-indexed for UI
-        // This was a source of potential infinite loop if not handled carefully by the caller (useCustomers hook)
         pagination: {
             pageIndex: result.pagination.page - 1,
             pageSize: result.pagination.limit
         },
         loading: false,
-        error: null, // Clear error on successful fetch
+        error: null,
       });
     } catch (err: any) {
-      set({ error: err.message, loading: false, customers: [], total: 0 }); // Clear data on error
+      // Service's withErrorHandling already updates globalErrorStore.
+      // Set local error for components that might use it directly.
+      set({ error: err.message, loading: false, customers: [], total: 0 });
     }
   },
 
   addCustomer: async (customerData: CreateCustomerPayload) => {
     set({ loading: true });
     try {
-      const newCustomer = await addCustomerApi(customerData);
-      // Instead of local update, refetch to ensure data consistency (simpler for now)
-      // set((state) => ({ customers: [...state.customers, newCustomer], total: state.total + 1 }));
-      set({ loading: false, error: null}); // Clear error on success
+      const newCustomer = await customerService.addCustomer(customerData);
+      set({ loading: false, error: null});
       await get().fetchCustomers(); // Refetch the current view
       return newCustomer;
     } catch (err: any) {
@@ -198,8 +128,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
   updateCustomer: async (customerId: string, customerData: UpdateCustomerPayload) => {
     set({ loading: true });
     try {
-      const updatedCustomer = await updateCustomerApi(customerId, customerData);
-      // Optimistic update:
+      const updatedCustomer = await customerService.updateCustomer(customerId, customerData);
       set((state) => ({
         customers: state.customers.map((c) => (c.id === customerId ? updatedCustomer : c)),
         selectedCustomer: state.selectedCustomer?.id === customerId ? updatedCustomer : state.selectedCustomer,
@@ -216,8 +145,7 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
   deleteCustomer: async (customerId: string) => {
     set({ loading: true });
     try {
-      await deleteCustomerApi(customerId);
-      // Refetch to update list after soft delete
+      await customerService.deleteCustomer(customerId);
       set({ loading: false, error: null});
       await get().fetchCustomers();
       return true;
@@ -230,8 +158,10 @@ export const useCustomerStore = create<CustomerState>((set, get) => ({
   resetPassword: async (customerId: string) => {
     set({ loading: true });
     try {
-      await resetPasswordApi(customerId);
+      await customerService.resetPassword(customerId);
       set({ loading: false, error: null });
+      // The service returns { success: boolean, message: string },
+      // component calling this might use it for toast.
       return true;
     } catch (err: any) {
       set({ error: err.message, loading: false });
