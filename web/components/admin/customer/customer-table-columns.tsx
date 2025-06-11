@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Customer, UserStatus } from "@/lib/types"; // Assuming Customer and UserStatus are in types.ts
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, KeyRound, PencilLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Define a type for the props if you need to pass callbacks for actions
@@ -98,19 +98,20 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
       return (
         <div className="flex space-x-2">
           <Button
-            variant="outline" // Changed to outline for less emphasis than destructive
-            size="sm"
-            className="border-yellow-500 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800" // Warning style
+            variant="outline"
+            size="icon"
+            className="border-yellow-500 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800"
             onClick={() => onResetPassword(customer)}
           >
-            Reset Password
+            <KeyRound className="h-4 w-4" />
           </Button>
           <Button
-            variant="link"
-            size="sm"
+            variant="ghost"
+            size="icon"
             onClick={() => onEdit(customer)}
+            className="text-blue-600 hover:bg-blue-50"
           >
-            Edit
+            <PencilLine className="h-4 w-4" />
           </Button>
         </div>
       );

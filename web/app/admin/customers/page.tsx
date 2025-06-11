@@ -125,9 +125,11 @@ export default function AdminCustomersPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="space-y-6 sm:space-y-8">
+      <div className="space-y-5 sm:space-y-6">
         <div className="stagger-item">
-          <h1 className="text-xl sm:text-heading font-bold text-[#212121] mb-1 sm:mb-2">
+          <h1
+            className="text-xl sm:text-heading font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2"
+          >
             Customer Management
           </h1>
           <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
@@ -139,28 +141,25 @@ export default function AdminCustomersPage() {
           <h2 className="text-lg sm:text-title font-semibold text-[#212121]">รายชื่อลูกค้า</h2>
           <Button
             onClick={handleOpenCreateModal}
-            className="ripple bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
+            className="ripple bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium px-4 sm:px-5 py-2 rounded-lg shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
           >
-            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            <span className="text-sm sm:text-base">Add New User</span>
+            <Plus className="h-4 w-4 mr-2" />
+            <span className="text-sm">Add New User</span>
           </Button>
         </div>
 
         <div className="stagger-item">
-          <CustomerFilters />
-        </div>
-
-        <div className="stagger-item">
           {loading ? (
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
                 <CustomerTableSkeleton />
               </div>
               <CustomerPagination />
             </div>
           ) : (
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-3 sm:space-y-4">
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+                <CustomerFilters compact />
                 <CustomerTable table={table} />
               </div>
               <CustomerPagination />
