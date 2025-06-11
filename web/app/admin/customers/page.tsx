@@ -163,15 +163,13 @@ export default function AdminCustomersPage() {
           {loading ? (
             <>
               <CustomerTableSkeleton />
-              <div className="mt-4">
-                {/* You might want a pagination skeleton or hide it during initial full load */}
-                {/* <CustomerPagination /> */}
-              </div>
             </>
           ) : (
             <>
-              {/* <CustomerTable table={table} />
-              <CustomerPagination /> */}
+              <CustomerTable table={table} />
+              <div className="mt-4">
+                <CustomerPagination />
+              </div>
             </>
           )}
         </div>

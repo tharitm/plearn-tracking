@@ -1,5 +1,13 @@
 import { ApiResponse } from '@/lib/apiTypes';
-import { UserRole, type Parcel, type ParcelListResponse, type User } from '@/lib/types';
+import {
+  UserRole,
+  UserStatus,
+  type Parcel,
+  type ParcelListResponse,
+  type Customer,
+  type CustomerListResponse,
+  type User,
+} from '@/lib/types';
 
 export const mockAdminUser: User = {
   id: 'admin-1',
@@ -13,6 +21,93 @@ export const mockCustomerUser: User = {
   role: UserRole.CUSTOMER,
   customerCode: 'C001',
 };
+
+export const mockCustomers: Customer[] = [
+  {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    phone: '0800000001',
+    customerCode: 'C001',
+    address: '123 Mockingbird Lane',
+    role: UserRole.CUSTOMER,
+    status: UserStatus.ACTIVE,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: '2',
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    phone: '0800000002',
+    customerCode: 'C002',
+    address: '456 Example Rd',
+    role: UserRole.CUSTOMER,
+    status: UserStatus.INACTIVE,
+    createdAt: '2024-01-02T00:00:00Z',
+    updatedAt: '2024-01-02T00:00:00Z',
+  },
+  {
+    id: '3',
+    name: 'Bob Lee',
+    email: 'bob@example.com',
+    phone: '0800000003',
+    customerCode: 'C003',
+    address: '789 Demo Street',
+    role: UserRole.CUSTOMER,
+    status: UserStatus.ACTIVE,
+    createdAt: '2024-01-03T00:00:00Z',
+    updatedAt: '2024-01-03T00:00:00Z',
+  },
+];
+
+export interface CustomerFilterOptions {
+  page?: number;
+  limit?: number;
+  name?: string;
+  email?: string;
+  status?: UserStatus;
+}
+
+export function getCustomerListResponse(options: CustomerFilterOptions = {}): ApiResponse<CustomerListResponse> {
+  const { page = 1, limit = 10, name, email, status } = options;
+
+  let filteredCustomers = [...mockCustomers];
+
+  if (name) {
+    const lower = name.toLowerCase();
+    filteredCustomers = filteredCustomers.filter((c) => c.name.toLowerCase().includes(lower));
+  }
+
+  if (email) {
+    const lower = email.toLowerCase();
+    filteredCustomers = filteredCustomers.filter((c) => c.email.toLowerCase().includes(lower));
+  }
+
+  if (status) {
+    filteredCustomers = filteredCustomers.filter((c) => c.status === status);
+  }
+
+  const startIndex = (page - 1) * limit;
+  const paginatedCustomers = filteredCustomers.slice(startIndex, startIndex + limit);
+
+  const totalPages = Math.ceil(filteredCustomers.length / limit);
+
+  return {
+    resultCode: 20000,
+    resultStatus: 'Success',
+    developerMessage: 'Success',
+    resultData: {
+      data: paginatedCustomers,
+      pagination: {
+        total: filteredCustomers.length,
+        page,
+        limit,
+        totalPages,
+      },
+    },
+  };
+}
 
 export const mockParcels: Parcel[] = [
   {
