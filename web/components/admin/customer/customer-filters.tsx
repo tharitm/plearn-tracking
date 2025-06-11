@@ -5,11 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCustomers } from "@/hooks/use-customers";
+import { useCustomerStore } from "@/stores/customer-store";
 import { UserStatus } from "@/lib/types"; // Assuming UserStatus is defined here
 import { Search, X } from "lucide-react";
 
 export function CustomerFilters() {
-  const { filters, setFilters, refetchCustomers, resetFilters: storeResetFilters } = useCustomers();
+  const { refetch } = useCustomers();
+  const filters = useCustomerStore((state) => state.filters);
+  const setFilters = useCustomerStore((state) => state.setFilters);
+  const storeResetFilters = useCustomerStore((state) => state.resetFilters);
 
   // Local state to control input fields before triggering a search (debounced or on button click)
   const [localSearch, setLocalSearch] = useState(filters.name || filters.email || "");
@@ -36,8 +40,8 @@ export function CustomerFilters() {
       status: localStatus === "all" ? undefined : localStatus,
     };
     setFilters(newFilters);
-    // refetchCustomers will be called by the useEffect in useCustomers due to filters changing
-    // Or, explicitly call it: refetchCustomers(newFilters);
+    // refetch will be called by the useEffect in useCustomers due to filters changing
+    // Or, explicitly call it: refetch();
   };
 
   const handleResetFilters = () => {
