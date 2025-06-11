@@ -18,11 +18,8 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ length: 100 })
-  firstName!: string;     // ชื่อ
-
-  @Column({ length: 100 })
-  lastName!: string;      // นามสกุล
+  @Column({ length: 200 }) // Combined length of firstName and lastName
+  name!: string;           // ชื่อ - นามสกุล
 
   @Column({ unique: true, length: 255 })
   email!: string;
@@ -45,6 +42,13 @@ export class User {
     default: UserRole.CUSTOMER,
   })
   role!: UserRole;
+
+  @Column({
+    type: 'enum',
+    enum: ['active', 'inactive'],
+    default: 'active',
+  })
+  status!: 'active' | 'inactive';
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
