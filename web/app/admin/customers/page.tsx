@@ -38,7 +38,6 @@ export default function AdminCustomersPage() {
     loading,
   } = useCustomers();
 
-  const storeSetFilters = useCustomerStore((state) => state.setFilters);
   const storeUpdateCustomerOptimistic = useCustomerStore((state) => state.updateCustomer);
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -159,7 +158,7 @@ export default function AdminCustomersPage() {
           ) : (
             <div className="space-y-3 sm:space-y-4">
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
-                <CustomerFilters compact />
+                <CustomerFilters />
                 <CustomerTable table={table} />
               </div>
               <CustomerPagination />
@@ -173,19 +172,19 @@ export default function AdminCustomersPage() {
           onClose={() => {
             setIsFormModalOpen(false);
             setEditingCustomer(null);
-        }}
-        onSubmit={handleFormSubmit}
-        initialData={editingCustomer}
-      />
-      <ResetPasswordModal
-        isOpen={isResetPasswordModalOpen}
-        onClose={() => {
-          setIsResetPasswordModalOpen(false);
-          setCustomerForPasswordReset(null);
-        }}
-        onConfirm={handlePasswordResetConfirm}
-        customerName={customerForPasswordReset?.name}
-      />
+          }}
+          onSubmit={handleFormSubmit}
+          initialData={editingCustomer}
+        />
+        <ResetPasswordModal
+          isOpen={isResetPasswordModalOpen}
+          onClose={() => {
+            setIsResetPasswordModalOpen(false);
+            setCustomerForPasswordReset(null);
+          }}
+          onConfirm={handlePasswordResetConfirm}
+          customerName={customerForPasswordReset?.name}
+        />
       </div>
     </DashboardLayout>
   );
