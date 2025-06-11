@@ -1,15 +1,16 @@
-import type { Parcel, ParcelListResponse, User } from '@/lib/types';
+import { ApiResponse } from '@/lib/apiTypes';
+import { UserRole, type Parcel, type ParcelListResponse, type User } from '@/lib/types';
 
 export const mockAdminUser: User = {
   id: 'admin-1',
   name: 'ผู้ดูแลระบบ',
-  role: 'admin',
+  role: UserRole.ADMIN
 };
 
 export const mockCustomerUser: User = {
   id: 'customer-1',
   name: 'ลูกค้า ทดสอบ',
-  role: 'customer',
+  role: UserRole.CUSTOMER,
   customerCode: 'C001',
 };
 
@@ -369,9 +370,6 @@ export const mockParcels: Parcel[] = [
     updatedAt: "2024-01-24T11:55:00Z",
   },
 ]
-
-];
-
 export interface ParcelFilterOptions {
   page?: number;
   pageSize?: number;
@@ -383,7 +381,7 @@ export interface ParcelFilterOptions {
   customerCode?: string;
 }
 
-export function getParcelListResponse(options: ParcelFilterOptions = {}): ParcelListResponse {
+export function getParcelListResponse(options: ParcelFilterOptions = {}): ApiResponse<ParcelListResponse> {
   const {
     page = 1,
     pageSize = 10,
@@ -433,9 +431,15 @@ export function getParcelListResponse(options: ParcelFilterOptions = {}): Parcel
   const paginatedParcels = filteredParcels.slice(startIndex, endIndex);
 
   return {
-    parcels: paginatedParcels,
-    total: filteredParcels.length,
-    page,
-    pageSize,
+    resultCode: 20000,
+    resultStatus: 'Success',
+    developerMessage: 'Success',
+    resultData: {
+      parcels: paginatedParcels,
+      total: filteredParcels.length,
+      page,
+      pageSize,
+    }
+
   };
 }

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import type { ParcelListResponse } from "@/lib/types";
 import { getParcelListResponse } from "../utils";
+import { ApiResponse } from "@/lib/apiTypes";
 
 // This route returns mock parcel data using helpers from ../utils
 export async function GET(request: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get("dateTo") || undefined;
     const customerCode = searchParams.get("customerCode") || undefined;
 
-    const response: ParcelListResponse = getParcelListResponse({
+    const response: ApiResponse<ParcelListResponse> = getParcelListResponse({
       page,
       pageSize,
       status,

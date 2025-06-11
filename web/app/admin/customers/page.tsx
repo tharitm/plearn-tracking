@@ -36,12 +36,7 @@ export default function AdminCustomersPage() {
   const {
     customers,
     loading,
-    // error, // Error state from the hook (reflects store's error state for list fetching)
-    // total, // Total count from the hook
-    // pagination, // Pagination state from the hook/store
-    // filters, // Filters state from the hook/store
-    refetchCustomers, // Function to refetch customer list
-    // setSelectedCustomer is still returned by useCustomers if needed by columns directly
+    refetchCustomers,
   } = useCustomers();
 
   // Get setters and specific actions directly from the store
@@ -94,9 +89,7 @@ export default function AdminCustomersPage() {
       setCustomerForPasswordReset(customer);
       setIsResetPasswordModalOpen(true);
     },
-    // Add sorting state to dependencies if columns are dynamic based on it, though unlikely here.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [customers]); // Depend on `customers` to ensure columns have access to fresh data for actions if needed.
+  }), [customers]);
 
   const table = useReactTable({
     data: customers,
@@ -107,14 +100,9 @@ export default function AdminCustomersPage() {
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // Manual pagination since we fetch data page by page
     manualPagination: true,
-    // If we were doing client-side pagination:
-    // getPaginationRowModel: getPaginationRowModel(),
-    // pageCount: Math.ceil(total / pagination.pageSize), // total and pagination from useCustomers
   });
 
-  // Event Handlers
   const handleOpenCreateModal = () => {
     setEditingCustomer(null);
     setIsFormModalOpen(true);
@@ -159,9 +147,7 @@ export default function AdminCustomersPage() {
       try {
         await customerService.resetPassword(customerForPasswordReset.id);
         showToast(`Password reset for ${customerForPasswordReset.name} initiated.`, "success");
-        // No list refetch needed for password reset usually
       } catch (err: any) {
-        // Error toast handled by withErrorHandling
         console.error("Password reset error:", err);
       } finally {
         setIsSubmitting(false);
