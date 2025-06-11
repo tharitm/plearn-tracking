@@ -33,7 +33,6 @@ export default function AdminCustomersPage() {
   console.log('==== Admin User Management Page ====')
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
-
   const {
     customers,
     loading,
@@ -48,18 +47,6 @@ export default function AdminCustomersPage() {
   const [customerForPasswordReset, setCustomerForPasswordReset] = useState<Customer | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for CRUD actions
-
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
-      return;
-    }
-    if (user?.role !== "admin") {
-      router.push("/dashboard");
-      return;
-    }
-  }, [isAuthenticated, user, router]);
 
   const columns = useMemo(() => getCustomerColumns({
     onEdit: (customer) => {
@@ -156,7 +143,7 @@ export default function AdminCustomersPage() {
 
           {/* Filters */}
           <div className="mb-6">
-            {/* <CustomerFilters /> */}
+            <CustomerFilters />
           </div>
 
           {/* Table and Pagination */}
@@ -164,14 +151,13 @@ export default function AdminCustomersPage() {
             <>
               <CustomerTableSkeleton />
               <div className="mt-4">
-                {/* You might want a pagination skeleton or hide it during initial full load */}
-                {/* <CustomerPagination /> */}
+                <CustomerPagination />
               </div>
             </>
           ) : (
             <>
-              {/* <CustomerTable table={table} />
-              <CustomerPagination /> */}
+              <CustomerTable table={table} />
+              <CustomerPagination />
             </>
           )}
         </div>

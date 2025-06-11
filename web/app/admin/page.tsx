@@ -138,19 +138,6 @@ export default function AdminDashboard() {
     },
   });
 
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
-    }
-    if (user?.role !== "admin") {
-      router.push("/dashboard")
-      return
-    }
-  }, [isAuthenticated, user, router])
-
-
   const handleExcelImport = async (data: Partial<Parcel>[]) => {
     try {
       const response = await fetch("/api/admin/upload", {
