@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import type { User } from "@/lib/types"
+import { mockAdminUser, mockCustomerUser } from "../utils"
 
 export async function POST(request: Request) {
   try {
@@ -21,18 +22,9 @@ export async function POST(request: Request) {
     let user: User | null = null
 
     if (username.toLowerCase() === "admin" && password === "password") {
-      user = {
-        id: "admin-1",
-        name: "ผู้ดูแลระบบ",
-        role: "admin",
-      }
+      user = mockAdminUser
     } else if (username.toLowerCase() === "customer" && password === "password") {
-      user = {
-        id: "customer-1",
-        name: "ลูกค้า ทดสอบ",
-        role: "customer",
-        customerCode: "C001",
-      }
+      user = mockCustomerUser
     } else {
       return NextResponse.json(
         {
