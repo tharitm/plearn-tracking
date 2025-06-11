@@ -36,7 +36,7 @@ export default function AdminCustomersPage() {
   const {
     customers,
     loading,
-    refetchCustomers,
+    refetch,
   } = useCustomers();
 
   // Get setters and specific actions directly from the store
@@ -125,7 +125,7 @@ export default function AdminCustomersPage() {
         if (newCustomer) {
           showToast("Customer created successfully!", "success");
           setIsFormModalOpen(false);
-          refetchCustomers(); // Refetch the list
+          refetch(); // Refetch the list
         }
         // Error toast is handled by withErrorHandling from service if it throws
       }

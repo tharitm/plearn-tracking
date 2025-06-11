@@ -12,11 +12,11 @@ export function useCustomers() {
     loading,
     filters,
     pagination,
-    setCustomers, // Renamed from setFetchedData
+    setCustomers,
     setLoading,
     setError,
-    error: customerStoreError, // Store's own error state
-    // setSelectedCustomer is selected below for direct return
+    error: customerStoreError,
+    setSelectedCustomer,
   } = useCustomerStore();
 
   // Mimic loadParcels structure for loadCustomers
@@ -97,17 +97,12 @@ export function useCustomers() {
   }, [loadCustomers]); // useEffect depends on the memoized loadCustomers
 
   return {
-    // State selected for optimized re-renders, as in useParcels
     customers: useCustomerStore((state) => state.customers),
     total: useCustomerStore((state) => state.total),
-
-    // Directly returned states from the hook's own scope or direct store selection
-    loading: useCustomerStore((state) => state.loading), // Ensure we get the latest loading state
-    error: useCustomerStore((state) => state.error),     // Ensure we get the latest error state
-
-    // Actions: only refetch and setSelectedCustomer, as per useParcels
-    refetchCustomers: loadCustomers,
-    setSelectedCustomer: useCustomerStore((state) => state.setSelectedCustomer),
+    loading,
+    error: customerStoreError,
+    refetch: loadCustomers,
+    setSelectedCustomer,
 
     // Pagination and Filters state are also needed by components using the table
     // useParcels does not explicitly return these, implying components get them from useParcelStore directly.
