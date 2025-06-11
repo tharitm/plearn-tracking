@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -51,30 +52,48 @@ export function CustomerFilters() {
 
 
   return (
-    <div className="flex flex-col sm:flex-row gap-2 mb-4 p-4 border rounded-lg bg-card">
-      <Input
-        placeholder="ค้นหา ชื่อ, อีเมล..."
-        value={localSearch}
-        onChange={handleSearchChange}
-        className="max-w-xs"
-        startIcon={<Search className="text-muted-foreground" />}
-      />
-      <Select value={localStatus} onValueChange={handleStatusChange}>
-        <SelectTrigger className="w-full sm:w-[180px]">
-          <SelectValue placeholder="Select status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Statuses</SelectItem>
-          <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
-          <SelectItem value={UserStatus.INACTIVE}>Inactive</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button onClick={applyFilters} variant="secondary">
-        <Search className="mr-2 h-4 w-4" /> Search
-      </Button>
-      <Button onClick={handleResetFilters} variant="outline">
-        <X className="mr-2 h-4 w-4" /> Reset
-      </Button>
-    </div>
+    <Card className="glass-effect border-0 rounded-xl sm:rounded-2xl shadow-material-4 overflow-hidden">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-wrap gap-4 items-end">
+          <div className="w-full sm:w-64 md:w-72">
+            <Input
+              placeholder="ค้นหา ชื่อ, อีเมล..."
+              value={localSearch}
+              onChange={handleSearchChange}
+              className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 touch-target"
+              startIcon={<Search className="h-4 w-4 text-gray-400" />}
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <Select value={localStatus} onValueChange={handleStatusChange}>
+              <SelectTrigger className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 touch-target w-full">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent className="rounded-lg sm:rounded-xl">
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
+                <SelectItem value={UserStatus.INACTIVE}>Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex gap-2 ml-auto">
+            <Button
+              onClick={applyFilters}
+              className="ripple bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 sm:px-6 py-2 h-10 sm:h-12 rounded-lg sm:rounded-xl shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target"
+            >
+              <Search className="h-4 w-4 mr-2" />
+              <span className="text-sm sm:text-base">Search</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleResetFilters}
+              className="ripple border-gray-200 hover:bg-gray-50 font-medium px-4 h-10 sm:h-12 rounded-lg sm:rounded-xl transition-all duration-200 touch-target"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
