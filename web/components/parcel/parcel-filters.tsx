@@ -10,7 +10,11 @@ import { Search, RotateCcw } from "lucide-react"
 import { DateRangePicker } from "@/components/ui/date-range-picker"
 import type { DateRange } from "react-day-picker"
 
-export function ParcelFilters() {
+interface ParcelFiltersProps {
+  compact?: boolean
+}
+
+export function ParcelFilters({ compact = false }: ParcelFiltersProps) {
   const { filters, setFilters, resetFilters } = useParcelStore()
   const [localFilters, setLocalFilters] = useState(filters)
 
@@ -62,10 +66,8 @@ export function ParcelFilters() {
     setDateRange(undefined)
   }
 
-  return (
-    <Card className="glass-effect border-0 rounded-xl sm:rounded-2xl shadow-material-4 overflow-hidden">
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-wrap gap-4 items-end">
+  const content = (
+    <div className="flex flex-wrap gap-3 items-end">
           {/* Search Input - Reduced width */}
           <div className="w-full sm:w-64 md:w-72">
             <Input
@@ -139,7 +141,15 @@ export function ParcelFilters() {
             </Button>
           </div>
         </div>
-      </CardContent>
+  )
+
+  if (compact) {
+    return <div className="p-4 sm:p-6 border-b">{content}</div>
+  }
+
+  return (
+    <Card className="glass-effect border-0 rounded-xl sm:rounded-2xl shadow-material-4 overflow-hidden">
+      <CardContent className="p-4 sm:p-6">{content}</CardContent>
     </Card>
   )
 }

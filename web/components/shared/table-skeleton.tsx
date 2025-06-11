@@ -7,17 +7,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 
 interface TableSkeletonProps {
   rows?: number
   columns?: number
   className?: string
+  compact?: boolean
 }
 
-export function TableSkeleton({ rows = 8, columns = 5, className }: TableSkeletonProps) {
+export function TableSkeleton({ rows = 8, columns = 5, className, compact = false }: TableSkeletonProps) {
   return (
     <div className="rounded-md border bg-white">
-      <Table className={className ?? "min-w-[1200px]"}>
+      <Table
+        className={cn(
+          className ?? "min-w-[1200px]",
+          compact &&
+            "[&_th]:h-10 [&_th]:px-3 [&_td]:px-3 [&_td]:py-2 text-sm"
+        )}
+      >
         <TableHeader>
           <TableRow className="bg-gray-50">
             {Array.from({ length: columns }).map((_, index) => (

@@ -9,19 +9,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 
 interface DataTableProps<TData> {
   table: TanStackTable<TData>
   noDataMessage?: React.ReactNode
   className?: string
+  compact?: boolean
 }
 
-export function DataTable<TData>({ table, noDataMessage, className }: DataTableProps<TData>) {
+export function DataTable<TData>({ table, noDataMessage, className, compact = false }: DataTableProps<TData>) {
   const hasRows = table.getRowModel().rows.length > 0
 
   return (
     <div className="rounded-md border bg-white">
-      <Table className={className ?? "min-w-[1200px]"}>
+      <Table
+        className={cn(
+          className ?? "min-w-[1200px]",
+          compact &&
+            "[&_th]:h-10 [&_th]:px-3 [&_td]:px-3 [&_td]:py-2 text-sm"
+        )}
+      >
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id} className="bg-gray-50">

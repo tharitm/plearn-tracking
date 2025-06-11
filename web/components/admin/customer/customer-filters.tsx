@@ -10,7 +10,11 @@ import { useCustomerStore } from "@/stores/customer-store";
 import { UserStatus } from "@/lib/types"; // Assuming UserStatus is defined here
 import { Search, X } from "lucide-react";
 
-export function CustomerFilters() {
+interface CustomerFiltersProps {
+  compact?: boolean
+}
+
+export function CustomerFilters({ compact = false }: CustomerFiltersProps) {
   const { refetch } = useCustomers();
   const filters = useCustomerStore((state) => state.filters);
   const setFilters = useCustomerStore((state) => state.setFilters);
@@ -51,10 +55,8 @@ export function CustomerFilters() {
   };
 
 
-  return (
-    <Card className="glass-effect border-0 rounded-xl sm:rounded-2xl shadow-material-4 overflow-hidden">
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-wrap gap-4 items-end">
+  const content = (
+    <div className="flex flex-wrap gap-3 items-end">
           <div className="w-full sm:w-64 md:w-72">
             <Input
               placeholder="ค้นหา ชื่อ, อีเมล..."
@@ -93,7 +95,15 @@ export function CustomerFilters() {
             </Button>
           </div>
         </div>
-      </CardContent>
+  )
+
+  if (compact) {
+    return <div className="p-4 sm:p-6 border-b">{content}</div>
+  }
+
+  return (
+    <Card className="glass-effect border-0 rounded-xl sm:rounded-2xl shadow-material-4 overflow-hidden">
+      <CardContent className="p-4 sm:p-6">{content}</CardContent>
     </Card>
-  );
+  )
 }
