@@ -4,8 +4,10 @@ import * as React from "react";
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
+import { useCustomerStore } from "@/stores/customer-store"; // Import the store
 import { useCustomers } from "@/hooks/use-customers";
-import type { Customer, CreateCustomerPayload, UpdateCustomerPayload } from "@/lib/types";
+import * as customerService from "@/services/customerService"; // Import the service
+import type { Customer, CreateCustomerPayload, UpdateCustomerPayload, CustomerQuery } from "@/lib/types";
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
@@ -34,26 +36,41 @@ export default function AdminCustomersPage() {
   const {
     customers,
     loading,
-    // error, // TODO: Handle error display, e.g., show a toast or message
-    // total, // Available from useCustomers if needed directly
-    // pagination, // Available from useCustomers if needed directly
-    // filters, // Available from useCustomers if needed directly
-    addCustomer,
-    updateCustomer,
-    deleteCustomer, // Although not directly used by a button on this page, it's part of the hook
-    resetPassword,
-    setSelectedCustomer, // Available but CustomerTable columns handle selection for actions
-    // setPagination, // Handled by CustomerPagination component
-    // setFilters, // Handled by CustomerFilters component
-    refetchCustomers, // Available if manual refetch is needed
+    // error, // Error state from the hook (reflects store's error state for list fetching)
+    // total, // Total count from the hook
+    // pagination, // Pagination state from the hook/store
+    // filters, // Filters state from the hook/store
+    refetchCustomers, // Function to refetch customer list
+    // setSelectedCustomer is still returned by useCustomers if needed by columns directly
   } = useCustomers();
+
+  // Get setters and specific actions directly from the store
+  const storeSetFilters = useCustomerStore((state) => state.setFilters);
+  const storeUpdateCustomerOptimistic = useCustomerStore((state) => state.updateCustomer);
+  // const storeSetSelectedCustomer = useCustomerStore((state) => state.setSelectedCustomer); // If needed
 
   // Modal states
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [customerForPasswordReset, setCustomerForPasswordReset] = useState<Customer | null>(null);
-  const [sorting, setSorting] = useState<SortingState>([]); // Manage sorting state here
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for CRUD actions
+
+  // Effect to handle server-side sorting
+  useEffect(() => {
+    if (sorting.length > 0) {
+      const sortRule = sorting[0];
+      storeSetFilters({
+        sortBy: sortRule.id,
+        sortOrder: sortRule.desc ? 'DESC' : 'ASC'
+      } as Partial<CustomerQuery>);
+      // Changing filters in store will trigger refetch via useCustomers hook's useEffect
+    } else {
+      // Optional: If sorting is cleared, reset to default sort in store if necessary
+      // storeSetFilters({ sortBy: 'createdAt', sortOrder: 'DESC' } as Partial<CustomerQuery>);
+    }
+  }, [sorting, storeSetFilters]);
 
   // Authentication and Authorization Check
   useEffect(() => {
@@ -104,47 +121,53 @@ export default function AdminCustomersPage() {
   };
 
   const handleFormSubmit = async (data: CreateCustomerPayload | UpdateCustomerPayload) => {
+    setIsSubmitting(true);
     try {
-      let success = false;
       if (editingCustomer) {
-        const updated = await updateCustomer(editingCustomer.id, data as UpdateCustomerPayload);
-        if (updated) {
+        const updatedCustomer = await customerService.updateCustomer(editingCustomer.id, data as UpdateCustomerPayload);
+        if (updatedCustomer) {
+          storeUpdateCustomerOptimistic(updatedCustomer); // Optimistic update in store
           showToast("Customer updated successfully!", "success");
-          success = true;
+          setIsFormModalOpen(false);
+          setEditingCustomer(null);
         }
+        // Error toast is handled by withErrorHandling from service if it throws
       } else {
-        const created = await addCustomer(data as CreateCustomerPayload);
-        if (created) {
+        const newCustomer = await customerService.addCustomer(data as CreateCustomerPayload);
+        if (newCustomer) {
           showToast("Customer created successfully!", "success");
-          success = true;
+          setIsFormModalOpen(false);
+          refetchCustomers(); // Refetch the list
         }
-      }
-      if (success) {
-        setIsFormModalOpen(false);
-        setEditingCustomer(null);
-        // Data should refetch via useCustomers hook due to store changes
-      } else {
-         // Error toast is likely shown by the store/hook if add/updateCustomer handles it
-         // If not, show a generic one here.
-         // showToast("Operation failed.", "error");
+        // Error toast is handled by withErrorHandling from service if it throws
       }
     } catch (err: any) {
-      // This catch is for unexpected errors during the submission process itself
-      showToast("An unexpected error occurred.", "error", { description: err.message });
+      // This catch is for unexpected errors not caught by withErrorHandling (e.g. network down before fetch)
+      // or if withErrorHandling re-throws.
+      // showToast is likely already called by global error handler via withErrorHandling.
+      // If not, or for additional local feedback:
+      // showToast("An unexpected error occurred during submission.", "error", { description: err.message });
+      console.error("Form submission error:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handlePasswordResetConfirm = async () => {
     if (customerForPasswordReset) {
-      const success = await resetPassword(customerForPasswordReset.id);
-      if (success) {
+      setIsSubmitting(true);
+      try {
+        await customerService.resetPassword(customerForPasswordReset.id);
         showToast(`Password reset for ${customerForPasswordReset.name} initiated.`, "success");
-      } else {
-        // Error toast likely shown by store/hook
-        // showToast("Failed to initiate password reset.", "error");
+        // No list refetch needed for password reset usually
+      } catch (err: any) {
+        // Error toast handled by withErrorHandling
+        console.error("Password reset error:", err);
+      } finally {
+        setIsSubmitting(false);
+        setIsResetPasswordModalOpen(false);
+        setCustomerForPasswordReset(null);
       }
-      setIsResetPasswordModalOpen(false);
-      setCustomerForPasswordReset(null);
     }
   };
 

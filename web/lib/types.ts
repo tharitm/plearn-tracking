@@ -133,3 +133,9 @@ export interface ParcelListResponse {
   page: number
   pageSize: number
 }
+
+// For simple success responses from backend, often used for CUD operations not returning full entity
+export interface SimpleSuccessMessage {
+  success: boolean;
+  message: string;
+}

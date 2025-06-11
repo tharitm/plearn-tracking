@@ -1,130 +1,118 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback } from "react";
 import { useCustomerStore } from "@/stores/customer-store";
-import * as customerService from "@/services/customerService";
-import type { CustomerQuery, CreateCustomerPayload, UpdateCustomerPayload, Customer } from "@/lib/types";
+import * as customerService from "@/services/customerService"; // For fetchCustomers call
+import type { CustomerQuery } from "@/lib/types";
+// CreateCustomerPayload, UpdateCustomerPayload, Customer are not directly used by this hook anymore for CRUD.
 
 export function useCustomers() {
-  // Select actions from the store that the hook will use to update state
-  const storeSetFetchedData = useCustomerStore((state) => state.setFetchedData);
-  const storeSetFetchError = useCustomerStore((state) => state.setFetchError);
-  const storeSetLoading = useCustomerStore((state) => state.setLoading);
+  // Select actions and states from the store, similar to useParcels
+  const {
+    loading,
+    filters,
+    pagination,
+    setCustomers, // Renamed from setFetchedData
+    setLoading,
+    setError,
+    error: customerStoreError, // Store's own error state
+    // setSelectedCustomer is selected below for direct return
+  } = useCustomerStore();
 
-  // Select states from the store that are needed for forming queries or dependencies
-  const filters = useCustomerStore((state) => state.filters);
-  const pagination = useCustomerStore((state) => state.pagination);
-
-  // Select states to be returned by the hook
-  const customers = useCustomerStore((state) => state.customers);
-  const selectedCustomer = useCustomerStore((state) => state.selectedCustomer);
-  const total = useCustomerStore((state) => state.total);
-  const loading = useCustomerStore((state) => state.loading); // This is the general store loading state
-  const error = useCustomerStore((state) => state.error);     // This is the general store error state
-
-  // Actions to be exposed directly from the store (filter/pagination setters, CRUD)
-  const setFilters = useCustomerStore((state) => state.setFilters);
-  const setPagination = useCustomerStore((state) => state.setPagination);
-  const resetFilters = useCustomerStore((state) => state.resetFilters);
-
-  // CRUD actions from the store. These already call the service.
-  // The hook will expose these and potentially manage refetching after they complete.
-  const storeAddCustomer = useCustomerStore((state) => state.addCustomer);
-  const storeUpdateCustomer = useCustomerStore((state) => state.updateCustomer);
-  const storeDeleteCustomer = useCustomerStore((state) => state.deleteCustomer);
-  const storeResetPassword = useCustomerStore((state) => state.resetPassword);
-  const setSelectedCustomer = useCustomerStore((state) => state.setSelectedCustomer);
-
-
-  // loadCustomers: Fetches data based on current store filters and pagination
+  // Mimic loadParcels structure for loadCustomers
   const loadCustomers = useCallback(async () => {
-    storeSetLoading(true);
-    storeSetFetchError(null); // Clear previous fetch error
+    // No user role check needed here as admin is assumed for customer management page
 
-    const query: CustomerQuery = {
-      ...filters,
-      page: pagination.pageIndex + 1,
-      limit: pagination.pageSize,
-    };
+    setLoading(true);
+    if (customerStoreError) {
+      setError(null); // Clear previous store-specific error
+    }
 
     try {
+      const query: CustomerQuery = {
+        ...filters,
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize,
+      };
+
+      // Call the customer service directly
       const result = await customerService.fetchCustomers(query);
-      storeSetFetchedData(result); // This action now updates customers, total, pagination
-    } catch (err: any) {
-      // customerService functions are wrapped with withErrorHandling,
-      // which updates globalErrorStore. Set local store error for UI.
-      storeSetFetchError(err.message || "Failed to fetch customers");
+      // Use the store's setter for fetched data
+      setCustomers(result.data, result.pagination.total);
+      // Note: setCustomers in the store also updates total and pagination from result.
+      // The store's setFetchedData (now setCustomers) was:
+      // setFetchedData: (result) => set({
+      //   customers: result.data,
+      //   total: result.pagination.total,
+      //   pagination: {
+      //       pageIndex: result.pagination.page - 1,
+      //       pageSize: result.pagination.limit
+      //   },
+      //   error: null,
+      // })
+      // This means pagination state in store IS updated by setCustomers (via setFetchedData logic).
+      // This differs slightly from useParcels where setParcels only sets parcels and total.
+      // For closer alignment, setCustomers should only set customers and total.
+      // And pagination state should be updated by the component via setPagination if API returns different page details.
+      // However, the previous store refactor aimed to have setFetchedData update pagination.
+      // Let's stick to the store's current setCustomers (renamed setFetchedData) behavior.
+      // If it causes issues, it needs adjustment in the store.
+
+    } catch (error) {
+      // The service's withErrorHandling already updates globalErrorStore.
+      // The store's setError might be called by the service wrapper or here if needed.
+      // useParcels' catch block is minimal. This one will also be.
+      console.error("Error in useCustomers' loadCustomers (already handled globally):", error);
+      // If an error occurs, setCustomers / setError in the store should handle clearing data.
+      // The store's setError in the previous step was:
+      // setFetchError: (error) => set({ error, customers: [], total: 0, ... })
+      // The service call is wrapped, so it throws. If fetchCustomers service fails,
+      // it will throw, and this catch block will execute.
+      // We should ensure store's error state is set.
+      // The `withErrorHandling` in service calls `globalErrorStore.setError`.
+      // If we also want to set local store error:
+      // setError(error instanceof Error ? error.message : "An unknown error occurred");
+      // For now, assume global error is primary, local might be set by service call failure if not caught by service's withErrorHandling.
+      // The store's setError is used by the hook, so if service throws, this catch won't be hit by withErrorHandling.
+      // This means this catch IS important if service itself re-throws.
+      if (error instanceof Error) {
+         setError(error.message); // Set local store error
+      } else {
+         setError("An unknown error occurred while fetching customers.");
+      }
     } finally {
-      storeSetLoading(false);
+      setLoading(false);
     }
   }, [
     filters,
     pagination,
-    storeSetLoading,
-    storeSetFetchedData,
-    storeSetFetchError
-  ]); // Dependencies include objects from store. This is like useParcels.
+    setLoading,
+    setCustomers,
+    setError,
+    customerStoreError
+  ]);
 
   useEffect(() => {
     loadCustomers();
-  }, [loadCustomers]); // useEffect depends on the memoized loadCustomers.
-
-  // Enhanced CRUD operations exposed by the hook
-  const addCustomer = async (data: CreateCustomerPayload): Promise<Customer | null> => {
-    const newCustomer = await storeAddCustomer(data);
-    if (newCustomer) {
-      loadCustomers(); // Refetch list after successful addition
-    }
-    return newCustomer;
-  };
-
-  const updateCustomer = async (id: string, data: UpdateCustomerPayload): Promise<Customer | null> => {
-    // storeUpdateCustomer is optimistic, so list might not need immediate refetch
-    // unless backend returns data that differs significantly from optimistic update.
-    // For consistency or if detailed server state is needed, can refetch:
-    // const updated = await storeUpdateCustomer(id, data);
-    // if (updated) loadCustomers();
-    // return updated;
-    return storeUpdateCustomer(id, data); // Current store action is optimistic
-  };
-
-  const deleteCustomer = async (id: string): Promise<boolean> => {
-    const success = await storeDeleteCustomer(id);
-    if (success) {
-      loadCustomers(); // Refetch list after successful deletion
-    }
-    return success;
-  };
-
-  const resetCustomerPassword = async (id: string): Promise<boolean> => {
-    // This action typically doesn't require a list refetch.
-    return storeResetPassword(id);
-  };
-
+  }, [loadCustomers]); // useEffect depends on the memoized loadCustomers
 
   return {
-    // State
-    customers,
-    selectedCustomer,
-    loading, // This is the store's loading state, shared by fetch & CRUD ops in store
-    error,   // Store's error state
-    pagination,
-    total,
-    filters,
+    // State selected for optimized re-renders, as in useParcels
+    customers: useCustomerStore((state) => state.customers),
+    total: useCustomerStore((state) => state.total),
 
-    // Filter/Pagination actions
-    setFilters,
-    setPagination,
-    resetFilters,
+    // Directly returned states from the hook's own scope or direct store selection
+    loading: useCustomerStore((state) => state.loading), // Ensure we get the latest loading state
+    error: useCustomerStore((state) => state.error),     // Ensure we get the latest error state
 
-    // CRUD actions exposed by the hook
-    addCustomer,      // Hook's version that refetches
-    updateCustomer,   // Store's optimistic version
-    deleteCustomer,   // Hook's version that refetches
-    resetPassword: resetCustomerPassword,
-    setSelectedCustomer,
-
-    // Refetch action
+    // Actions: only refetch and setSelectedCustomer, as per useParcels
     refetchCustomers: loadCustomers,
+    setSelectedCustomer: useCustomerStore((state) => state.setSelectedCustomer),
+
+    // Pagination and Filters state are also needed by components using the table
+    // useParcels does not explicitly return these, implying components get them from useParcelStore directly.
+    // For consistency, we will not return them here. Components should use useCustomerStore for them.
+    // pagination: useCustomerStore((state) => state.pagination),
+    // filters: useCustomerStore((state) => state.filters),
   };
 }
