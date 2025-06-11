@@ -42,6 +42,10 @@ export const DeveloperMessages = {
   MISSING_AUTH_HEADER: 'Missing or malformed Authorization header.', // ส่วนหัว Authorization หายไปหรือรูปแบบไม่ถูกต้อง
   INVALID_TOKEN: 'Invalid or expired token.', // โทเค็นไม่ถูกต้องหรือหมดอายุ
   INVALID_PASSWORD: 'รหัสผ่านไม่ถูกต้อง (Invalid password)', // Kept in Thai as it's a direct user feedback
+
+  // User Already Inactive
+  USER_ALREADY_INACTIVE: 'This Account has already in our services',
+  USER_NOT_FOUND_OR_ALREADY_INACTIVE: 'Account not found'
 };
 
 /**

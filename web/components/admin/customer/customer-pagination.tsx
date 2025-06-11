@@ -3,18 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCustomers } from "@/hooks/use-customers"; // Using the hook
+import { useCustomerStore } from "@/stores/customer-store";
 
 export function CustomerPagination() {
-  const { total, pagination, setPagination } = useCustomers();
+  const { total, pagination, setPagination } = useCustomerStore();
 
   const totalPages = total > 0 ? Math.ceil(total / pagination.pageSize) : 0;
-  if (total === 0 && totalPages === 0) return null; // Don't render if no items and no pages
+  if (total === 0 && totalPages === 0) return null;
 
   const currentPage = pagination.pageIndex + 1;
 
   const handlePageChange = (newPageIndex: number) => {
-    // Ensure newPageIndex is within valid bounds
     if (newPageIndex >= 0 && newPageIndex < totalPages) {
       setPagination({ pageIndex: newPageIndex });
     }
@@ -26,17 +25,16 @@ export function CustomerPagination() {
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
-      <div className="text-sm text-muted-foreground">
-        Showing {pagination.pageIndex * pagination.pageSize + 1} to{" "}
-        {Math.min((pagination.pageIndex + 1) * pagination.pageSize, total)} of {total} customers
+      <div className="text-sm text-gray-600">
+        แสดง {pagination.pageIndex * pagination.pageSize + 1} ถึง{" "}
+        {Math.min((pagination.pageIndex + 1) * pagination.pageSize, total)} จาก {total} รายการ
       </div>
 
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
           <Select
-            value={`${pagination.pageSize}`}
-            onValueChange={(value) => {
+            value={`${pagination.pageSize}`} onValueChange={(value) => {
               handlePageSizeChange(value);
             }}
           >

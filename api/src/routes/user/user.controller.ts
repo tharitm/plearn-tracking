@@ -35,23 +35,19 @@ const sanitizeUsers = (users: any[]): UserResponse[] => {
  * @param reply The Fastify reply object.
  */
 export const getAllUsersController = async (
-  request: FastifyRequest<{ Querystring: GetUsersQuery }>, // Type from user.types.ts, validated by schema
+  request: FastifyRequest<{ Querystring: GetUsersQuery }>,
   reply: FastifyReply
 ) => {
   try {
-    // request.query will be typed based on GetUsersQuerySchema by Fastify
-    const result = await UserService.getAllUsers(request.query); // Service needs to handle query
-    // Assuming service returns { users: User[], total: number, page: number, limit: number }
-    // For now, let's assume it returns users directly and we sanitize.
-    // Later, the service should return a structure that includes pagination details.
+    const result = await UserService.getAllUsers(request.query);
     sendSuccess(reply, {
-        data: sanitizeUsers(result.users),
-        pagination: {
-            total: result.total,
-            page: result.page,
-            limit: result.limit,
-            totalPages: Math.ceil(result.total / result.limit)
-        }
+      data: sanitizeUsers(result.users),
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: Math.ceil(result.total / result.limit)
+      }
     });
   } catch (error: any) {
     request.log.error(error, 'Get all users error');
@@ -75,10 +71,10 @@ export const createUserController = async (
   } catch (error: any) {
     request.log.error(error, 'Create user error');
     if (error.message === DeveloperMessages.VALIDATION_FAIL_CUSTOMER_CODE_EXISTS ||
-        error.message === DeveloperMessages.VALIDATION_FAIL_EMAIL_EXISTS) {
+      error.message === DeveloperMessages.VALIDATION_FAIL_EMAIL_EXISTS) {
       sendError(reply, BaseResponseKey.CONFLICT, error, error.message);
     } else if (error.message.startsWith('Validation error:')) { // More generic validation
-        sendError(reply, BaseResponseKey.VALIDATION_FAIL, error, error.message);
+      sendError(reply, BaseResponseKey.VALIDATION_FAIL, error, error.message);
     }
     else {
       sendError(reply, BaseResponseKey.INTERNAL_ERROR);
@@ -106,9 +102,9 @@ export const updateUserController = async (
   } catch (error: any) {
     request.log.error(error, `Update user (${id}) error`);
     if (error.message === DeveloperMessages.USER_NOT_FOUND) {
-        sendError(reply, BaseResponseKey.NOT_FOUND, error, error.message);
+      sendError(reply, BaseResponseKey.NOT_FOUND, error, error.message);
     } else if (error.message === DeveloperMessages.VALIDATION_FAIL_EMAIL_EXISTS || error.message === DeveloperMessages.VALIDATION_FAIL_CUSTOMER_CODE_EXISTS) {
-        sendError(reply, BaseResponseKey.CONFLICT, error, error.message);
+      sendError(reply, BaseResponseKey.CONFLICT, error, error.message);
     } else {
       sendError(reply, BaseResponseKey.INTERNAL_ERROR);
     }
@@ -128,16 +124,15 @@ export const deleteUserController = async (
   try {
     const success = await UserService.deleteUser(id); // Service marks as inactive
     if (!success) {
-      // This case might indicate the user wasn't found or couldn't be deleted
       return sendError(reply, BaseResponseKey.NOT_FOUND, new Error(DeveloperMessages.USER_NOT_FOUND_OR_ALREADY_INACTIVE));
     }
     sendSuccess(reply, { success: true, message: 'User marked as inactive successfully.' });
   } catch (error: any) {
     request.log.error(error, `Delete user (${id}) error`);
     if (error.message === DeveloperMessages.USER_NOT_FOUND) {
-        sendError(reply, BaseResponseKey.NOT_FOUND, error, error.message);
+      sendError(reply, BaseResponseKey.NOT_FOUND, error, error.message);
     } else {
-        sendError(reply, BaseResponseKey.INTERNAL_ERROR);
+      sendError(reply, BaseResponseKey.INTERNAL_ERROR);
     }
   }
 };
@@ -158,10 +153,10 @@ export const resetPasswordController = async (
     sendSuccess(reply, { success: true, message: 'Password reset initiated successfully (placeholder).' });
   } catch (error: any) {
     request.log.error(error, `Reset password for user (${id}) error`);
-     if (error.message === DeveloperMessages.USER_NOT_FOUND) {
-        sendError(reply, BaseResponseKey.NOT_FOUND, error, error.message);
+    if (error.message === DeveloperMessages.USER_NOT_FOUND) {
+      sendError(reply, BaseResponseKey.NOT_FOUND, error, error.message);
     } else {
-        sendError(reply, BaseResponseKey.INTERNAL_ERROR);
+      sendError(reply, BaseResponseKey.INTERNAL_ERROR);
     }
   }
 };

@@ -19,7 +19,7 @@ import parcelRoutes from './parcel/parcel.route';
  * @param options Plugin options. ตัวเลือกสำหรับปลั๊กอิน
  */
 export default async function registerAllRoutes(fastify: FastifyInstance, options: FastifyPluginOptions): Promise<void> {
-  fastify.register(authRoutes, { prefix: '/api/auth' }); // Adding a common prefix for auth as well
-  fastify.register(userRoutes, { prefix: '/api/users' }); // Changed prefix
-  fastify.register(parcelRoutes, { prefix: '/api/parcels' }); // Adding a common prefix for parcels
+  fastify.register(authRoutes);
+  fastify.register(userRoutes, { prefix: '/admin' });
+  fastify.register(parcelRoutes, { prefix: '/parcels' });
 }

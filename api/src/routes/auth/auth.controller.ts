@@ -47,8 +47,8 @@ export const loginController = async (
     const userResponse = {
       id: user.id,
       customerCode: user.customerCode,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user.name.split(" ")[0],
+      lastName: user.name.split(" ")[1],
       email: user.email,
       role: user.role,
     };

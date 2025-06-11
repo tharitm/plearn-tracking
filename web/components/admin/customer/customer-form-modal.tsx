@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Customer, UserRole, UserStatus, CreateCustomerPayload, UpdateCustomerPayload } from "@/lib/types";
-import { Button }_from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,8 +21,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
-// Zod schema for validation
 const customerFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -38,7 +38,7 @@ export type CustomerFormData = z.infer<typeof customerFormSchema>;
 
 interface CustomerFormModalProps {
   isOpen: boolean;
-  onClose: ()_=> void;
+  onClose: () => void;
   onSubmit: (data: CreateCustomerPayload | UpdateCustomerPayload) => void;
   initialData?: Customer | null;
 }
@@ -56,6 +56,7 @@ export function CustomerFormModal({
     handleSubmit,
     reset,
     control,
+    watch,
     formState: { errors, isDirty, isValid },
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerFormSchema),
@@ -71,7 +72,7 @@ export function CustomerFormModal({
     },
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       if (isEditMode && initialData) {
         reset({
@@ -101,21 +102,12 @@ export function CustomerFormModal({
 
   const handleFormSubmit = (data: CustomerFormData) => {
     const submissionData: CreateCustomerPayload | UpdateCustomerPayload = {
-        ...data,
-        // Ensure password is not sent if empty and in edit mode,
-        // or if it's truly optional for creation and not provided.
-        password: data.password ? data.password : undefined,
+      ...data,
+      password: data.password ? data.password : undefined,
     };
     if (!isEditMode && !data.password) {
-        // If creating and password field is empty, you might want to remove it or ensure backend handles it
-        // For this example, if password schema allows optional/empty, it's fine.
-        // However, typically for creation, password is required.
-        // Let's adjust the schema to make password required for creation and optional for edit.
-        // This would mean two different schemas or conditional validation.
-        // For simplicity here, we assume the single schema handles it.
     }
     onSubmit(submissionData);
-    // onClose(); // Let parent component decide to close
   };
 
   const title = isEditMode ? "Edit Customer" : "Create New Customer";
@@ -187,17 +179,17 @@ export function CustomerFormModal({
               <Label htmlFor="status" className="block mb-2">Status</Label>
               <div className="flex items-center space-x-2">
                 <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                        <Switch
-                        id="status"
-                        checked={field.value === UserStatus.ACTIVE}
-                        onCheckedChange={(checked) => field.onChange(checked ? UserStatus.ACTIVE : UserStatus.INACTIVE)}
-                        />
-                    )}
+                  name="status"
+                  control={control}
+                  render={({ field }) => (
+                    <Switch
+                      id="status"
+                      checked={field.value === UserStatus.ACTIVE}
+                      onCheckedChange={(checked) => field.onChange(checked ? UserStatus.ACTIVE : UserStatus.INACTIVE)}
+                    />
+                  )}
                 />
-                <span>{control.getValues("status") === UserStatus.ACTIVE ? "Active" : "Inactive"}</span>
+                <span>{watch("status") === UserStatus.ACTIVE ? "Active" : "Inactive"}</span>
               </div>
               {errors.status && <p className="text-sm text-red-600">{errors.status.message}</p>}
             </div>
@@ -206,7 +198,7 @@ export function CustomerFormModal({
           {!isEditMode && (
             <div className="space-y-1">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" {...register("password")} placeholder="Required for new customer"/>
+              <Input id="password" type="password" {...register("password")} placeholder="Required for new customer" />
               {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
             </div>
           )}

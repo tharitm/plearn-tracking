@@ -78,9 +78,7 @@ export const useCustomerStore = create<CustomerState>((set) => ({
         newCustomers[index] = customer;
         return { customers: newCustomers };
       }
-      return {}; // Return empty object if customer not found, no state change
+      return {};
     }),
 
-  // Async CRUD actions (addCustomer, async updateCustomer, deleteCustomer, resetPassword) are removed.
-  // The hook (use-customers.ts) will handle these by calling services and then using the setters above.
 }));
