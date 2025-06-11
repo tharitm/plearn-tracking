@@ -150,14 +150,13 @@ export default function AdminCustomersPage() {
           {loading ? (
             <>
               <CustomerTableSkeleton />
-              <div className="mt-4">
-                <CustomerPagination />
-              </div>
             </>
           ) : (
             <>
               <CustomerTable table={table} />
-              <CustomerPagination />
+              <div className="mt-4">
+                <CustomerPagination />
+              </div>
             </>
           )}
         </div>
