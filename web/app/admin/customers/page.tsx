@@ -125,49 +125,55 @@ export default function AdminCustomersPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="container mx-auto py-8 px-4 md:px-6 lg:px-8">
-        <div className="bg-card p-6 sm:p-8 rounded-xl shadow-md">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <h1 className="text-2xl font-bold text-foreground mb-4 sm:mb-0">
-              Customer Management
-            </h1>
-            <Button
-              onClick={handleOpenCreateModal}
-              style={{ backgroundColor: "#5B5FEE" }}
-              className="text-white"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Add New User
-            </Button>
-          </div>
+      <div className="space-y-6 sm:space-y-8">
+        <div className="stagger-item">
+          <h1 className="text-xl sm:text-heading font-bold text-[#212121] mb-1 sm:mb-2">
+            Customer Management
+          </h1>
+          <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
+            จัดการข้อมูลลูกค้าในระบบ
+          </p>
+        </div>
 
-          {/* Filters */}
-          <div className="mb-6">
-            <CustomerFilters />
-          </div>
+        <div className="stagger-item flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 className="text-lg sm:text-title font-semibold text-[#212121]">รายชื่อลูกค้า</h2>
+          <Button
+            onClick={handleOpenCreateModal}
+            className="ripple bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
+          >
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+            <span className="text-sm sm:text-base">Add New User</span>
+          </Button>
+        </div>
 
-          {/* Table and Pagination */}
+        <div className="stagger-item">
+          <CustomerFilters />
+        </div>
+
+        <div className="stagger-item">
           {loading ? (
-            <>
-              <CustomerTableSkeleton />
-            </>
-          ) : (
-            <>
-              <CustomerTable table={table} />
-              <div className="mt-4">
-                <CustomerPagination />
+            <div className="space-y-4 sm:space-y-6">
+              <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+                <CustomerTableSkeleton />
               </div>
-            </>
+              <CustomerPagination />
+            </div>
+          ) : (
+            <div className="space-y-4 sm:space-y-6">
+              <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+                <CustomerTable table={table} />
+              </div>
+              <CustomerPagination />
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Modals */}
-      <CustomerFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => {
-          setIsFormModalOpen(false);
-          setEditingCustomer(null);
+        {/* Modals */}
+        <CustomerFormModal
+          isOpen={isFormModalOpen}
+          onClose={() => {
+            setIsFormModalOpen(false);
+            setEditingCustomer(null);
         }}
         onSubmit={handleFormSubmit}
         initialData={editingCustomer}
@@ -181,6 +187,7 @@ export default function AdminCustomersPage() {
         onConfirm={handlePasswordResetConfirm}
         customerName={customerForPasswordReset?.name}
       />
+      </div>
     </DashboardLayout>
   );
 }
