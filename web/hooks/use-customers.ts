@@ -2,71 +2,93 @@
 
 import { useEffect, useCallback } from "react";
 import { useCustomerStore } from "@/stores/customer-store";
-import type { CustomerQuery, CreateCustomerPayload, UpdateCustomerPayload, Customer, PaginationState } from "@/lib/types";
+import type { CustomerQuery } from "@/lib/types"; // Only CustomerQuery needed for loadCustomers params
 
 export function useCustomers() {
-  const {
-    customers,
-    selectedCustomer,
-    loading,
-    error,
-    pagination,
-    total,
-    filters,
-    fetchCustomers: storeFetchCustomers,
-    addCustomer: storeAddCustomer,
-    updateCustomer: storeUpdateCustomer,
-    deleteCustomer: storeDeleteCustomer,
-    resetPassword: storeResetPassword,
-    setSelectedCustomer: storeSetSelectedCustomer,
-    setLoading: storeSetLoading,
-    setError: storeSetError,
-    setPagination: storeSetPagination,
-    setFilters: storeSetFilters,
-    resetFilters: storeResetFilters,
-  } = useCustomerStore();
+  // Select actions and stable states from the store
+  const storeFetchCustomers = useCustomerStore((state) => state.fetchCustomers);
+  const setFilters = useCustomerStore((state) => state.setFilters);
+  const setPagination = useCustomerStore((state) => state.setPagination);
+  const resetFilters = useCustomerStore((state) => state.resetFilters);
 
-  // Callback for refetching, potentially with new or modified query parameters
-  const refetchCustomers = useCallback(async (queryParams?: CustomerQuery) => {
-    // queryParams passed here will override existing filters/pagination from store for this fetch call
+  // Select states that are used as dependencies for loadCustomers or returned directly
+  const filters = useCustomerStore((state) => state.filters);
+  const pagination = useCustomerStore((state) => state.pagination);
+  const loading = useCustomerStore((state) => state.loading);
+  const error = useCustomerStore((state) => state.error);
+
+  // Other actions to be exposed
+  const addCustomer = useCustomerStore((state) => state.addCustomer);
+  const updateCustomer = useCustomerStore((state) => state.updateCustomer);
+  const deleteCustomer = useCustomerStore((state) => state.deleteCustomer);
+  const resetPassword = useCustomerStore((state) => state.resetPassword);
+  const setSelectedCustomer = useCustomerStore((state) => state.setSelectedCustomer);
+
+  // Define loadCustomers, similar to loadParcels in useParcels
+  // This function will be memoized and its dependencies carefully chosen.
+  const loadCustomers = useCallback(async (queryParams?: CustomerQuery) => {
+    // storeFetchCustomers already handles setting loading/error states
+    // and uses current filters/pagination from store if queryParams is not overriding
     await storeFetchCustomers(queryParams);
-  }, [storeFetchCustomers]);
+  }, [storeFetchCustomers]); // storeFetchCustomers from Zustand is a stable reference
 
-  // useEffect for initial load or when primary dependencies like filters/pagination change
-  // This is similar to useParcels. Components might also trigger this.
-  // The store's fetchCustomers already uses current filters and pagination from state.
+  // useEffect for initial load and when specific filter/pagination values change
   useEffect(() => {
-    // Initial fetch when the hook is mounted or when filters/pagination (from store) change.
-    // The store's fetchCustomers combines its internal filters/pagination with any direct queryParams.
-    // So, calling it without arguments uses the store's current state.
-    storeFetchCustomers();
-  }, [storeFetchCustomers, filters, pagination.pageIndex, pagination.pageSize]); // Dependencies ensure fetch on change
+    // This effect now depends on loadCustomers, which in turn depends on storeFetchCustomers.
+    // The actual primitive values that trigger the fetch are implicitly handled by
+    // how components call setFilters or setPagination, which then changes the 'filters'
+    // or 'pagination' objects from the store, triggering a re-render of this hook.
+    // The key is that loadCustomers itself doesn't change unless storeFetchCustomers changes (which it shouldn't).
+    // The hook re-runs, `filters` or `pagination` objects are new, but `loadCustomers` is stable.
+    // The call to `loadCustomers()` uses the latest `filters` and `pagination` from the store via `get()` inside `storeFetchCustomers`.
+
+    // To make it react to changes in filters and pagination from the store,
+    // as `useParcels` reacts to `filters` and `pagination` for its `loadParcels`
+    // We need to include those specific primitive values that should trigger a reload in `loadCustomers`'s deps,
+    // or make `loadCustomers` not take params and always use store state, and put primitives in useEffect's deps.
+
+    // Let's refine loadCustomers and its dependencies to be more explicit like useParcels's loadParcels
+    // For now, the previous store refactor made fetchCustomers use its internal state.
+    // The hook's job is to call that when critical pieces change.
+    loadCustomers();
+  }, [
+    loadCustomers, // This is stable
+    // Now, explicitly add the primitive values from filters and pagination
+    // that should trigger a data reload.
+    filters.name,
+    filters.email,
+    filters.status,
+    filters.sortBy,
+    filters.sortOrder,
+    pagination.pageIndex,
+    pagination.pageSize,
+  ]);
 
   return {
-    // State
-    customers,
-    selectedCustomer,
+    // State selected for optimized re-renders
+    customers: useCustomerStore((state) => state.customers),
+    selectedCustomer: useCustomerStore((state) => state.selectedCustomer), // For consistency if selectedParcel is done this way
+    total: useCustomerStore((state) => state.total),
+
+    // Directly returned states
     loading,
     error,
-    pagination,
-    total,
-    filters,
+    pagination, // Return the whole pagination object
+    filters,    // Return the whole filters object
 
     // Actions from store
-    addCustomer: storeAddCustomer,
-    updateCustomer: storeUpdateCustomer,
-    deleteCustomer: storeDeleteCustomer,
-    resetPassword: storeResetPassword,
-    setSelectedCustomer: storeSetSelectedCustomer,
-    setPagination: storeSetPagination,
-    setFilters: storeSetFilters,
-    resetFilters: storeResetFilters,
+    addCustomer,
+    updateCustomer,
+    deleteCustomer,
+    resetPassword,
+    setSelectedCustomer,
+    setPagination,
+    setFilters,
+    resetFilters,
 
     // Specific actions
-    refetchCustomers,
-
-    // Raw store actions if needed, though usually covered by above
-    // _storeSetLoading: storeSetLoading, // Example if direct access to setters is needed
-    // _storeSetError: storeSetError,     // Example
+    // refetchCustomers can be the loadCustomers if it's designed to be called externally.
+    // Or, if loadCustomers is only for internal useEffect, refetchCustomers could be storeFetchCustomers directly.
+    refetchCustomers: loadCustomers, // Expose loadCustomers as refetchCustomers
   };
 }

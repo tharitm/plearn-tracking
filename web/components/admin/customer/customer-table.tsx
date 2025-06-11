@@ -2,54 +2,36 @@
 
 import * as React from "react";
 import {
-  ColumnDef,
+  Table as TanstackTable, // Renaming to avoid conflict with local Table component
   flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
 } from "@tanstack/react-table";
 
 import {
-  Table,
+  Table, // This is the ShadCN UI Table component
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"; // Using the ShadCN Table components
+} from "@/components/ui/table";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps<TData> {
+  table: TanstackTable<TData>; // Expect the fully configured table instance
+  // columns prop is implicitly part of the table instance
 }
 
-export function CustomerTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
-
+export function CustomerTable<TData>({
+  table,
+}: DataTableProps<TData>) {
   return (
     <div className="rounded-md border">
-      <Table>
+      <Table> {/* Using ShadCN UI Table component */}
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} style={{ width: header.getSize() !== 0 ? header.getSize() : undefined }}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -78,7 +60,7 @@ export function CustomerTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
                 No customers found.
               </TableCell>
             </TableRow>

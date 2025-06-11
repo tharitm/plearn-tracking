@@ -11,6 +11,13 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel, // For client-side pagination if needed, or server-side
+  type SortingState,
+} from "@tanstack/react-table";
 import { getCustomerColumns } from "@/components/admin/customer/customer-table-columns";
 import { CustomerTable } from "@/components/admin/customer/customer-table";
 import { CustomerTableSkeleton } from "@/components/admin/customer/customer-table-skeleton";
@@ -46,6 +53,7 @@ export default function AdminCustomersPage() {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [customerForPasswordReset, setCustomerForPasswordReset] = useState<Customer | null>(null);
+  const [sorting, setSorting] = useState<SortingState>([]); // Manage sorting state here
 
   // Authentication and Authorization Check
   useEffect(() => {
@@ -69,7 +77,25 @@ export default function AdminCustomersPage() {
       setCustomerForPasswordReset(customer);
       setIsResetPasswordModalOpen(true);
     },
-  }), []);
+    // Add sorting state to dependencies if columns are dynamic based on it, though unlikely here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [customers]); // Depend on `customers` to ensure columns have access to fresh data for actions if needed.
+
+  const table = useReactTable({
+    data: customers,
+    columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    // Manual pagination since we fetch data page by page
+    manualPagination: true,
+    // If we were doing client-side pagination:
+    // getPaginationRowModel: getPaginationRowModel(),
+    // pageCount: Math.ceil(total / pagination.pageSize), // total and pagination from useCustomers
+  });
 
   // Event Handlers
   const handleOpenCreateModal = () => {
@@ -164,7 +190,7 @@ export default function AdminCustomersPage() {
             </>
           ) : (
             <>
-              <CustomerTable columns={columns} data={customers} />
+              <CustomerTable table={table} />
               <CustomerPagination />
             </>
           )}
