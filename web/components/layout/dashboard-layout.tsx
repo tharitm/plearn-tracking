@@ -29,7 +29,7 @@ export function DashboardLayout<TData>({
   tableInstance,
 }: DashboardLayoutProps<TData>) {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <AppSidebar />
       <SidebarInset className="flex flex-col min-h-screen w-full">
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md flex h-14 lg:h-16 shrink-0 items-center gap-2 border-b border-white/20 px-4 lg:px-6 shadow-sm">

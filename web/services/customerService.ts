@@ -10,13 +10,11 @@ import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/ap
 import { isApiErrorResponse } from '@/lib/apiTypes';
 import { withErrorHandling } from './apiService';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_MOCK_URL;
 
 if (!API_BASE_URL) {
   console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
 }
-
-// --- Private API Functions ---
 
 async function _fetchCustomers(filters?: CustomerQuery): Promise<CustomerListResponse> {
   try {
