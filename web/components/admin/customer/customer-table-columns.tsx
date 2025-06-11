@@ -1,13 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Customer, UserStatus } from "@/lib/types"; // Assuming Customer and UserStatus are in types.ts
+import { Customer, UserStatus } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, KeyRound, PencilLine } from "lucide-react";
+import { ArrowUpDown, KeyRound, Edit3, User, Mail, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Define a type for the props if you need to pass callbacks for actions
 export type CustomerTableActions = {
   onEdit: (customer: Customer) => void;
   onResetPassword: (customer: Customer) => void;
@@ -21,13 +20,24 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
         >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <User className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">ชื่อ</span>
+          <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-3 py-1">
+        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+          <User className="h-4 w-4 text-blue-600" />
+        </div>
+        <div>
+          <div className="font-medium text-gray-800 text-sm">{row.getValue("name")}</div>
+        </div>
+      </div>
+    ),
   },
   {
     accessorKey: "email",
@@ -36,13 +46,22 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
         >
-          Email
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <Mail className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">อีเมล</span>
+          <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-3 py-1">
+        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+          <Mail className="h-4 w-4 text-purple-600" />
+        </div>
+        <div className="text-sm text-gray-700 font-mono">{row.getValue("email")}</div>
+      </div>
+    ),
   },
   {
     accessorKey: "status",
@@ -51,67 +70,68 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
         >
-          Status
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <Activity className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">สถานะ</span>
+          <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as UserStatus;
-      let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "default";
-      let statusText = "Unknown";
+      const isActive = status === UserStatus.ACTIVE;
 
-      if (status === UserStatus.ACTIVE) {
-        badgeVariant = "default"; // Typically green, default is often blue/purple
-        statusText = "Active";
-        // For a green badge, you might need a custom variant or inline style
-        // Example: <Badge className="bg-green-500 text-white hover:bg-green-600">Active</Badge>
-      } else if (status === UserStatus.INACTIVE) {
-        badgeVariant = "secondary"; // Typically gray
-        statusText = "Inactive";
-      }
-
-      // Placeholder for custom badge colors if needed:
-      // Active: "bg-green-100 text-green-800 border-green-200"
-      // Inactive: "bg-gray-100 text-gray-800 border-gray-200"
-      // Active: uses #10B981 (success color)
-      // Inactive: uses a gray color
       return (
-        <Badge variant={badgeVariant} className={cn(
-          "text-xs font-semibold", // Common badge styling
-          status === UserStatus.ACTIVE
-            ? "bg-[#10B981] hover:bg-[#0F9A6D] text-white border-transparent" // Success color
-            : "bg-gray-200 hover:bg-gray-300 text-gray-800 border-transparent" // Gray for inactive
-        )}>
-          {statusText}
-        </Badge>
+        <div className="flex items-center gap-3 py-1">
+          <div className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center",
+            isActive ? "bg-emerald-100" : "bg-gray-100"
+          )}>
+            <div className={cn(
+              "w-3 h-3 rounded-full",
+              isActive ? "bg-emerald-500" : "bg-gray-400"
+            )} />
+          </div>
+          <Badge
+            className={cn(
+              "text-xs font-medium px-3 py-1 rounded-full border-0 shadow-soft-sm",
+              isActive
+                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+            )}
+          >
+            {isActive ? "ใช้งานอยู่" : "ไม่ใช้งาน"}
+          </Badge>
+        </div>
       );
     },
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => (
+      <div className="text-sm font-medium text-gray-600 px-2">การจัดการ</div>
+    ),
     cell: ({ row }) => {
       const customer = row.original;
 
       return (
-        <div className="flex space-x-2">
+        <div className="flex items-center gap-2 py-1">
           <Button
             variant="outline"
-            size="icon"
-            className="border-yellow-500 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800"
+            size="sm"
+            className="h-8 w-8 p-0 bg-amber-50 border-0 hover:bg-amber-100 rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-200"
             onClick={() => onResetPassword(customer)}
           >
-            <KeyRound className="h-4 w-4" />
+            <KeyRound className="h-4 w-4 text-amber-600" />
           </Button>
           <Button
-            variant="ghost"
-            size="icon"
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0 bg-blue-50 border-0 hover:bg-blue-100 rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-200"
             onClick={() => onEdit(customer)}
-            className="text-blue-600 hover:bg-blue-50"
           >
-            <PencilLine className="h-4 w-4" />
+            <Edit3 className="h-4 w-4 text-blue-600" />
           </Button>
         </div>
       );

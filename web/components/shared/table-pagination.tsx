@@ -27,7 +27,7 @@ export function TablePagination({
   const currentPage = pagination.pageIndex + 1
 
   return (
-    <div className={"flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 " + (className ?? "")}>
+    <div className={"flex flex-col sm:flex-row items-center justify-between gap-4 " + (className ?? "")}>
       <div className="text-sm text-gray-600">
         แสดง {pagination.pageIndex * pagination.pageSize + 1} ถึง{' '}
         {Math.min((pagination.pageIndex + 1) * pagination.pageSize, total)} จาก {total} รายการ

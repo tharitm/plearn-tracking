@@ -4,7 +4,6 @@ import { useState, useCallback } from "react"
 import { useDropzone } from "react-dropzone"
 import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, FileSpreadsheet, Check, X } from "lucide-react"
 import type { Parcel } from "@/lib/types"
 
@@ -86,83 +85,117 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
     setFileName("")
   }
 
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <FileSpreadsheet className="h-5 w-5" />
-          <span>นำเข้าข้อมูลจาก Excel</span>
-        </CardTitle>
-        <CardDescription>อัปโหลดไฟล์ Excel (.xlsx, .xls) เพื่อนำเข้าข้อมูลพัสดุจำนวนมาก</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="bg-white rounded-2xl shadow-soft-lg border border-gray-100/50 overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-gray-100/50">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-emerald-50 rounded-xl">
+            <FileSpreadsheet className="h-5 w-5 text-emerald-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-gray-800 text-base">นำเข้าข้อมูลจาก Excel</h3>
+            <p className="text-sm text-gray-500 mt-0.5">อัปโหลดไฟล์ Excel (.xlsx, .xls) เพื่อนำเข้าข้อมูลพัสดุ</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-5">
         {previewData.length === 0 ? (
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"
+            className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-300 ${isDragActive
+              ? "border-emerald-400 bg-emerald-50/50"
+              : "border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/30"
               }`}
           >
             <input {...getInputProps()} />
-            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <div className={`p-3 rounded-2xl w-fit mx-auto mb-3 ${isDragActive ? "bg-emerald-100" : "bg-gray-100"
+              }`}>
+              <Upload className={`h-8 w-8 ${isDragActive ? "text-emerald-600" : "text-gray-500"
+                }`} />
+            </div>
             {isDragActive ? (
-              <p className="text-blue-600">วางไฟล์ที่นี่...</p>
+              <p className="text-emerald-600 font-medium">วางไฟล์ที่นี่...</p>
             ) : (
-              <div>
-                <p className="text-gray-600 mb-2">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+              <div className="space-y-1">
+                <p className="text-gray-700 font-medium">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
                 <p className="text-sm text-gray-500">รองรับไฟล์ .xlsx และ .xls เท่านั้น</p>
               </div>
             )}
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Preview Header */}
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold">ตัวอย่างข้อมูล (5 แถวแรก)</h3>
-                <p className="text-sm text-gray-600">ไฟล์: {fileName}</p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-xl">
+                  <FileSpreadsheet className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-800">ตัวอย่างข้อมูล (5 แถวแรก)</h4>
+                  <p className="text-sm text-gray-500">{fileName}</p>
+                </div>
               </div>
-              <div className="flex space-x-2">
-                <Button onClick={handleImport} disabled={uploading} className="flex items-center space-x-2">
-                  <Check className="h-4 w-4" />
-                  <span>{uploading ? "กำลังนำเข้า..." : "นำเข้าข้อมูล"}</span>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleImport}
+                  disabled={uploading}
+                  size="sm"
+                  className="h-8 px-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
+                >
+                  <Check className="h-4 w-4 mr-1.5" />
+                  <span className="text-sm">{uploading ? "กำลังนำเข้า..." : "นำเข้า"}</span>
                 </Button>
-                <Button variant="outline" onClick={handleCancel} disabled={uploading}>
-                  <X className="h-4 w-4" />
-                  <span>ยกเลิก</span>
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={uploading}
+                  size="sm"
+                  className="h-8 px-3 bg-gray-50 hover:bg-gray-100 border-0 rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
+                >
+                  <X className="h-4 w-4 text-gray-500" />
                 </Button>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="border border-gray-300 px-4 py-2 text-left">เลขที่รับพัสดุ</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">รหัสลูกค้า</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">TRACKING จีน</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">น้ำหนัก</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">ปริมาณ</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">ค่าขนส่ง</th>
-                    <th className="border border-gray-300 px-4 py-2 text-left">ประมาณการ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewData.map((row, index) => (
-                    <tr key={index}>
-                      <td className="border border-gray-300 px-4 py-2">{row.parcelRef}</td>
-                      <td className="border border-gray-300 px-4 py-2">{row.customerCode}</td>
-                      <td className="border border-gray-300 px-4 py-2">{row.cnTracking}</td>
-                      <td className="border border-gray-300 px-4 py-2">{row.weight?.toFixed(2)}</td>
-                      <td className="border border-gray-300 px-4 py-2">{row.volume?.toFixed(2)}</td>
-                      <td className="border border-gray-300 px-4 py-2">฿{row.freight?.toLocaleString()}</td>
-                      <td className="border border-gray-300 px-4 py-2">฿{row.estimate?.toLocaleString()}</td>
+            {/* Preview Table */}
+            <div className="bg-gray-50/50 rounded-xl overflow-hidden border border-gray-100/50">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gray-100/50">
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">เลขที่รับพัสดุ</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">รหัสลูกค้า</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">TRACKING จีน</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">น้ำหนัก</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ปริมาณ</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ค่าขนส่ง</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ประมาณการ</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {previewData.map((row, index) => (
+                      <tr key={index} className="hover:bg-white/60 transition-colors duration-200">
+                        <td className="px-3 py-2.5 text-sm text-gray-800 font-medium">{row.parcelRef}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.customerCode}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700 font-mono">{row.cnTracking}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.weight?.toFixed(2)}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.volume?.toFixed(2)}</td>
+                        <td className="px-3 py-2.5 text-sm text-emerald-600 font-medium">฿{row.freight?.toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-sm text-blue-600 font-medium">฿{row.estimate?.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

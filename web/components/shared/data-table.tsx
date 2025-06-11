@@ -22,12 +22,13 @@ export function DataTable<TData>({ table, noDataMessage, className, compact = fa
   const hasRows = table.getRowModel().rows.length > 0
 
   return (
-    <div className="rounded-md border bg-white">
+    <div className="rounded-md  bg-white">
       <Table
         className={cn(
           className ?? "min-w-[1200px]",
+          "divide-y-0 [&_th]:border-0 [&_td]:border-0",
           compact &&
-            "[&_th]:h-10 [&_th]:px-3 [&_td]:px-3 [&_td]:py-2 text-sm"
+          "[&_th]:h-10 [&_th]:px-3 [&_td]:px-3 [&_td]:py-2 text-sm"
         )}
       >
         <TableHeader>

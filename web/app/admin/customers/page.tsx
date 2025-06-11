@@ -11,7 +11,7 @@ import type { Customer, CreateCustomerPayload, UpdateCustomerPayload, CustomerQu
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Users, UserPlus, Filter, Search } from "lucide-react";
 
 import {
   useReactTable,
@@ -124,46 +124,69 @@ export default function AdminCustomersPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="space-y-5 sm:space-y-6">
-        <div className="stagger-item">
-          <h1
-            className="text-xl sm:text-heading font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2"
-          >
-            Customer Management
-          </h1>
-          <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
-            จัดการข้อมูลลูกค้าในระบบ
-          </p>
+      <div className="space-y-6">
+        {/* Header Section with SoftUI Design */}
+        <div className="bg-white rounded-3xl p-3 shadow-soft-xl border border-gray-100/50">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-blue-50 rounded-2xl shadow-soft-sm">
+              <Users className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 mb-1">
+                Customer Management
+              </h1>
+              <p className="text-sm text-gray-500 font-medium">
+                จัดการข้อมูลลูกค้าในระบบ
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="stagger-item flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-lg sm:text-title font-semibold text-[#212121]">รายชื่อลูกค้า</h2>
-          <Button
-            onClick={handleOpenCreateModal}
-            className="ripple bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium px-4 sm:px-5 py-2 rounded-lg shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            <span className="text-sm">Add New User</span>
-          </Button>
-        </div>
+        {/* Actions Section */}
+        <div className="bg-white rounded-3xl p-5 shadow-soft-lg border border-gray-100/50">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-gray-700">รายชื่อลูกค้า</h2>
+              <div className="px-3 py-1 bg-gray-100 rounded-full">
+                <span className="text-xs font-medium text-gray-600">
+                  {customers.length} คน
+                </span>
+              </div>
+            </div>
 
-        <div className="stagger-item">
-          {loading ? (
-            <div className="space-y-3 sm:space-y-4">
-              <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              {/* Add User Button */}
+              <Button
+                onClick={handleOpenCreateModal}
+                size="sm"
+                className="h-9 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-soft-md hover:shadow-soft-lg transition-all duration-200 font-medium"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                <span className="text-sm">เพิ่มลูกค้า</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Table Section */}
+          <div>
+            {loading ? (
+              <div className="p-2">
                 <CustomerTableSkeleton />
               </div>
-              <CustomerPagination />
-            </div>
-          ) : (
-            <div className="space-y-3 sm:space-y-4">
-              <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
-                <CustomerFilters />
+            ) : (
+              <div>
+                <div className="py-4 border-b border-gray-100">
+                  <CustomerFilters />
+                </div>
                 <CustomerTable table={table} />
               </div>
-              <CustomerPagination />
-            </div>
-          )}
+            )}
+          </div>
+        </div>
+
+        {/* Pagination */}
+        <div className="px-4">
+          <CustomerPagination />
         </div>
 
         {/* Modals */}

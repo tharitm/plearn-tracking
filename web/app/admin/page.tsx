@@ -198,15 +198,22 @@ export default function AdminDashboard() {
     <DashboardLayout breadcrumbs={breadcrumbs} tableInstance={table}>
       <div className="space-y-5 sm:space-y-6">
         {/* Header Section */}
-        <div className="stagger-item">
-          <h1
-            className="text-xl sm:text-heading font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2"
-          >
-            Admin Dashboard
-          </h1>
-          <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
-            จัดการข้อมูลพัสดุทั้งหมดในระบบ
-          </p>
+        <div className="stagger-item bg-white rounded-3xl p-3 shadow-soft-xl border border-gray-100/50">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-blue-50 rounded-2xl shadow-soft-sm">
+              <Users className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h1
+                className="text-xl sm:text-heading font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2"
+              >
+                Admin Dashboard
+              </h1>
+              <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
+                จัดการข้อมูลพัสดุทั้งหมดในระบบ
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid - Mobile responsive */}
