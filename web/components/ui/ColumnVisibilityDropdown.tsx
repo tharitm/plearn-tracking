@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu"; // Assuming this is the correct path
 import { Button } from "./button"; // Assuming this is the correct path
+import { TableProperties } from "lucide-react";
 
 interface ColumnVisibilityDropdownProps<TData> {
   table: Table<TData>;
@@ -51,7 +52,8 @@ export function ColumnVisibilityDropdown<TData>({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="ml-auto">
-          Columns
+          <TableProperties />
+          การแสดงผลตาราง
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
