@@ -15,7 +15,6 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogFooter,
   DialogTitle,
   DialogDescription,
   DialogClose,
@@ -110,14 +109,14 @@ export function CustomerFormModal({
     onSubmit(submissionData);
   };
 
-  const title = isEditMode ? "Edit Customer" : "Create New Customer";
+  const title = isEditMode ? "✏️ แก้ไขข้อมูลลูกค้า" : "➕ เพิ่มลูกค้าใหม่";
   const description = isEditMode
-    ? "Update the details of the existing customer."
-    : "Fill in the form to create a new customer.";
+    ? "ปรับปรุงข้อมูลของลูกค้าที่มีอยู่"
+    : "กรอกข้อมูลเพื่อสร้างลูกค้าใหม่";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[525px] soft-ui-modal">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -125,12 +124,12 @@ export function CustomerFormModal({
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">ชื่อ</Label>
               <Input id="name" {...register("name")} />
               {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">อีเมล</Label>
               <Input id="email" type="email" {...register("email")} />
               {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
             </div>
@@ -138,37 +137,37 @@ export function CustomerFormModal({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="phone">Tel</Label>
+              <Label htmlFor="phone">เบอร์โทร</Label>
               <Input id="phone" {...register("phone")} />
               {errors.phone && <p className="text-sm text-red-600">{errors.phone.message}</p>}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="customerCode">Customer Code</Label>
+              <Label htmlFor="customerCode">รหัสลูกค้า</Label>
               <Input id="customerCode" {...register("customerCode")} readOnly={isEditMode} />
               {errors.customerCode && <p className="text-sm text-red-600">{errors.customerCode.message}</p>}
             </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address">ที่อยู่</Label>
             <Textarea id="address" {...register("address")} />
             {errors.address && <p className="text-sm text-red-600">{errors.address.message}</p>}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="role">User Role</Label>
+              <Label htmlFor="role">บทบาทผู้ใช้</Label>
               <Controller
                 name="role"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a role" />
+                      <SelectValue placeholder="เลือกบทบาท" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
-                      <SelectItem value={UserRole.CUSTOMER}>Customer</SelectItem>
+                      <SelectItem value={UserRole.ADMIN}>ผู้ดูแล</SelectItem>
+                      <SelectItem value={UserRole.CUSTOMER}>ลูกค้า</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -176,7 +175,7 @@ export function CustomerFormModal({
               {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="status" className="block mb-2">Status</Label>
+              <Label htmlFor="status" className="block mb-2">สถานะ</Label>
               <div className="flex items-center space-x-2">
                 <Controller
                   name="status"
@@ -189,7 +188,7 @@ export function CustomerFormModal({
                     />
                   )}
                 />
-                <span>{watch("status") === UserStatus.ACTIVE ? "Active" : "Inactive"}</span>
+                <span>{watch("status") === UserStatus.ACTIVE ? "ใช้งาน" : "ไม่ใช้งาน"}</span>
               </div>
               {errors.status && <p className="text-sm text-red-600">{errors.status.message}</p>}
             </div>
@@ -197,22 +196,22 @@ export function CustomerFormModal({
 
           {!isEditMode && (
             <div className="space-y-1">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" {...register("password")} placeholder="Required for new customer" />
+              <Label htmlFor="password">รหัสผ่าน</Label>
+              <Input id="password" type="password" {...register("password")} placeholder="จำเป็นสำหรับลูกค้าใหม่" />
               {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
             </div>
           )}
 
-          <DialogFooter>
+          <div className="flex justify-between pt-2">
             <DialogClose asChild>
-              <Button type="button" variant="outline">
-                Cancel
+              <Button type="button" variant="outline" className="hover:scale-105 transition-transform">
+                ยกเลิก ×
               </Button>
             </DialogClose>
-            <Button type="submit" style={{ backgroundColor: "#5B5FEE" }} disabled={!isDirty && !isValid && isEditMode}>
-              {isEditMode ? "Save Changes" : "Create Customer"}
+            <Button type="submit" className="hover:scale-105 transition-transform" style={{ backgroundColor: "#5B5FEE" }} disabled={!isDirty && !isValid && isEditMode}>
+              ยืนยัน 💾
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

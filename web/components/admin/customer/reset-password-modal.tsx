@@ -7,11 +7,10 @@ import {
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button"; // Used for styling the action button
+import { Input } from "@/components/ui/input";
 
 interface ResetPasswordModalProps {
   isOpen: boolean;
@@ -26,29 +25,50 @@ export function ResetPasswordModal({
   onConfirm,
   customerName,
 }: ResetPasswordModalProps) {
+  const [password, setPassword] = React.useState("");
+  const [confirm, setConfirm] = React.useState("");
+
+  const isValid = password.length > 0 && password === confirm;
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
+      <AlertDialogContent className="soft-ui-modal">
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirm Password Reset</AlertDialogTitle>
+          <AlertDialogTitle>
+            🔒 รีเซ็ตรหัสผ่าน
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            คุณต้องการรีเซ็ตรหัสผ่านของ {customerName ? `"${customerName}"` : "this user"} ใช่หรือไม่?
-            <br />
-            (Are you sure you want to reset the password for {customerName ? `"${customerName}"` : "this user"}?)
+            กรุณากรอกรหัสผ่านใหม่สำหรับ {customerName ? `"${customerName}"` : "ผู้ใช้งาน"}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-          {/* Apply custom styling to AlertDialogAction if direct className override is not enough */}
+        <div className="space-y-3 py-2">
+          <Input
+            type="password"
+            placeholder="รหัสผ่านใหม่"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="ยืนยันรหัสผ่าน"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
+          {!isValid && confirm.length > 0 && (
+            <p className="text-sm text-red-500">รหัสผ่านไม่ตรงกัน</p>
+          )}
+        </div>
+        <div className="flex justify-between pt-2">
+          <AlertDialogCancel className="hover:scale-105 transition-transform" onClick={onClose}>
+            ยกเลิก ×
+          </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
-            // The AlertDialogAction is already a button, but if we need specific styling from our Button component:
-            // className={buttonVariants({ variant: "default" })} // This might conflict, direct style is safer
-            style={{ backgroundColor: "#5B5FEE", color: "white" }} // Primary color
+            disabled={!isValid}
+            onClick={() => onConfirm()}
+            className="hover:scale-105 transition-transform"
           >
-            Reset Password
+            ยืนยัน 💾
           </AlertDialogAction>
-        </AlertDialogFooter>
+        </div>
       </AlertDialogContent>
     </AlertDialog>
   );
