@@ -22,7 +22,7 @@ export function DataTable<TData>({ table, noDataMessage, className, compact = fa
   const hasRows = table.getRowModel().rows.length > 0
 
   return (
-    <div className="rounded-md  bg-white">
+    <div className="rounded-md bg-white">
       <Table
         className={cn(
           className ?? "min-w-[1200px]",
@@ -31,9 +31,12 @@ export function DataTable<TData>({ table, noDataMessage, className, compact = fa
           "[&_th]:h-10 [&_th]:px-3 [&_td]:px-3 [&_td]:py-2 text-sm"
         )}
       >
-        <TableHeader>
+        <TableHeader className="border-0 [&_tr]:border-0">
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="bg-gray-50">
+            <TableRow
+              key={headerGroup.id}
+              className="bg-gray-100 border-0 [&>th:first-child]:rounded-tl-md [&>th:last-child]:rounded-tr-md"
+            >
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
