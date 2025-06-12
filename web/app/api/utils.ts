@@ -25,7 +25,7 @@ export const mockCustomerUser: User = {
 export const mockCustomers: Customer[] = [
   {
     id: '1',
-    name: 'John Doe',
+    name: 'จอร์จจี้ จอร์จจี้',
     email: 'john@example.com',
     phone: '0800000001',
     customerCode: 'C001',
