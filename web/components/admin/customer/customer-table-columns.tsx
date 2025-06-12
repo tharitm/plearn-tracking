@@ -30,9 +30,6 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
     },
     cell: ({ row }) => (
       <div className="flex items-center gap-3 py-1">
-        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-          <User className="h-4 w-4 text-blue-600" />
-        </div>
         <div>
           <div className="font-medium text-gray-800 text-sm">{row.getValue("name")}</div>
         </div>
@@ -56,9 +53,6 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
     },
     cell: ({ row }) => (
       <div className="flex items-center gap-3 py-1">
-        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-          <Mail className="h-4 w-4 text-purple-600" />
-        </div>
         <div className="text-sm text-gray-700 font-mono">{row.getValue("email")}</div>
       </div>
     ),
@@ -70,9 +64,9 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
+          className="h-4 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
         >
-          <Activity className="mr-2 h-4 w-4" />
+          <Activity className="mr-2 h-2 w-2" />
           <span className="text-sm font-medium">สถานะ</span>
           <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
@@ -85,11 +79,11 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
       return (
         <div className="flex items-center gap-3 py-1">
           <div className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center",
+            "w-4 h-4 rounded-full flex items-center justify-center",
             isActive ? "bg-emerald-100" : "bg-gray-100"
           )}>
             <div className={cn(
-              "w-3 h-3 rounded-full",
+              "w-2 h-2 rounded-full",
               isActive ? "bg-emerald-500" : "bg-gray-400"
             )} />
           </div>
