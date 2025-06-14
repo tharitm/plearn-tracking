@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { Parcel } from "@/lib/types";
-import { mockParcels } from "../utils";
+import { mockParcels } from "../../utils";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
