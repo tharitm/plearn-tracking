@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo, useCallback } from "react" // Added useMemo and useCallback
-import { useRouter } from "next/navigation"
+import { useState, useMemo, useCallback } from "react" // Added useMemo and useCallback
 import {
   useReactTable,
   getCoreRowModel,
@@ -27,7 +26,7 @@ import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton";
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
-import { ParcelForm } from "@/components/admin/parcel-form"
+import { ParcelForm, ParcelFormData } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
@@ -38,7 +37,7 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
 
   const { loading, refetch, parcels = [] } = useParcels()
-  const { setSelectedParcel, updateParcel, galleryImages, closeGallery } = useParcelStore()
+  const { setSelectedParcel, updateParcel, galleryImages, openGallery, closeGallery } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -115,13 +114,14 @@ export default function AdminDashboard() {
       return [];
     }
     return getParcelTableColumns({
-      userRole: user.role as Role, // Pass the user's role
+      userRole: user.role as Role,
       setSelectedParcel,
-      onStatusChange: handleStatusChange, // Already passed
-      onEdit: handleEdit,                 // Already passed
-      updatingStatusForId,              // Already passed
+      onStatusChange: handleStatusChange,
+      onEdit: handleEdit,
+      updatingStatusForId,
+      openGallery
     });
-  }, [user?.role, setSelectedParcel, handleStatusChange, handleEdit, updatingStatusForId]); // Add user.role to dependency array
+  }, [user?.role, setSelectedParcel, handleStatusChange, handleEdit, updatingStatusForId, openGallery]);
 
   const table = useReactTable({
     data: parcels,

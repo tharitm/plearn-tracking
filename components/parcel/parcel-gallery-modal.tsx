@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useState, useEffect } from "react"
 
 interface LoremPicsumImage {
@@ -14,7 +14,7 @@ interface LoremPicsumImage {
 }
 
 interface ParcelGalleryModalProps {
-  images: string[] // Keep existing prop as a fallback
+  images: string[]
   open: boolean
   onClose: () => void
 }
@@ -26,86 +26,83 @@ export function ParcelGalleryModal({ images: propImages, open, onClose }: Parcel
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) {
-      const fetchImages = async () => {
-        setIsLoading(true)
-        setError(null)
-        try {
-          const response = await fetch("https://picsum.photos/v2/list?page=1&limit=6")
-          if (!response.ok) {
-            throw new Error(`Failed to fetch images: ${response.statusText}`)
-          }
-          const data: LoremPicsumImage[] = await response.json()
-          setFetchedImages(data.map(img => img.download_url))
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "An unknown error occurred")
-          setFetchedImages([]) // Clear any previously fetched images on error
-        } finally {
-          setIsLoading(false)
-        }
+    if (!open) return
+    const fetchImages = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const res = await fetch("https://picsum.photos/v2/list?page=1&limit=6")
+        if (!res.ok) throw new Error(`Fetch failed: ${res.statusText}`)
+        const data: LoremPicsumImage[] = await res.json()
+        setFetchedImages(data.map((i) => i.download_url))
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error")
+        setFetchedImages([])
+      } finally {
+        setIsLoading(false)
       }
-      fetchImages()
     }
+    fetchImages()
   }, [open])
 
-  const displayImages = fetchedImages.length > 0 ? fetchedImages : propImages
-
-  if (displayImages.length === 0 && !isLoading && !error) return null
-  if (isLoading) {
-    return (
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-3xl flex items-center justify-center h-48">
-          <div>Loading images...</div>
-        </DialogContent>
-      </Dialog>
-    )
-  }
-
-  if (error) {
-    return (
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-3xl flex items-center justify-center h-48">
-          <div>Error: {error}</div>
-        </DialogContent>
-      </Dialog>
-    )
-  }
-
-  if (displayImages.length === 0) return null
-
+  const displayImages = fetchedImages.length ? fetchedImages : propImages
+  if (!open) return null        // ปิด dialog = ไม่เรนเดอร์
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
-        <div className="flex flex-wrap gap-4">
-          {displayImages.map((src, idx) => (
-            <div
-              key={idx}
-              className="w-[100px] h-[100px] relative cursor-pointer"
-              onMouseEnter={() => setEnlargedImage(src)}
-              onMouseLeave={() => setEnlargedImage(null)}
-            >
-              <Image
-                src={src}
-                alt={`parcel-image-${idx}`}
-                layout="fill"
-                objectFit="cover"
-                className="rounded-md"
-              />
-            </div>
-          ))}
-        </div>
-        {enlargedImage && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="relative w-[80vw] h-[80vh]">
-              <Image
-                src={enlargedImage}
-                alt="enlarged-parcel-image"
-                layout="fill"
-                objectFit="contain"
-              />
-            </div>
+        {/* ชื่อ dialog ซ่อนไว้ (sr-only) เพื่อให้ผ่าน accessibility checker */}
+        <DialogHeader>
+          <DialogTitle className="sr-only">แกลเลอรีรูปภาพพัสดุ</DialogTitle>
+        </DialogHeader>
+
+        {isLoading && (
+          <div className="flex h-48 items-center justify-center">กำลังโหลดรูปภาพ…</div>
+        )}
+
+        {error && !isLoading && (
+          <div className="flex h-48 items-center justify-center text-red-500">
+            Error: {error}
           </div>
+        )}
+
+        {!isLoading && !error && displayImages.length === 0 && (
+          <div className="flex h-48 items-center justify-center">ไม่มีรูปภาพ</div>
+        )}
+
+        {!isLoading && !error && displayImages.length > 0 && (
+          <>
+            <div className="flex flex-wrap gap-4">
+              {displayImages.map((src, idx) => (
+                <div
+                  key={idx}
+                  className="relative h-[100px] w-[100px] cursor-pointer"
+                  onMouseEnter={() => setEnlargedImage(src)}
+                  onMouseLeave={() => setEnlargedImage(null)}
+                >
+                  <Image
+                    src={src}
+                    alt={`parcel-${idx}`}
+                    fill
+                    className="rounded-md object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {enlargedImage && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div className="relative h-[80vh] w-[80vw]">
+                  <Image
+                    src={enlargedImage}
+                    alt="enlarged-parcel"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            )}
+          </>
         )}
       </DialogContent>
     </Dialog>

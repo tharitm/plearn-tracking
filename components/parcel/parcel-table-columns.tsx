@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, FilePenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,16 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import type { Parcel } from "@/lib/types";
-import { DEFAULT_THUMBNAIL } from "@/lib/constants";
 import {
   type Role, // Import Role type
   isColumnVisible,
@@ -48,6 +39,7 @@ interface GetParcelTableColumnsProps {
   onStatusChange?: (parcelId: string, newStatus: Parcel["status"]) => void;
   onEdit?: (parcel: Parcel) => void;
   updatingStatusForId?: string | null;
+  openGallery: (images: string[]) => void
 }
 
 export const getParcelTableColumns = ({
@@ -56,6 +48,7 @@ export const getParcelTableColumns = ({
   onStatusChange,
   onEdit,
   updatingStatusForId,
+  openGallery
 }: GetParcelTableColumnsProps): ColumnDef<Parcel>[] => {
   const columns: ColumnDef<Parcel>[] = [];
 
@@ -112,7 +105,6 @@ export const getParcelTableColumns = ({
       header: "รูปภาพ",
       cell: ({ row }) => {
         const parcel = row.original;
-        const [open, setOpen] = useState(false);
         const images = parcel.images ?? [];
         const thumb = images[0] || "/placeholder.jpg";
         return (
@@ -121,45 +113,8 @@ export const getParcelTableColumns = ({
               src={thumb}
               alt="thumbnail"
               className="h-12 w-12 cursor-pointer rounded object-cover"
-              onClick={() => setOpen(true)}
+              onClick={() => openGallery(images)}  // ★ เรียก store
             />
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                  <DialogTitle>รูปภาพพัสดุ</DialogTitle>
-                </DialogHeader>
-                {images.length > 0 ? (
-                  <Carousel className="w-full">
-                    <CarouselContent>
-                      {images.map((src, idx) => (
-                        <CarouselItem
-                          key={idx}
-                          className="flex items-center justify-center"
-                        >
-                          <img
-                            src={src}
-                            alt={`parcel-image-${idx}`}
-                            className="max-h-[70vh] object-contain"
-                          />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    {images.length > 1 && (
-                      <>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                      </>
-                    )}
-                  </Carousel>
-                ) : (
-                  <img
-                    src="/placeholder.jpg"
-                    alt="no image"
-                    className="max-h-[70vh] object-contain"
-                  />
-                )}
-              </DialogContent>
-            </Dialog>
           </>
         );
       },

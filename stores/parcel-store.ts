@@ -17,7 +17,7 @@ interface ParcelState {
   setFilters: (filters: Partial<ParcelFilters>) => void
   setPagination: (pagination: Partial<PaginationState>) => void
   setSelectedParcel: (parcel: Parcel | null) => void
-  setGalleryImages: (images: string[]) => void
+  openGallery: (images: string[]) => void
   closeGallery: () => void
   resetFilters: () => void
   updateParcel: (parcel: Parcel) => void
@@ -60,7 +60,7 @@ export const useParcelStore = create<ParcelState>((set) => ({
       pagination: { ...state.pagination, ...newPagination },
     })),
   setSelectedParcel: (selectedParcel) => set({ selectedParcel }),
-  setGalleryImages: (images) => set({ galleryImages: images }),
+  openGallery: (images) => set({ galleryImages: images }),
   closeGallery: () => set({ galleryImages: [] }),
   resetFilters: () => set({ filters: initialFilters, pagination: initialPagination }),
   updateParcel: (parcel) =>
