@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react" // Added useEffect
+import { useEffect, useState } from "react" // Added useEffect and useState
 import { useForm, Controller } from "react-hook-form" // Added Controller for Select
 import type { Parcel } from "@/lib/types" // Added Parcel type
 import { Button } from "@/components/ui/button"
@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { useAuthStore } from "@/stores/auth-store"
 
-interface ParcelFormData {
+export interface ParcelFormData {
   parcelRef: string
   customerCode: string
   cnTracking: string
@@ -21,9 +22,10 @@ interface ParcelFormData {
   shipment: string
   receiveDate: string // HTML date input returns string
   thTracking?: string
+  images?: File[]
 }
 
-interface ParcelFormProps {
+export interface ParcelFormProps {
   open: boolean
   onClose: () => void
   onSubmit: (data: ParcelFormData) => void
@@ -38,6 +40,9 @@ export function ParcelForm({
   initialData,
   isEditMode = false,
 }: ParcelFormProps) {
+  const { user } = useAuthStore()
+  const isAdmin = user?.role === 'admin'
+  const [images, setImages] = useState<File[]>([])
   const {
     register,
     handleSubmit,
@@ -75,6 +80,7 @@ export function ParcelForm({
           receiveDate: initialData.receiveDate ? new Date(initialData.receiveDate).toISOString().split('T')[0] : "",
         };
         reset(formData);
+        setImages([])
       } else {
         // Reset to default new form values, including a default receiveDate
         reset({
@@ -90,12 +96,19 @@ export function ParcelForm({
           receiveDate: new Date().toISOString().split('T')[0],
           thTracking: "",
         });
+        setImages([])
       }
     }
   }, [open, isEditMode, initialData, reset]);
 
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setImages(Array.from(e.target.files))
+    }
+  }
+
   const handleFormSubmit = (data: ParcelFormData) => {
-    onSubmit(data);
+    onSubmit({ ...data, images });
     if (!isEditMode) {
       // Only reset fully if creating a new parcel.
       // For edit, parent might close or keep it open with current data.
@@ -112,6 +125,7 @@ export function ParcelForm({
         receiveDate: new Date().toISOString().split('T')[0],
         thTracking: "",
       });
+      setImages([])
     }
     // onClose(); // Parent should decide if form closes after submit, especially in edit mode
   };
@@ -256,6 +270,42 @@ export function ParcelForm({
               placeholder="เช่น TH123456789"
             />
           </div>
+
+        {isAdmin ? (
+          <div className="space-y-2">
+            <Label htmlFor="images">รูปภาพพัสดุ</Label>
+            <Input id="images" type="file" multiple onChange={handleImagesChange} />
+            {images.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {images.map((file, index) => (
+                  <img
+                    key={index}
+                    src={URL.createObjectURL(file)}
+                    className="h-16 w-16 object-cover rounded-md"
+                    alt="preview"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          initialData?.images && initialData.images.length > 0 && (
+            <div className="space-y-2">
+              <Label>รูปภาพพัสดุ</Label>
+              <div className="flex flex-wrap gap-2">
+                {initialData.images.map((src, idx) => (
+                  <img
+                    key={idx}
+                    src={src}
+                    onClick={() => window.open(src, '_blank')}
+                    className="h-16 w-16 object-cover rounded-md cursor-pointer"
+                    alt="parcel image"
+                  />
+                ))}
+              </div>
+            </div>
+          )
+        )}
 
           <div className="space-y-2">
             <Label>วิธีการจัดส่ง *</Label>
