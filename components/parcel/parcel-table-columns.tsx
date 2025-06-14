@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Parcel } from "@/lib/types";
+import { DEFAULT_THUMBNAIL } from "@/lib/constants";
 import {
-  type Role, // Import Role type
+  type Role,
   isColumnVisible,
   isColumnEditable,
-  ALL_COLUMN_IDS // Import ALL_COLUMN_IDS
-} from "@/lib/column-configs"; // Import new configs
+  ALL_COLUMN_IDS
+} from "@/lib/column-configs";
 
 const statusOptions: Parcel["status"][] = [
   "pending",
@@ -32,7 +33,6 @@ export const getSortIcon = (isSorted: false | "asc" | "desc") => {
   return <ArrowUpDown className="ml-2 h-4 w-4" />;
 };
 
-// Add userRole to the props
 interface GetParcelTableColumnsProps {
   userRole: Role;
   setSelectedParcel: (parcel: Parcel) => void;
@@ -75,6 +75,22 @@ export const getParcelTableColumns = ({
       ),
       enableSorting: false,
       enableHiding: false,
+    }),
+    thumbnail: () => ({
+      id: "thumbnail",
+      header: "ภาพ",
+      cell: ({ row }) => {
+        const imgs = row.original.images;
+        const src = imgs && imgs.length > 0 ? imgs[0] : DEFAULT_THUMBNAIL;
+        return (
+          <img
+            src={src}
+            alt="thumbnail"
+            className="h-12 w-12 object-cover rounded"
+          />
+        );
+      },
+      enableSorting: false,
     }),
     parcelRef: () => ({
       accessorKey: "parcelRef",

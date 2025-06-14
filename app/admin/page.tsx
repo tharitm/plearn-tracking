@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo, useCallback } from "react" // Added useMemo and useCallback
+import { useEffect, useState, useMemo, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
   useReactTable,
@@ -8,7 +8,7 @@ import {
   getSortedRowModel,
   type ColumnDef,
   type SortingState,
-  type RowSelectionState, // Added for row selection
+  type RowSelectionState,
 } from "@tanstack/react-table"
 
 import { useAuthStore } from "@/stores/auth-store"
@@ -23,14 +23,15 @@ import { showToast } from '@/lib/toast-utils'; // Import showToast
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ParcelFilters } from "@/components/parcel/parcel-filters"
 import { ParcelTable } from "@/components/parcel/parcel-table"
-import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
+import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
+import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
 import { ParcelForm } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
-import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
+import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react"
 
 export default function AdminDashboard() {
   console.log('==== Admin Dashboard Page ====')
@@ -302,6 +303,7 @@ export default function AdminDashboard() {
         </div>
 
         <ParcelDetailModal />
+        <ParcelGalleryModal />
         {showParcelForm && ( // Conditionally render ParcelForm to ensure useEffect in ParcelForm re-runs correctly on open
           <ParcelForm
             open={showParcelForm}

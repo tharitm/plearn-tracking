@@ -109,7 +109,7 @@ export function getCustomerListResponse(options: CustomerFilterOptions = {}): Ap
   };
 }
 
-export const mockParcels: Parcel[] = [
+const baseMockParcels: Omit<Parcel, "images">[] = [
   {
     id: "1",
     parcelRef: "P2024001",
@@ -464,7 +464,15 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-24T11:55:00Z",
     updatedAt: "2024-01-24T11:55:00Z",
   },
-]
+];
+
+export const mockParcels: Parcel[] = baseMockParcels.map((p) => ({
+  ...p,
+  images: [
+    `https://picsum.photos/seed/${p.id}-1/600/400`,
+    `https://picsum.photos/seed/${p.id}-2/600/400`,
+  ],
+}));
 export interface ParcelFilterOptions {
   page?: number;
   pageSize?: number;
