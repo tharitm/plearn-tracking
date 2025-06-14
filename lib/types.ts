@@ -85,6 +85,7 @@ export interface Parcel {
   thTracking?: string
   images?: string[]
   paymentStatus: "unpaid" | "paid" | "partial"
+  images?: string[]
   createdAt: string
   updatedAt: string
 }
