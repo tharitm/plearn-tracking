@@ -11,22 +11,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import type { Parcel } from "@/lib/types";
-import { DEFAULT_THUMBNAIL } from "@/lib/constants";
 import {
   type Role, // Import Role type
   isColumnVisible,
   isColumnEditable,
   ALL_COLUMN_IDS // Import ALL_COLUMN_IDS
 } from "@/lib/column-configs"; // Import new configs
+import { ParcelGalleryModal } from "../parcel/parcel-gallery-modal";
 
 const statusOptions: Parcel["status"][] = [
   "pending",
@@ -112,54 +104,22 @@ export const getParcelTableColumns = ({
       header: "รูปภาพ",
       cell: ({ row }) => {
         const parcel = row.original;
-        const [open, setOpen] = useState(false);
+        const [isGalleryModalOpen, setGalleryModalOpen] = useState(false);
         const images = parcel.images ?? [];
-        const thumb = images[0] || "/placeholder.jpg";
+        const thumb = images[0] || "/placeholder.jpg"; // Keep placeholder for thumbnail
         return (
           <>
             <img
               src={thumb}
               alt="thumbnail"
               className="h-12 w-12 cursor-pointer rounded object-cover"
-              onClick={() => setOpen(true)}
+              onClick={() => setGalleryModalOpen(true)}
             />
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                  <DialogTitle>รูปภาพพัสดุ</DialogTitle>
-                </DialogHeader>
-                {images.length > 0 ? (
-                  <Carousel className="w-full">
-                    <CarouselContent>
-                      {images.map((src, idx) => (
-                        <CarouselItem
-                          key={idx}
-                          className="flex items-center justify-center"
-                        >
-                          <img
-                            src={src}
-                            alt={`parcel-image-${idx}`}
-                            className="max-h-[70vh] object-contain"
-                          />
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    {images.length > 1 && (
-                      <>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                      </>
-                    )}
-                  </Carousel>
-                ) : (
-                  <img
-                    src="/placeholder.jpg"
-                    alt="no image"
-                    className="max-h-[70vh] object-contain"
-                  />
-                )}
-              </DialogContent>
-            </Dialog>
+            <ParcelGalleryModal
+              images={images}
+              open={isGalleryModalOpen}
+              onClose={() => setGalleryModalOpen(false)}
+            />
           </>
         );
       },
