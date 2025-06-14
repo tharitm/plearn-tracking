@@ -27,7 +27,7 @@ import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton";
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
-import { ParcelForm } from "@/components/admin/parcel-form"
+import { ParcelForm, ParcelFormData } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
