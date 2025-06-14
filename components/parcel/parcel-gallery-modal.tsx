@@ -2,6 +2,8 @@
 
 import Lightbox from "yet-another-react-lightbox"
 import "yet-another-react-lightbox/styles.css"
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
+import "yet-another-react-lightbox/plugins/thumbnails.css"
 
 interface ParcelGalleryModalProps {
   images: string[]
@@ -17,6 +19,7 @@ export function ParcelGalleryModal({ images, open, onClose }: ParcelGalleryModal
       open={open}
       close={onClose}
       slides={images.map(src => ({ src }))}
+      plugins={[Thumbnails]}
     />
   )
 }
