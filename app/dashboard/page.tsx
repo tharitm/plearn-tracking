@@ -24,13 +24,16 @@ import { ParcelTable } from "@/components/parcel/parcel-table"
 import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
+import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
 import { StatCard } from "@/components/ui/stat-card"
 import { useParcels } from "@/hooks/use-parcels"
+import { useParcelStore } from "@/stores/parcel-store"
 
 export default function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
   const { loading, parcels = [], setSelectedParcel } = useParcels()
+  const { galleryImages, closeGallery } = useParcelStore()
 
   const [sorting, setSorting] = useState<SortingState>([])
 
@@ -151,6 +154,11 @@ export default function CustomerDashboard() {
         </div>
 
         <ParcelDetailModal />
+        <ParcelGalleryModal
+          images={galleryImages}
+          open={galleryImages.length > 0}
+          onClose={closeGallery}
+        />
       </div>
     </DashboardLayout>
   );
