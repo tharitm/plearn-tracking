@@ -26,7 +26,7 @@ import { ParcelTable } from "@/components/parcel/parcel-table"
 import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
-import { ParcelForm } from "@/components/admin/parcel-form"
+import { ParcelForm, type ParcelFormData } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
@@ -76,18 +76,18 @@ export default function AdminDashboard() {
     setShowParcelForm(true);
   }, []);
 
-  const handleFormSubmit = async (data: Omit<Parcel, 'id' | 'status' | 'paymentStatus' | 'createdAt' | 'updatedAt'> & { receiveDate: string }) => {
+  const handleFormSubmit = async (data: ParcelFormData) => {
     const url = editingParcel ? `/api/admin/parcel/${editingParcel.id}` : "/api/admin/parcel";
     const method = editingParcel ? "PUT" : "POST";
-    const payload = {
-      ...data,
-    };
+    const { images, ...rest } = data;
+    const formData = new FormData();
+    formData.append("parcel", JSON.stringify(rest));
+    images?.forEach((file) => formData.append("images", file));
 
     try {
       const response = await fetch(url, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        method,
+        body: formData,
       });
 
       if (response.ok) {

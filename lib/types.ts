@@ -82,6 +82,7 @@ export interface Parcel {
   weight: number
   freight: number
   deliveryMethod: string
+  images?: string[]
   thTracking?: string
   paymentStatus: "unpaid" | "paid" | "partial"
   createdAt: string
