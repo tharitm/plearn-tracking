@@ -128,6 +128,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-15T10:00:00Z",
     updatedAt: "2024-01-15T10:00:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "2",
@@ -146,6 +151,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "unpaid",
     createdAt: "2024-01-16T09:30:00Z",
     updatedAt: "2024-01-16T09:30:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "3",
@@ -164,6 +174,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-17T11:15:00Z",
     updatedAt: "2024-01-17T11:15:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "4",
@@ -181,6 +196,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "partial",
     createdAt: "2024-01-18T14:20:00Z",
     updatedAt: "2024-01-18T14:20:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "5",
@@ -199,6 +219,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-19T09:45:00Z",
     updatedAt: "2024-01-19T09:45:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "6",
@@ -216,6 +241,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "unpaid",
     createdAt: "2024-01-20T16:30:00Z",
     updatedAt: "2024-01-20T16:30:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "7",
@@ -234,6 +264,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-21T11:10:00Z",
     updatedAt: "2024-01-21T11:10:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "8",
@@ -252,6 +287,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-22T13:25:00Z",
     updatedAt: "2024-01-22T13:25:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "9",
@@ -269,6 +309,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "unpaid",
     createdAt: "2024-01-23T08:15:00Z",
     updatedAt: "2024-01-23T08:15:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "10",
@@ -287,6 +332,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "partial",
     createdAt: "2024-01-24T15:40:00Z",
     updatedAt: "2024-01-24T15:40:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   // Additional customer parcels for better UI testing
   {
@@ -305,6 +355,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "unpaid",
     createdAt: "2024-01-25T09:00:00Z",
     updatedAt: "2024-01-25T09:00:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "12",
@@ -323,6 +378,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-26T14:30:00Z",
     updatedAt: "2024-01-26T14:30:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "13",
@@ -341,6 +401,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-27T11:45:00Z",
     updatedAt: "2024-01-27T11:45:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "14",
@@ -358,6 +423,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "partial",
     createdAt: "2024-01-28T16:20:00Z",
     updatedAt: "2024-01-28T16:20:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "15",
@@ -376,6 +446,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-29T10:15:00Z",
     updatedAt: "2024-01-29T10:15:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   // Other customers' parcels
   {
@@ -395,6 +470,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-20T12:30:00Z",
     updatedAt: "2024-01-20T12:30:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "17",
@@ -412,6 +492,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "unpaid",
     createdAt: "2024-01-21T15:45:00Z",
     updatedAt: "2024-01-21T15:45:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "18",
@@ -430,6 +515,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-22T09:20:00Z",
     updatedAt: "2024-01-22T09:20:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "19",
@@ -448,6 +538,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "paid",
     createdAt: "2024-01-23T13:10:00Z",
     updatedAt: "2024-01-23T13:10:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
   {
     id: "20",
@@ -465,6 +560,11 @@ export const mockParcels: Parcel[] = [
     paymentStatus: "unpaid",
     createdAt: "2024-01-24T11:55:00Z",
     updatedAt: "2024-01-24T11:55:00Z",
+    images: [
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      "https://example.com/image3.jpg",
+    ],
   },
 ]
 export interface ParcelFilterOptions {

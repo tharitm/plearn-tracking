@@ -27,6 +27,7 @@ import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton";
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelForm, type ParcelFormData } from "@/components/admin/parcel-form"
+import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   const { loading, refetch, parcels = [] } = useParcels()
-  const { setSelectedParcel, updateParcel } = useParcelStore()
+  const { setSelectedParcel, updateParcel, galleryImages, closeGallery } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -302,6 +303,11 @@ export default function AdminDashboard() {
         </div>
 
         <ParcelDetailModal />
+        <ParcelGalleryModal
+          images={galleryImages}
+          open={galleryImages.length > 0}
+          onClose={closeGallery}
+        />
         {showParcelForm && ( // Conditionally render ParcelForm to ensure useEffect in ParcelForm re-runs correctly on open
           <ParcelForm
             open={showParcelForm}
