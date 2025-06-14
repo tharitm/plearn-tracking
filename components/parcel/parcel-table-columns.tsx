@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { Parcel } from "@/lib/types";
+import { DEFAULT_THUMBNAIL } from "@/lib/constants";
 import {
   type Role, // Import Role type
   isColumnVisible,
@@ -75,6 +76,22 @@ export const getParcelTableColumns = ({
       ),
       enableSorting: false,
       enableHiding: false,
+    }),
+    thumbnail: () => ({
+      id: "thumbnail",
+      header: "ภาพ",
+      cell: ({ row }) => {
+        const imgs = row.original.images;
+        const src = imgs && imgs.length > 0 ? imgs[0] : DEFAULT_THUMBNAIL;
+        return (
+          <img
+            src={src}
+            alt="thumbnail"
+            className="h-12 w-12 object-cover rounded"
+          />
+        );
+      },
+      enableSorting: false,
     }),
     parcelRef: () => ({
       accessorKey: "parcelRef",

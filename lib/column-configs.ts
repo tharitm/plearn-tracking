@@ -11,6 +11,7 @@ export interface RoleColumnConfig {
 }
 
 const commonVisibleColumns = [
+  "thumbnail",
   "parcelRef",
   "receiveDate",
   "shipment",
@@ -41,6 +42,7 @@ const baseColumnAccess: { [key: string]: boolean } = {
   thTracking: true,
   paymentStatus: true,
   actions: false,
+  thumbnail: true,
 };
 
 export const ROLES_COLUMN_CONFIG: Record<Role, RoleColumnConfig> = {
@@ -83,6 +85,7 @@ export const isColumnEditable = (role: Role, columnId: string): boolean => {
 
 export const ALL_COLUMN_IDS = [
   "select",
+  "thumbnail",
   "parcelRef",
   "receiveDate",
   "customerCode",

@@ -24,6 +24,7 @@ import { ParcelTable } from "@/components/parcel/parcel-table"
 import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
+import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
 import { StatCard } from "@/components/ui/stat-card"
 import { useParcels } from "@/hooks/use-parcels"
 
@@ -151,6 +152,7 @@ export default function CustomerDashboard() {
         </div>
 
         <ParcelDetailModal />
+        <ParcelGalleryModal />
       </div>
     </DashboardLayout>
   );

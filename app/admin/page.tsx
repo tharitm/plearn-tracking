@@ -26,6 +26,7 @@ import { ParcelTable } from "@/components/parcel/parcel-table"
 import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
+import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
 import { ParcelForm } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
@@ -302,6 +303,7 @@ export default function AdminDashboard() {
         </div>
 
         <ParcelDetailModal />
+        <ParcelGalleryModal />
         {showParcelForm && ( // Conditionally render ParcelForm to ensure useEffect in ParcelForm re-runs correctly on open
           <ParcelForm
             open={showParcelForm}
