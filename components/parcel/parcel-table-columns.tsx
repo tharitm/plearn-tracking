@@ -208,7 +208,7 @@ export const getParcelTableColumns = ({
               }}
               disabled={isUpdating || !onStatusChange}
             >
-              <SelectTrigger className="w-auto border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
+              <SelectTrigger className="min-w-[110px] border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
                 {isUpdating ? (
                   <div className="flex items-center px-3 py-1">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

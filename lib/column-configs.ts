@@ -51,11 +51,11 @@ export const ROLES_COLUMN_CONFIG: Record<Role, RoleColumnConfig> = {
   admin: {
     select: { isVisible: true },
     actions: { isVisible: true },
-    status: { isVisible: true, isEditable: true },
     ...commonVisibleColumns.reduce((acc, id) => {
       acc[id] = { isVisible: true };
       return acc;
     }, {} as RoleColumnConfig),
+    status: { isVisible: true, isEditable: true },
   },
   customer: {
     select: { isVisible: false },
