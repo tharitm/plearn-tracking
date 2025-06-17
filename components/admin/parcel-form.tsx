@@ -15,12 +15,15 @@ export interface ParcelFormData {
   customerCode: string
   cnTracking: string
   weight: number
-  volume: number
+  // volume: number // Volume will be calculated, so not part of form data directly unless also stored
   freight: number
   deliveryMethod: Parcel['deliveryMethod'] // Use string literal type from Parcel
-  estimate: number
+  estimate: string // Changed to string for date input
   shipment: string
   receiveDate: string // HTML date input returns string
+  width?: number
+  length?: number
+  height?: number
   thTracking?: string
   images?: File[]
 }
@@ -54,20 +57,27 @@ export function ParcelForm({
     defaultValues: isEditMode && initialData
       ? {
           ...initialData,
-          // Ensure date is in YYYY-MM-DD for input type="date"
           receiveDate: initialData.receiveDate ? new Date(initialData.receiveDate).toISOString().split('T')[0] : "",
+          // estimate is already a string 'YYYY-MM-DD' from initialData due to prior type change
+          estimate: initialData.estimate || new Date().toISOString().split('T')[0],
+          width: initialData.width || 0,
+          length: initialData.length || 0,
+          height: initialData.height || 0,
         }
       : {
           parcelRef: "",
           customerCode: "",
           cnTracking: "",
           weight: 0,
-          volume: 0,
+          // volume: 0, // Not directly in form
+          width: 0,
+          length: 0,
+          height: 0,
           freight: 0,
-          deliveryMethod: "pickup", // Default or ensure it's a valid Parcel['deliveryMethod']
-          estimate: 0,
+          deliveryMethod: "pickup",
+          estimate: new Date().toISOString().split('T')[0],
           shipment: "",
-          receiveDate: new Date().toISOString().split('T')[0], // Default to today for new entries
+          receiveDate: new Date().toISOString().split('T')[0],
           thTracking: "",
         },
   })
@@ -78,6 +88,11 @@ export function ParcelForm({
         const formData: ParcelFormData = {
           ...initialData,
           receiveDate: initialData.receiveDate ? new Date(initialData.receiveDate).toISOString().split('T')[0] : "",
+          // estimate should be a string 'YYYY-MM-DD'
+          estimate: initialData.estimate || new Date().toISOString().split('T')[0],
+          width: initialData.width || 0,
+          length: initialData.length || 0,
+          height: initialData.height || 0,
         };
         reset(formData);
         setImages([])
@@ -88,10 +103,13 @@ export function ParcelForm({
           customerCode: "",
           cnTracking: "",
           weight: 0,
-          volume: 0,
+          // volume: 0, // Not directly in form
+          width: 0,
+          length: 0,
+          height: 0,
           freight: 0,
           deliveryMethod: "pickup",
-          estimate: 0,
+          estimate: new Date().toISOString().split('T')[0], // estimate is date
           shipment: "",
           receiveDate: new Date().toISOString().split('T')[0],
           thTracking: "",
@@ -117,10 +135,13 @@ export function ParcelForm({
         customerCode: "",
         cnTracking: "",
         weight: 0,
-        volume: 0,
+          // volume: 0, // Not directly in form
+          width: 0,
+          length: 0,
+          height: 0,
         freight: 0,
         deliveryMethod: "pickup",
-        estimate: 0,
+          estimate: new Date().toISOString().split('T')[0], // estimate is date
         shipment: "",
         receiveDate: new Date().toISOString().split('T')[0],
         thTracking: "",
@@ -203,20 +224,53 @@ export function ParcelForm({
               {errors.weight && <p className="text-sm text-red-600">{errors.weight.message}</p>}
             </div>
 
+            {/* Volume is not an input here anymore, it's calculated or comes from backend if stored */}
+            {/* We add width, length, height instead */}
             <div className="space-y-2">
-              <Label htmlFor="volume">ปริมาณ (CBM) *</Label>
+              <Label htmlFor="width">ความกว้าง (CM)</Label>
               <Input
-                id="volume"
+                id="width"
                 type="number"
                 step="0.01"
-                {...register("volume", {
-                  required: "กรุณาใส่ปริมาณ",
+                {...register("width", {
                   valueAsNumber: true,
-                  min: { value: 0, message: "ปริมาณต้องมากกว่า 0" },
+                  min: { value: 0, message: "ความกว้างต้องไม่ติดลบ" },
                 })}
                 placeholder="0.00"
               />
-              {errors.volume && <p className="text-sm text-red-600">{errors.volume.message}</p>}
+              {errors.width && <p className="text-sm text-red-600">{errors.width.message}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="length">ความยาว (CM)</Label>
+              <Input
+                id="length"
+                type="number"
+                step="0.01"
+                {...register("length", {
+                  valueAsNumber: true,
+                  min: { value: 0, message: "ความยาวต้องไม่ติดลบ" },
+                })}
+                placeholder="0.00"
+              />
+              {errors.length && <p className="text-sm text-red-600">{errors.length.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="height">ความสูง (CM)</Label>
+              <Input
+                id="height"
+                type="number"
+                step="0.01"
+                {...register("height", {
+                  valueAsNumber: true,
+                  min: { value: 0, message: "ความสูงต้องไม่ติดลบ" },
+                })}
+                placeholder="0.00"
+              />
+              {errors.height && <p className="text-sm text-red-600">{errors.height.message}</p>}
             </div>
           </div>
 
@@ -237,17 +291,13 @@ export function ParcelForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="estimate">ประมาณการ (บาท) *</Label>
+            <Label htmlFor="estimate">วันที่คาดว่าจะได้รับ (Estimate Date) *</Label>
             <Input
               id="estimate"
-              type="number"
-              step="0.01"
+              type="date"
               {...register("estimate", {
-                required: "กรุณาใส่ประมาณการ",
-                valueAsNumber: true,
-                min: { value: 0, message: "ประมาณการต้องมากกว่า 0" },
+                required: "กรุณาใส่วันที่คาดว่าจะได้รับ",
               })}
-              placeholder="0.00"
             />
             {errors.estimate && <p className="text-sm text-red-600">{errors.estimate.message}</p>}
           </div>

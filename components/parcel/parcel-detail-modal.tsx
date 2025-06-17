@@ -75,7 +75,7 @@ export function ParcelDetailModal() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">วันที่รับ:</span>
-                  <span>{new Date(selectedParcel.receiveDate).toLocaleDateString("th-TH")}</span>
+                  <span>{new Date(selectedParcel.receiveDate).toLocaleDateString('en-CA')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">รหัสลูกค้า:</span>
@@ -108,8 +108,20 @@ export function ParcelDetailModal() {
                   <span className="font-mono">{selectedParcel.thTracking || "-"}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-gray-600">ความกว้าง (CM):</span>
+                  <span>{selectedParcel.width || "N/A"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ความยาว (CM):</span>
+                  <span>{selectedParcel.length || "N/A"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ความสูง (CM):</span>
+                  <span>{selectedParcel.height || "N/A"}</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-gray-600">ปริมาณ (CBM):</span>
-                  <span>{selectedParcel.volume.toFixed(2)}</span>
+                  <span>{(((selectedParcel.width || 0) * (selectedParcel.length || 0) * (selectedParcel.height || 0)) / 1000000).toFixed(3)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">น้ำหนัก (KG):</span>
@@ -130,14 +142,38 @@ export function ParcelDetailModal() {
             <h3 className="font-semibold mb-2">ข้อมูลการเงิน</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">ประมาณการ:</span>
-                <span className="font-medium">฿{selectedParcel.estimate.toLocaleString()}</span>
+                <span className="text-gray-600">วันที่คาดว่าจะได้รับ (Estimate):</span>
+                <span className="font-medium">{selectedParcel.estimate}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">ค่าขนส่ง:</span>
                 <span className="font-medium">฿{selectedParcel.freight.toLocaleString()}</span>
               </div>
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Images */}
+          <div>
+            <h3 className="font-semibold mb-2">รูปภาพสินค้า</h3>
+            {selectedParcel.images && selectedParcel.images.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {selectedParcel.images.map((image, index) => (
+                  <div key={index} className="relative aspect-square">
+                    <img
+                      src={image}
+                      alt={`Parcel image ${index + 1}`}
+                      className="object-cover w-full h-full rounded-md"
+                      // Consider adding error handling for broken images
+                      // onError={(e) => e.currentTarget.src = '/placeholder-image.png'}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500">No images available.</div>
+            )}
           </div>
 
           <Separator />

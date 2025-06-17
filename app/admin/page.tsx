@@ -160,7 +160,7 @@ export default function AdminDashboard() {
   }
 
   const totalParcels = parcels.length
-  const totalRevenue = parcels.reduce((sum, p) => sum + p.estimate, 0)
+  // const totalRevenue = parcels.reduce((sum, p) => sum + p.estimate, 0) // Removed due to p.estimate being a date string
   const uniqueCustomers = new Set(parcels.map((p) => p.customerCode)).size
   const pendingParcels = parcels.filter((p) => p.status === "pending").length
 
@@ -225,13 +225,7 @@ export default function AdminDashboard() {
             icon={<Package />}
             variant="blue"
           />
-          <StatCard
-            title="รายได้รวม"
-            value={`฿${totalRevenue.toLocaleString()}`}
-            subtitle="บาท"
-            icon={<DollarSign />}
-            variant="pink"
-          />
+          {/* StatCard for totalRevenue removed */}
           <StatCard
             title="ลูกค้า"
             value={uniqueCustomers}

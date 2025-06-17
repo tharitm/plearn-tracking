@@ -75,9 +75,12 @@ export interface Parcel {
   receiveDate: string
   customerCode: string
   shipment: string
-  estimate: number
-  status: "pending" | "shipped" | "delivered" | "cancelled"
+  estimate: string
+  status: "pending" | "shipped" | "delivered" | "cancelled" | "arrived_china_wh" | "in_transit_th"
   cnTracking: string
+  width?: number;
+  length?: number;
+  height?: number;
   volume: number
   weight: number
   freight: number

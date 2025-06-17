@@ -23,6 +23,8 @@ import { ParcelGalleryModal } from "../parcel/parcel-gallery-modal";
 const statusOptions: Parcel["status"][] = [
   "pending",
   "shipped",
+  "arrived_china_wh", // สินค้าถึงโกดังจีน
+  "in_transit_th",    // อยู่ระหว่างขนส่ง (จีน-ไทย)
   "delivered",
   "cancelled",
 ];
@@ -177,7 +179,8 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => `฿${row.getValue<number>("estimate").toLocaleString()}`,
+      // Display estimate as a string (YYYY-MM-DD) or reformat if needed
+      cell: ({ row }) => row.getValue("estimate"),
     }),
     status: () => ({
       accessorKey: "status",
