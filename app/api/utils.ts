@@ -128,9 +128,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-15T10:00:00Z",
     updatedAt: "2024-01-15T10:00:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-1-1/800/600",
+      "https://picsum.photos/seed/parcel-1-2/800/600",
+      "https://picsum.photos/seed/parcel-1-3/800/600",
     ],
   },
   {
@@ -150,9 +150,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-16T09:30:00Z",
     updatedAt: "2024-01-16T09:30:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-2-1/800/600",
+      "https://picsum.photos/seed/parcel-2-2/800/600",
+      "https://picsum.photos/seed/parcel-2-3/800/600",
     ],
   },
   {
@@ -173,9 +173,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-17T11:15:00Z",
     updatedAt: "2024-01-17T11:15:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-3-1/800/600",
+      "https://picsum.photos/seed/parcel-3-2/800/600",
+      "https://picsum.photos/seed/parcel-3-3/800/600",
     ],
   },
   {
@@ -195,9 +195,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-18T14:20:00Z",
     updatedAt: "2024-01-18T14:20:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-4-1/800/600",
+      "https://picsum.photos/seed/parcel-4-2/800/600",
+      "https://picsum.photos/seed/parcel-4-3/800/600",
     ],
   },
   {
@@ -218,9 +218,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-19T09:45:00Z",
     updatedAt: "2024-01-19T09:45:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-5-1/800/600",
+      "https://picsum.photos/seed/parcel-5-2/800/600",
+      "https://picsum.photos/seed/parcel-5-3/800/600",
     ],
   },
   {
@@ -240,9 +240,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-20T16:30:00Z",
     updatedAt: "2024-01-20T16:30:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-6-1/800/600",
+      "https://picsum.photos/seed/parcel-6-2/800/600",
+      "https://picsum.photos/seed/parcel-6-3/800/600",
     ],
   },
   {
@@ -263,9 +263,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-21T11:10:00Z",
     updatedAt: "2024-01-21T11:10:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-7-1/800/600",
+      "https://picsum.photos/seed/parcel-7-2/800/600",
+      "https://picsum.photos/seed/parcel-7-3/800/600",
     ],
   },
   {
@@ -286,9 +286,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-22T13:25:00Z",
     updatedAt: "2024-01-22T13:25:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-8-1/800/600",
+      "https://picsum.photos/seed/parcel-8-2/800/600",
+      "https://picsum.photos/seed/parcel-8-3/800/600",
     ],
   },
   {
@@ -308,9 +308,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-23T08:15:00Z",
     updatedAt: "2024-01-23T08:15:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-9-1/800/600",
+      "https://picsum.photos/seed/parcel-9-2/800/600",
+      "https://picsum.photos/seed/parcel-9-3/800/600",
     ],
   },
   {
@@ -331,9 +331,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-24T15:40:00Z",
     updatedAt: "2024-01-24T15:40:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-10-1/800/600",
+      "https://picsum.photos/seed/parcel-10-2/800/600",
+      "https://picsum.photos/seed/parcel-10-3/800/600",
     ],
   },
   // Additional customer parcels for better UI testing
@@ -354,9 +354,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-25T09:00:00Z",
     updatedAt: "2024-01-25T09:00:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-11-1/800/600",
+      "https://picsum.photos/seed/parcel-11-2/800/600",
+      "https://picsum.photos/seed/parcel-11-3/800/600",
     ],
   },
   {
@@ -377,9 +377,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-26T14:30:00Z",
     updatedAt: "2024-01-26T14:30:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-12-1/800/600",
+      "https://picsum.photos/seed/parcel-12-2/800/600",
+      "https://picsum.photos/seed/parcel-12-3/800/600",
     ],
   },
   {
@@ -400,9 +400,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-27T11:45:00Z",
     updatedAt: "2024-01-27T11:45:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-13-1/800/600",
+      "https://picsum.photos/seed/parcel-13-2/800/600",
+      "https://picsum.photos/seed/parcel-13-3/800/600",
     ],
   },
   {
@@ -422,9 +422,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-28T16:20:00Z",
     updatedAt: "2024-01-28T16:20:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-14-1/800/600",
+      "https://picsum.photos/seed/parcel-14-2/800/600",
+      "https://picsum.photos/seed/parcel-14-3/800/600",
     ],
   },
   {
@@ -445,9 +445,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-29T10:15:00Z",
     updatedAt: "2024-01-29T10:15:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-15-1/800/600",
+      "https://picsum.photos/seed/parcel-15-2/800/600",
+      "https://picsum.photos/seed/parcel-15-3/800/600",
     ],
   },
   // Other customers' parcels
@@ -469,9 +469,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-20T12:30:00Z",
     updatedAt: "2024-01-20T12:30:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-16-1/800/600",
+      "https://picsum.photos/seed/parcel-16-2/800/600",
+      "https://picsum.photos/seed/parcel-16-3/800/600",
     ],
   },
   {
@@ -491,9 +491,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-21T15:45:00Z",
     updatedAt: "2024-01-21T15:45:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-17-1/800/600",
+      "https://picsum.photos/seed/parcel-17-2/800/600",
+      "https://picsum.photos/seed/parcel-17-3/800/600",
     ],
   },
   {
@@ -514,9 +514,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-22T09:20:00Z",
     updatedAt: "2024-01-22T09:20:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-18-1/800/600",
+      "https://picsum.photos/seed/parcel-18-2/800/600",
+      "https://picsum.photos/seed/parcel-18-3/800/600",
     ],
   },
   {
@@ -537,9 +537,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-23T13:10:00Z",
     updatedAt: "2024-01-23T13:10:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-19-1/800/600",
+      "https://picsum.photos/seed/parcel-19-2/800/600",
+      "https://picsum.photos/seed/parcel-19-3/800/600",
     ],
   },
   {
@@ -559,9 +559,9 @@ export const mockParcels: Parcel[] = [
     createdAt: "2024-01-24T11:55:00Z",
     updatedAt: "2024-01-24T11:55:00Z",
     images: [
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      "https://example.com/image3.jpg",
+      "https://picsum.photos/seed/parcel-20-1/800/600",
+      "https://picsum.photos/seed/parcel-20-2/800/600",
+      "https://picsum.photos/seed/parcel-20-3/800/600",
     ],
   },
 ]

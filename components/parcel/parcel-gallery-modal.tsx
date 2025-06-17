@@ -1,14 +1,9 @@
 "use client"
 
-import Image from "next/image"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
+import Lightbox from "yet-another-react-lightbox"
+import "yet-another-react-lightbox/styles.css"
+import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
+import "yet-another-react-lightbox/plugins/thumbnails.css"
 
 interface ParcelGalleryModalProps {
   images: string[]
@@ -20,26 +15,11 @@ export function ParcelGalleryModal({ images, open, onClose }: ParcelGalleryModal
   if (images.length === 0) return null
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
-        <Carousel className="w-full">
-          <CarouselContent>
-            {images.map((src, idx) => (
-              <CarouselItem key={idx} className="flex justify-center">
-                <Image
-                  src={src}
-                  alt={`parcel-image-${idx}`}
-                  width={800}
-                  height={600}
-                  className="object-contain max-h-[70vh]"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      </DialogContent>
-    </Dialog>
+    <Lightbox
+      open={open}
+      close={onClose}
+      slides={images.map(src => ({ src }))}
+      plugins={[Thumbnails]}
+    />
   )
 }
