@@ -15,7 +15,6 @@ export interface ParcelFormData {
   customerCode: string
   cnTracking: string
   weight: number
-  // volume: number // Volume will be calculated, so not part of form data directly unless also stored
   freight: number
   deliveryMethod: Parcel['deliveryMethod'] // Use string literal type from Parcel
   estimate: string // Changed to string for date input
@@ -26,6 +25,13 @@ export interface ParcelFormData {
   height?: number
   thTracking?: string
   images?: File[]
+  description: string
+  pack: number
+  freightRate: number      // เรทขนส่ง
+  cbm: number              // ปริมาตรคิวบิกเมตร (คำนวณอัตโนมัติ)
+  paymentStatus: "paid" | "unpaid"
+  status: Parcel['status']
+  warehouse: string
 }
 
 export interface ParcelFormProps {
@@ -52,24 +58,96 @@ export function ParcelForm({
     reset,
     setValue,
     control, // Added control for Controller
+    watch,
     formState: { errors, isDirty }, // Added isDirty to check if form has been touched
   } = useForm<ParcelFormData>({
     defaultValues: isEditMode && initialData
       ? {
-          ...initialData,
-          receiveDate: initialData.receiveDate ? new Date(initialData.receiveDate).toISOString().split('T')[0] : "",
-          // estimate is already a string 'YYYY-MM-DD' from initialData due to prior type change
-          estimate: initialData.estimate || new Date().toISOString().split('T')[0],
-          width: initialData.width || 0,
-          length: initialData.length || 0,
-          height: initialData.height || 0,
-        }
+        parcelRef: initialData.parcelRef ?? "",
+        customerCode: initialData.customerCode ?? "",
+        cnTracking: initialData.cnTracking ?? "",
+        weight: initialData.weight ?? 0,
+        width: initialData.width ?? 0,
+        length: initialData.length ?? 0,
+        height: initialData.height ?? 0,
+        freight: initialData.freight ?? 0,
+        deliveryMethod: initialData.deliveryMethod ?? "pickup",
+        estimate: initialData.estimate
+          ? new Date(initialData.estimate).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0],
+        shipment: initialData.shipment ?? "",
+        receiveDate: initialData.receiveDate
+          ? new Date(initialData.receiveDate).toISOString().split('T')[0]
+          : "",
+        images: [], // start with no File objects for edit mode
+        description: initialData.description ?? "",
+        pack: initialData.pack ?? 1,
+        freightRate: initialData.freight ?? 0,
+        cbm: initialData.volume ?? 0,
+        paymentStatus: initialData.paymentStatus ?? "unpaid",
+        status: initialData.status ?? "pending",
+        warehouse: initialData.warehouse ?? "GUANGZHOU",
+      }
       : {
+        parcelRef: "",
+        customerCode: "",
+        cnTracking: "",
+        weight: 0,
+        width: 0,
+        length: 0,
+        height: 0,
+        freight: 0,
+        deliveryMethod: "pickup",
+        estimate: new Date().toISOString().split('T')[0],
+        shipment: "",
+        receiveDate: new Date().toISOString().split('T')[0],
+        thTracking: "",
+        images: [],
+        description: "",
+        pack: 1,
+        paymentStatus: "unpaid",
+        status: "pending",
+        warehouse: "GUANGZHOU",
+      },
+  })
+
+  useEffect(() => {
+    if (open) { // Only reset/initialize when sheet opens
+      if (isEditMode && initialData) {
+        const formData: ParcelFormData = {
+          parcelRef: initialData.parcelRef ?? "",
+          customerCode: initialData.customerCode ?? "",
+          cnTracking: initialData.cnTracking ?? "",
+          weight: initialData.weight ?? 0,
+          width: initialData.width ?? 0,
+          length: initialData.length ?? 0,
+          height: initialData.height ?? 0,
+          freight: initialData.freight ?? 0,
+          deliveryMethod: initialData.deliveryMethod ?? "pickup",
+          estimate: initialData.estimate
+            ? new Date(initialData.estimate).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0],
+          shipment: initialData.shipment ?? "",
+          receiveDate: initialData.receiveDate
+            ? new Date(initialData.receiveDate).toISOString().split('T')[0]
+            : "",
+          images: [], // editing starts with no File objects
+          description: initialData.description ?? "",
+          pack: initialData.pack ?? 1,
+          freightRate: initialData.freight ?? 0,
+          paymentStatus: initialData.paymentStatus ?? "unpaid",
+          status: initialData.status ?? "pending",
+          warehouse: initialData.warehouse ?? "GUANGZHOU",
+          cbm: 0
+        };
+        reset(formData);
+        setImages([])
+      } else {
+        reset({
           parcelRef: "",
           customerCode: "",
           cnTracking: "",
           weight: 0,
-          // volume: 0, // Not directly in form
           width: 0,
           length: 0,
           height: 0,
@@ -79,45 +157,34 @@ export function ParcelForm({
           shipment: "",
           receiveDate: new Date().toISOString().split('T')[0],
           thTracking: "",
-        },
-  })
-
-  useEffect(() => {
-    if (open) { // Only reset/initialize when sheet opens
-      if (isEditMode && initialData) {
-        const formData: ParcelFormData = {
-          ...initialData,
-          receiveDate: initialData.receiveDate ? new Date(initialData.receiveDate).toISOString().split('T')[0] : "",
-          // estimate should be a string 'YYYY-MM-DD'
-          estimate: initialData.estimate || new Date().toISOString().split('T')[0],
-          width: initialData.width || 0,
-          length: initialData.length || 0,
-          height: initialData.height || 0,
-        };
-        reset(formData);
-        setImages([])
-      } else {
-        // Reset to default new form values, including a default receiveDate
-        reset({
-          parcelRef: "",
-          customerCode: "",
-          cnTracking: "",
-          weight: 0,
-          // volume: 0, // Not directly in form
-          width: 0,
-          length: 0,
-          height: 0,
-          freight: 0,
-          deliveryMethod: "pickup",
-          estimate: new Date().toISOString().split('T')[0], // estimate is date
-          shipment: "",
-          receiveDate: new Date().toISOString().split('T')[0],
-          thTracking: "",
+          images: [],
+          description: "",
+          pack: 1,
+          freightRate: 0,
+          cbm: 0,
+          paymentStatus: "unpaid",
+          status: "pending",
+          warehouse: "GUANGZHOU",
         });
         setImages([])
       }
     }
   }, [open, isEditMode, initialData, reset]);
+
+  // คำนวณปริมาตร (CBM) และค่าขนส่งอัตโนมัติ
+  useEffect(() => {
+    const width = watch("width") || 0
+    const length = watch("length") || 0
+    const height = watch("height") || 0
+    const weight = watch("weight") || 0
+    const freightRate = watch("freightRate") || 0
+
+    const cbm = (width * length * height) / 1_000_000 // cm³ -> m³
+    setValue("cbm", parseFloat(cbm.toFixed(4)))
+
+    const freight = weight * freightRate
+    setValue("freight", parseFloat(freight.toFixed(2)))
+  }, [watch("width"), watch("length"), watch("height"), watch("weight"), watch("freightRate"), setValue])
 
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -135,16 +202,14 @@ export function ParcelForm({
         customerCode: "",
         cnTracking: "",
         weight: 0,
-          // volume: 0, // Not directly in form
-          width: 0,
-          length: 0,
-          height: 0,
+        width: 0,
+        length: 0,
+        height: 0,
         freight: 0,
         deliveryMethod: "pickup",
-          estimate: new Date().toISOString().split('T')[0], // estimate is date
+        estimate: new Date().toISOString().split('T')[0], // estimate is date
         shipment: "",
         receiveDate: new Date().toISOString().split('T')[0],
-        thTracking: "",
       });
       setImages([])
     }
@@ -167,7 +232,7 @@ export function ParcelForm({
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-6">
           <div className="space-y-2">
-            <Label htmlFor="parcelRef">เลขที่รับพัสดุ *</Label>
+            <Label htmlFor="parcelRef">เลขที่รับพัสดุ <span className="text-red-600">*</span></Label>
             <Input
               id="parcelRef"
               {...register("parcelRef", { required: "กรุณาใส่เลขที่รับพัสดุ" })}
@@ -178,7 +243,7 @@ export function ParcelForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="receiveDate">วันที่รับ *</Label>
+            <Label htmlFor="receiveDate">วันที่รับ <span className="text-red-600">*</span></Label>
             <Input
               id="receiveDate"
               type="date"
@@ -188,7 +253,7 @@ export function ParcelForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="customerCode">รหัสลูกค้า *</Label>
+            <Label htmlFor="customerCode">รหัสลูกค้า <span className="text-red-600">*</span></Label>
             <Input
               id="customerCode"
               {...register("customerCode", { required: "กรุณาใส่รหัสลูกค้า" })}
@@ -198,7 +263,7 @@ export function ParcelForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cnTracking">TRACKING จีน *</Label>
+            <Label htmlFor="cnTracking">TRACKING จีน <span className="text-red-600">*</span></Label>
             <Input
               id="cnTracking"
               {...register("cnTracking", { required: "กรุณาใส่เลข tracking จีน" })}
@@ -207,9 +272,34 @@ export function ParcelForm({
             {errors.cnTracking && <p className="text-sm text-red-600">{errors.cnTracking.message}</p>}
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="description">รายละเอียดสินค้า <span className="text-red-600">*</span></Label>
+            <Input
+              id="description"
+              {...register("description", { required: "กรุณาใส่รายละเอียดสินค้า" })}
+              placeholder="เช่น เสื้อยืดสีดำ ไซส์ L"
+            />
+            {errors.description && <p className="text-sm text-red-600">{errors.description.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pack">จำนวน (Pack) <span className="text-red-600">*</span></Label>
+            <Input
+              id="pack"
+              type="number"
+              {...register("pack", {
+                required: "กรุณาใส่จำนวนแพ็ก",
+                valueAsNumber: true,
+                min: { value: 1, message: "จำนวนต้องมากกว่า 0" },
+              })}
+              placeholder="1"
+            />
+            {errors.pack && <p className="text-sm text-red-600">{errors.pack.message}</p>}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="weight">น้ำหนัก (KG) *</Label>
+              <Label htmlFor="weight">น้ำหนัก (KG) <span className="text-red-600">*</span></Label>
               <Input
                 id="weight"
                 type="number"
@@ -275,23 +365,47 @@ export function ParcelForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="freight">ค่าขนส่ง (บาท) *</Label>
+            <Label htmlFor="cbm">ปริมาตร CBM</Label>
             <Input
-              id="freight"
+              id="cbm"
               type="number"
-              step="0.01"
-              {...register("freight", {
-                required: "กรุณาใส่ค่าขนส่ง",
-                valueAsNumber: true,
-                min: { value: 0, message: "ค่าขนส่งต้องมากกว่า 0" },
-              })}
-              placeholder="0.00"
+              step="0.0001"
+              disabled
+              {...register("cbm", { valueAsNumber: true })}
             />
-            {errors.freight && <p className="text-sm text-red-600">{errors.freight.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="freightRate">เรทค่าขนส่ง (บาท/กก.) <span className="text-red-600">*</span></Label>
+              <Input
+                id="freightRate"
+                type="number"
+                step="0.01"
+                {...register("freightRate", {
+                  required: "กรุณาใส่เรทค่าขนส่ง",
+                  valueAsNumber: true,
+                  min: { value: 0, message: "เรทต้องมากกว่า 0" },
+                })}
+                placeholder="0.00"
+              />
+              {errors.freightRate && <p className="text-sm text-red-600">{errors.freightRate.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="freight">ค่าขนส่ง (บาท)</Label>
+              <Input
+                id="freight"
+                type="number"
+                step="0.01"
+                disabled
+                {...register("freight", { valueAsNumber: true })}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="estimate">วันที่คาดว่าจะได้รับ (Estimate Date) *</Label>
+            <Label htmlFor="estimate">วันที่คาดว่าจะได้รับ (Estimate Date) <span className="text-red-600">*</span></Label>
             <Input
               id="estimate"
               type="date"
@@ -303,7 +417,29 @@ export function ParcelForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="shipment">Shipment *</Label>
+            <Label htmlFor="deliveryMethod">ขนส่งทาง <span className="text-red-600">*</span></Label>
+            <Controller
+              control={control}
+              name="deliveryMethod"
+              rules={{ required: "กรุณาเลือกวิธีขนส่ง" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือกวิธีขนส่ง" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="air">ทางอากาศ</SelectItem>
+                    <SelectItem value="sea">ทางเรือ</SelectItem>
+                    <SelectItem value="land">ทางบก</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.deliveryMethod && <p className="text-sm text-red-600">{errors.deliveryMethod.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="shipment">Shipment <span className="text-red-600">*</span></Label>
             <Input
               id="shipment"
               {...register("shipment", { required: "กรุณาใส่ shipment" })}
@@ -313,78 +449,107 @@ export function ParcelForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="thTracking">TRACKING ไทย (ถ้ามี)</Label>
-            <Input
-              id="thTracking"
-              {...register("thTracking")}
-              placeholder="เช่น TH123456789"
-            />
-          </div>
-
-        {isAdmin ? (
-          <div className="space-y-2">
-            <Label htmlFor="images">รูปภาพพัสดุ</Label>
-            <Input id="images" type="file" multiple onChange={handleImagesChange} />
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {images.map((file, index) => (
-                  <img
-                    key={index}
-                    src={URL.createObjectURL(file)}
-                    className="h-16 w-16 object-cover rounded-md"
-                    alt="preview"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          initialData?.images && initialData.images.length > 0 && (
-            <div className="space-y-2">
-              <Label>รูปภาพพัสดุ</Label>
-              <div className="flex flex-wrap gap-2">
-                {initialData.images.map((src, idx) => (
-                  <img
-                    key={idx}
-                    src={src}
-                    onClick={() => window.open(src, '_blank')}
-                    className="h-16 w-16 object-cover rounded-md cursor-pointer"
-                    alt="parcel image"
-                  />
-                ))}
-              </div>
-            </div>
-          )
-        )}
-
-          <div className="space-y-2">
-            <Label>วิธีการจัดส่ง *</Label>
+            <Label htmlFor="status">สถานะ <span className="text-red-600">*</span></Label>
             <Controller
-              name="deliveryMethod"
               control={control}
-              rules={{ required: "กรุณาเลือกวิธีการจัดส่ง" }}
+              name="status"
+              rules={{ required: "กรุณาเลือกสถานะ" }}
               render={({ field }) => (
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value} // Ensure value is correctly bound
-                  defaultValue={isEditMode && initialData ? initialData.deliveryMethod : "pickup"}
-                >
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <SelectTrigger>
-                    <SelectValue placeholder="เลือกวิธีการจัดส่ง" />
+                    <SelectValue placeholder="เลือกสถานะ" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pickup">รับที่โกดัง</SelectItem>
-                    <SelectItem value="delivery">จัดส่งถึงบ้าน</SelectItem>
-                    <SelectItem value="express">Express</SelectItem>
-                    <SelectItem value="economy">Economy</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="shipped">Shipped</SelectItem>
+                    <SelectItem value="in_transit_th">In‑Transit‑TH</SelectItem>
+                    <SelectItem value="arrived_china_wh">Arrived‑CN‑WH</SelectItem>
+                    <SelectItem value="delivered">Delivered</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
               )}
             />
-            {errors.deliveryMethod && (
-              <p className="text-sm text-red-600">{errors.deliveryMethod.message}</p>
-            )}
+            {errors.status && <p className="text-sm text-red-600">{errors.status.message}</p>}
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="paymentStatus">สถานะชำระเงิน <span className="text-red-600">*</span></Label>
+            <Controller
+              control={control}
+              name="paymentStatus"
+              rules={{ required: "กรุณาเลือกสถานะชำระเงิน" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือกสถานะชำระเงิน" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="paid">ชำระแล้ว</SelectItem>
+                    <SelectItem value="unpaid">ค้างชำระ</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.paymentStatus && <p className="text-sm text-red-600">{errors.paymentStatus.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="warehouse">Warehouse <span className="text-red-600">*</span></Label>
+            <Controller
+              control={control}
+              name="warehouse"
+              rules={{ required: "กรุณาเลือกคลังสินค้า" }}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือกคลังสินค้า" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="YIWI">YIWI</SelectItem>
+                    <SelectItem value="GUANGZHOU">GUANGZHOU</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.warehouse && <p className="text-sm text-red-600">{errors.warehouse.message}</p>}
+          </div>
+
+          {isAdmin ? (
+            <div className="space-y-2">
+              <Label htmlFor="images">รูปภาพพัสดุ</Label>
+              <Input id="images" type="file" multiple onChange={handleImagesChange} />
+              {images.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {images.map((file, index) => (
+                    <img
+                      key={index}
+                      src={URL.createObjectURL(file)}
+                      className="h-16 w-16 object-cover rounded-md"
+                      alt="preview"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            initialData?.images && initialData.images.length > 0 && (
+              <div className="space-y-2">
+                <Label>รูปภาพพัสดุ</Label>
+                <div className="flex flex-wrap gap-2">
+                  {initialData.images.map((src, idx) => (
+                    <img
+                      key={idx}
+                      src={src}
+                      onClick={() => window.open(src, '_blank')}
+                      className="h-16 w-16 object-cover rounded-md cursor-pointer"
+                      alt="parcel image"
+                    />
+                  ))}
+                </div>
+              </div>
+            )
+          )}
 
           <div className="flex space-x-2 pt-4">
             <Button type="submit" className="flex-1">

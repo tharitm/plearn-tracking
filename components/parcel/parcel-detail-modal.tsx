@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react"
 import { useParcelStore } from "@/stores/parcel-store"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { StatusBadge } from "@/components/ui/status-badge"
 import { Separator } from "@/components/ui/separator"
 import { Truck, Package, CheckCircle, XCircle } from "lucide-react"
+import { StatusBadge } from "../ui/status-badge"
 
 interface TrackingEvent {
   date: string
@@ -67,23 +67,64 @@ export function ParcelDetailModal() {
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h3 className="font-semibold mb-2">ข้อมูลพื้นฐาน</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">เลขที่รับพัสดุ:</span>
-                  <span className="font-medium">{selectedParcel.parcelRef}</span>
+                  <span className="text-gray-600">Description:</span>
+                  <span>{selectedParcel.description || "-"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">วันที่รับ:</span>
-                  <span>{new Date(selectedParcel.receiveDate).toLocaleDateString('en-CA')}</span>
+                  <span className="text-gray-600">Pack:</span>
+                  <span>{selectedParcel.pack || "-"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">รหัสลูกค้า:</span>
-                  <span>{selectedParcel.customerCode}</span>
+                  <span className="text-gray-600">น้ำหนัก (KG):</span>
+                  <span>{selectedParcel.weight?.toFixed(2) || "0.00"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ความยาว (CM):</span>
+                  <span>{selectedParcel.length || "N/A"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ความกว้าง (CM):</span>
+                  <span>{selectedParcel.width || "N/A"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ความสูง (CM):</span>
+                  <span>{selectedParcel.height || "N/A"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ปริมาตร (CBM):</span>
+                  <span>{(((selectedParcel.width || 0) * (selectedParcel.length || 0) * (selectedParcel.height || 0)) / 1_000_000).toFixed(3)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ค่าขนส่ง:</span>
+                  <span>฿{selectedParcel.freight?.toLocaleString() || "0"}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2">รายละเอียดการขนส่ง</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">เลขรับสินค้า:</span>
+                  <span>{selectedParcel.parcelRef}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Warehouse:</span>
+                  <span>{selectedParcel.warehouse || "-"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ขนส่งโดย:</span>
+                  <span>{selectedParcel.deliveryMethod}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipment:</span>
                   <span>{selectedParcel.shipment}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ประมาณการ:</span>
+                  <span>{selectedParcel.estimate || "-"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">สถานะ:</span>
@@ -95,50 +136,12 @@ export function ParcelDetailModal() {
                 </div>
               </div>
             </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">ข้อมูลการขนส่ง</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">TRACKING จีน:</span>
-                  <span className="font-mono">{selectedParcel.cnTracking}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">TRACKING ไทย:</span>
-                  <span className="font-mono">{selectedParcel.thTracking || "-"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">ความกว้าง (CM):</span>
-                  <span>{selectedParcel.width || "N/A"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">ความยาว (CM):</span>
-                  <span>{selectedParcel.length || "N/A"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">ความสูง (CM):</span>
-                  <span>{selectedParcel.height || "N/A"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">ปริมาณ (CBM):</span>
-                  <span>{(((selectedParcel.width || 0) * (selectedParcel.length || 0) * (selectedParcel.height || 0)) / 1000000).toFixed(3)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">น้ำหนัก (KG):</span>
-                  <span>{selectedParcel.weight.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">วิธีการจัดส่ง:</span>
-                  <span>{selectedParcel.deliveryMethod}</span>
-                </div>
-              </div>
-            </div>
           </div>
 
           <Separator />
 
           {/* Financial Information */}
-          <div>
+          {/* <div>
             <h3 className="font-semibold mb-2">ข้อมูลการเงิน</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div className="flex justify-between">
@@ -150,9 +153,9 @@ export function ParcelDetailModal() {
                 <span className="font-medium">฿{selectedParcel.freight.toLocaleString()}</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          <Separator />
+          {/* <Separator /> */}
 
           {/* Images */}
           <div>
@@ -165,8 +168,6 @@ export function ParcelDetailModal() {
                       src={image}
                       alt={`Parcel image ${index + 1}`}
                       className="object-cover w-full h-full rounded-md"
-                      // Consider adding error handling for broken images
-                      // onError={(e) => e.currentTarget.src = '/placeholder-image.png'}
                     />
                   </div>
                 ))}

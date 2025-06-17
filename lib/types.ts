@@ -84,14 +84,14 @@ export interface Parcel {
   volume: number
   weight: number
   freight: number
+  images?: string[]
   deliveryMethod: string
-  images?: string[]
-  thTracking?: string
-  images?: string[]
-  paymentStatus: "unpaid" | "paid" | "partial"
-  images?: string[]
+  paymentStatus: "unpaid" | "paid"
   createdAt: string
   updatedAt: string
+  warehouse: string
+  description: string
+  pack: number
 }
 
 export interface ParcelFilters {
