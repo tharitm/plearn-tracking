@@ -15,6 +15,9 @@ export interface ParcelFormData {
   customerCode: string
   cnTracking: string
   weight: number
+  length: number
+  width: number
+  height: number
   volume: number
   freight: number
   deliveryMethod: Parcel['deliveryMethod'] // Use string literal type from Parcel
@@ -48,6 +51,7 @@ export function ParcelForm({
     handleSubmit,
     reset,
     setValue,
+    watch,
     control, // Added control for Controller
     formState: { errors, isDirty }, // Added isDirty to check if form has been touched
   } = useForm<ParcelFormData>({
@@ -62,6 +66,9 @@ export function ParcelForm({
           customerCode: "",
           cnTracking: "",
           weight: 0,
+          length: 0,
+          width: 0,
+          height: 0,
           volume: 0,
           freight: 0,
           deliveryMethod: "pickup", // Default or ensure it's a valid Parcel['deliveryMethod']
@@ -88,6 +95,9 @@ export function ParcelForm({
           customerCode: "",
           cnTracking: "",
           weight: 0,
+          length: 0,
+          width: 0,
+          height: 0,
           volume: 0,
           freight: 0,
           deliveryMethod: "pickup",
@@ -107,6 +117,20 @@ export function ParcelForm({
     }
   }
 
+  const lengthValue = watch('length')
+  const widthValue = watch('width')
+  const heightValue = watch('height')
+
+  useEffect(() => {
+    const l = Number(lengthValue) || 0
+    const w = Number(widthValue) || 0
+    const h = Number(heightValue) || 0
+    if (l > 0 && w > 0 && h > 0) {
+      const vol = (l * w * h) / 1_000_000
+      setValue('volume', parseFloat(vol.toFixed(2)))
+    }
+  }, [lengthValue, widthValue, heightValue, setValue])
+
   const handleFormSubmit = (data: ParcelFormData) => {
     onSubmit({ ...data, images });
     if (!isEditMode) {
@@ -117,6 +141,9 @@ export function ParcelForm({
         customerCode: "",
         cnTracking: "",
         weight: 0,
+        length: 0,
+        width: 0,
+        height: 0,
         volume: 0,
         freight: 0,
         deliveryMethod: "pickup",
@@ -204,20 +231,71 @@ export function ParcelForm({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="volume">ปริมาณ (CBM) *</Label>
+              <Label htmlFor="length">ความยาว (CM) *</Label>
               <Input
-                id="volume"
+                id="length"
                 type="number"
                 step="0.01"
-                {...register("volume", {
-                  required: "กรุณาใส่ปริมาณ",
+                {...register("length", {
+                  required: "กรุณาใส่ความยาว",
                   valueAsNumber: true,
-                  min: { value: 0, message: "ปริมาณต้องมากกว่า 0" },
+                  min: { value: 0, message: "ต้องมากกว่า 0" },
                 })}
                 placeholder="0.00"
               />
-              {errors.volume && <p className="text-sm text-red-600">{errors.volume.message}</p>}
+              {errors.length && <p className="text-sm text-red-600">{errors.length.message}</p>}
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="width">ความกว้าง (CM) *</Label>
+              <Input
+                id="width"
+                type="number"
+                step="0.01"
+                {...register("width", {
+                  required: "กรุณาใส่ความกว้าง",
+                  valueAsNumber: true,
+                  min: { value: 0, message: "ต้องมากกว่า 0" },
+                })}
+                placeholder="0.00"
+              />
+              {errors.width && <p className="text-sm text-red-600">{errors.width.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="height">ความสูง (CM) *</Label>
+              <Input
+                id="height"
+                type="number"
+                step="0.01"
+                {...register("height", {
+                  required: "กรุณาใส่ความสูง",
+                  valueAsNumber: true,
+                  min: { value: 0, message: "ต้องมากกว่า 0" },
+                })}
+                placeholder="0.00"
+              />
+              {errors.height && <p className="text-sm text-red-600">{errors.height.message}</p>}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="volume">ปริมาณ (CBM) *</Label>
+            <Input
+              id="volume"
+              type="number"
+              step="0.01"
+              {...register("volume", {
+                required: "กรุณาใส่ปริมาณ",
+                valueAsNumber: true,
+                min: { value: 0, message: "ปริมาณต้องมากกว่า 0" },
+              })}
+              readOnly
+              placeholder="0.00"
+            />
+            {errors.volume && <p className="text-sm text-red-600">{errors.volume.message}</p>}
           </div>
 
           <div className="space-y-2">

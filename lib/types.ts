@@ -78,6 +78,9 @@ export interface Parcel {
   estimate: number
   status: "pending" | "shipped" | "delivered" | "cancelled"
   cnTracking: string
+  length: number
+  width: number
+  height: number
   volume: number
   weight: number
   freight: number

@@ -63,6 +63,19 @@ export function ParcelDetailModal() {
           </DialogTitle>
         </DialogHeader>
 
+        {selectedParcel.images && selectedParcel.images.length > 0 && (
+          <div className="flex gap-2 pb-4 overflow-x-auto">
+            {selectedParcel.images.map((src, idx) => (
+              <img
+                key={idx}
+                src={src}
+                alt={`parcel image ${idx}`}
+                className="h-24 w-24 object-cover rounded-md"
+              />
+            ))}
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -75,7 +88,7 @@ export function ParcelDetailModal() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">วันที่รับ:</span>
-                  <span>{new Date(selectedParcel.receiveDate).toLocaleDateString("th-TH")}</span>
+                  <span>{new Date(selectedParcel.receiveDate).toLocaleDateString("en-CA")}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">รหัสลูกค้า:</span>
@@ -108,8 +121,19 @@ export function ParcelDetailModal() {
                   <span className="font-mono">{selectedParcel.thTracking || "-"}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-gray-600">ขนาด (ซม.):</span>
+                  <span>
+                    {selectedParcel.width} x {selectedParcel.length} x {selectedParcel.height}
+                  </span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-gray-600">ปริมาณ (CBM):</span>
-                  <span>{selectedParcel.volume.toFixed(2)}</span>
+                  <span>
+                    {(
+                      (selectedParcel.width * selectedParcel.length * selectedParcel.height) /
+                      1_000_000
+                    ).toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">น้ำหนัก (KG):</span>
