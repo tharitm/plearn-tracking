@@ -31,7 +31,7 @@ export function DashboardLayout<TData>({
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-screen w-full">
+      <SidebarInset className="flex flex-col min-h-screen w-full min-w-0">
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md flex h-14 lg:h-16 shrink-0 items-center gap-2 border-b border-white/20 px-4 lg:px-6 shadow-sm">
           <SidebarTrigger className="-ml-1 ripple rounded-lg p-2 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 touch-target" />
           <Separator orientation="vertical" className="mr-2 h-4 bg-gray-300/50" />
