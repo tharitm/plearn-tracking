@@ -13,6 +13,7 @@ import {
 
 import { useAuthStore } from "@/stores/auth-store"
 import { useParcelStore } from "@/stores/parcel-store"
+import { updateParcelStatus } from "@/services/parcelService";
 import { useParcels } from "@/hooks/use-parcels"
 import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 import type { Parcel } from "@/lib/types"
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
 
   const { loading, refetch, parcels = [] } = useParcels()
-  const { setSelectedParcel, updateParcel, galleryImages, closeGallery } = useParcelStore()
+  const { setSelectedParcel, galleryImages, closeGallery } = useParcelStore()
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
@@ -47,29 +48,29 @@ export default function AdminDashboard() {
   const [updatingStatusForId, setUpdatingStatusForId] = useState<string | null>(null); // New state
 
   const handleStatusChange = useCallback(async (parcelId: string, newStatus: Parcel["status"]) => {
-    setUpdatingStatusForId(parcelId); // Set loading state
+    setUpdatingStatusForId(parcelId);
     try {
-      console.log("Attempting to update status for parcel:", parcelId, "to", newStatus);
-      const response = await fetch(`/api/admin/parcel/${parcelId}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (response.ok) {
-        const updatedParcel = await response.json();
-        updateParcel(updatedParcel);
-        showToast(`พัสดุ ${parcelId} อัปเดตสถานะเป็น ${newStatus} แล้ว`, "success");
-      } else {
-        const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
-        showToast(`ไม่สามารถอัปเดตสถานะพัสดุ ${parcelId}`, "error", { description: errorData.message || response.statusText });
-      }
-    } catch (error) {
-      console.error("Failed to update status:", error);
-      showToast(`เกิดข้อผิดพลาดในการอัปเดตสถานะพัสดุ ${parcelId}`, "error");
+      console.log("Attempting to update status for parcel:", parcelId, "to", newStatus, "using service");
+      const updatedParcelFromService = await updateParcelStatus(parcelId, newStatus); // Using the service
+
+      // On successful update by the service:
+      showToast(`พัสดุ ${updatedParcelFromService.parcelRef || parcelId} อัปเดตสถานะเป็น ${newStatus} แล้ว`, "success");
+      refetch(); // Refetch data to ensure table consistency
+
+    } catch (error: any) { // Catch errors thrown by the service
+      console.error("Failed to update status via service:", error);
+      // The withErrorHandling wrapper in parcelService should ideally handle showing a global toast.
+      // If specific toast messages are needed here, they can be added.
+      // Defaulting to a generic message if the error isn't structured as expected.
+      showToast(
+          `ไม่สามารถอัปเดตสถานะพัสดุ ${parcelId}`,
+          "error",
+          { description: error?.message || "An unexpected error occurred." }
+      );
     } finally {
       setUpdatingStatusForId(null);
     }
-  }, [updateParcel]);
+  }, [refetch, showToast]);
 
   const handleEdit = useCallback((parcel: Parcel) => {
     setEditingParcel(parcel);
