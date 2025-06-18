@@ -5,7 +5,6 @@ import React from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "./app-sidebar"
 import { UserMenu } from "./user-menu"
-import { ColumnVisibilityDropdown } from "@/components/ui/ColumnVisibilityDropdown" // Import the new component
 import { type Table } from "@tanstack/react-table" // To type the tableInstance prop
 import { Separator } from "@/components/ui/separator"
 import {

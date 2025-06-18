@@ -182,7 +182,7 @@ export function ParcelForm({
     const cbm = (width * length * height) / 1_000_000 // cm³ -> m³
     setValue("cbm", parseFloat(cbm.toFixed(4)))
 
-    const freight = weight * freightRate
+    const freight = cbm * freightRate
     setValue("freight", parseFloat(freight.toFixed(2)))
   }, [watch("width"), watch("length"), watch("height"), watch("weight"), watch("freightRate"), setValue])
 
@@ -377,7 +377,7 @@ export function ParcelForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="freightRate">เรทค่าขนส่ง (บาท/กก.) <span className="text-red-600">*</span></Label>
+              <Label htmlFor="freightRate">เรทค่าขนส่ง <span className="text-red-600">*</span></Label>
               <Input
                 id="freightRate"
                 type="number"
