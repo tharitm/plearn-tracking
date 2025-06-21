@@ -83,7 +83,7 @@ export default function LoginPage() {
           </div>
           <div>
             <CardTitle className="text-2xl">เข้าสู่ระบบ</CardTitle>
-            <CardDescription>ระบบจัดการเลขพัสดุ</CardDescription>
+            <CardDescription>Plearn Tracking</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
