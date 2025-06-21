@@ -92,11 +92,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     >
       <SidebarHeader className="p-4 sm:p-6 border-b border-white/80 bg-gradient-to-r from-blue-50/80 to-purple-50/80">
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
-            <Package className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
-          </div>
+          <img src="/plearn-logo.png" alt="Plearn Logo" className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl shadow-lg" />
           <div>
-            <h1 className="text-base sm:text-title font-bold text-[#212121]">Parcel System</h1>
+            <h1 className="text-base sm:text-title font-bold text-[#212121]">Plearn Tracking</h1>
             <p className="text-xs sm:text-caption text-gray-500 font-normal">
               {user?.role === "admin" ? "Admin Panel" : "Customer Portal"}
             </p>

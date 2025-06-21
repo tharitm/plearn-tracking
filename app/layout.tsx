@@ -6,7 +6,7 @@ import { Toaster } from "sonner" // Keep this for sonner's toast rendering
 import { GlobalErrorSonner } from "@/components/ui/GlobalErrorSonner" // Import the new component
 
 export const metadata: Metadata = {
-  title: "Parcel Management Dashboard",
+  title: "Plearn Tracking",
   description: "ระบบจัดการเลขพัสดุ",
 }
 

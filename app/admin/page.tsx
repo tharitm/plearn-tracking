@@ -207,7 +207,7 @@ export default function AdminDashboard() {
               <h1
                 className="text-xl sm:text-heading font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2"
               >
-                Admin Dashboard
+                Plearn Tracking
               </h1>
               <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
                 จัดการข้อมูลพัสดุทั้งหมดในระบบ

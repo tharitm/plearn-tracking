@@ -90,7 +90,7 @@ export default function CustomerDashboard() {
         {/* Header Section */}
         <div className="stagger-item">
           <h1 className="text-xl sm:text-heading font-bold text-[#212121] mb-1 sm:mb-2">
-            Dashboard ลูกค้า
+            Plearn Tracking
           </h1>
           <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
             จัดการและติดตามพัสดุของคุณ
