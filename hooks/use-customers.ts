@@ -2,63 +2,55 @@
 
 import { useEffect, useCallback } from "react";
 import { useCustomerStore } from "@/stores/customer-store";
-import * as customerService from "@/services/customerService";
-import type { CustomerQuery } from "@/lib/types";
+// No need to import customerService here anymore
 
 export function useCustomers() {
   const {
+    customers,
+    total,
     loading,
-    filters,
-    pagination,
-    setCustomers,
-    setLoading,
-    setError,
-    error: customerStoreError,
-    setSelectedCustomer,
-  } = useCustomerStore();
+    error,
+    filters,      // For useEffect dependency array
+    pagination,   // For useEffect dependency array
+    loadCustomers: storeLoadCustomers, // Action from the store
+    setSelectedCustomer, // Still useful to pass through
+  } = useCustomerStore(state => ({
+    customers: state.customers,
+    total: state.total,
+    loading: state.loading,
+    error: state.error,
+    filters: state.filters,
+    pagination: state.pagination,
+    loadCustomers: state.loadCustomers,
+    setSelectedCustomer: state.setSelectedCustomer,
+  }));
 
-  const loadCustomers = useCallback(async () => {
-
-    setLoading(true);
-    if (customerStoreError) {
-      setError(null);
-    }
-
-    try {
-      const query: CustomerQuery = {
-        ...filters,
-        page: pagination.pageIndex + 1,
-        limit: pagination.pageSize,
-      };
-
-      const result = await customerService.fetchCustomers(query);
-      setCustomers(result.data, result.pagination.total);
-
-
-    } catch (error) {
-      console.error("Error in useCustomers' loadCustomers (already handled globally):", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    filters,
-    pagination,
-    setLoading,
-    setCustomers,
-    setError,
-    customerStoreError
-  ]);
+  // The store's loadCustomers action is memoized by Zustand
+  // Create a stable refetch function
+  const refetch = useCallback(() => {
+    storeLoadCustomers();
+  }, [storeLoadCustomers]);
 
   useEffect(() => {
-    loadCustomers();
-  }, [loadCustomers]);
+    // Initial load and reload when filters or pagination change.
+    storeLoadCustomers();
+  }, [
+    filters.name,
+    filters.email,
+    filters.status,
+    filters.sortBy,
+    filters.sortOrder,
+    pagination.pageIndex,
+    pagination.pageSize,
+    storeLoadCustomers,
+  ]);
 
   return {
-    customers: useCustomerStore((state) => state.customers),
-    total: useCustomerStore((state) => state.total),
+    customers,
+    total,
     loading,
-    error: customerStoreError,
-    refetch: loadCustomers,
-    setSelectedCustomer,
+    error,
+    refetch,
+    setSelectedCustomer, // Continue to expose this for convenience
   };
 }

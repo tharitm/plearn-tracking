@@ -1,11 +1,13 @@
 import { create } from "zustand"
-import type { Parcel, ParcelFilters, PaginationState } from "@/lib/types"
+import type { Parcel, ParcelFilters, PaginationState, User, ParcelListResponse } from "@/lib/types"
+import { fetchParcels } from "@/services/parcelService"
+import { useAuthStore } from "@/stores/auth-store"
 
 interface ParcelState {
   parcels: Parcel[]
   total: number
   loading: boolean
-  error: string | null; // Added error state
+  error: string | null
   filters: ParcelFilters
   pagination: PaginationState
   selectedParcel: Parcel | null
@@ -13,7 +15,7 @@ interface ParcelState {
 
   setParcels: (parcels: Parcel[], total: number) => void
   setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void; // Added setError action
+  setError: (error: string | null) => void
   setFilters: (filters: Partial<ParcelFilters>) => void
   setPagination: (pagination: Partial<PaginationState>) => void
   setSelectedParcel: (parcel: Parcel | null) => void
@@ -21,6 +23,7 @@ interface ParcelState {
   closeGallery: () => void
   resetFilters: () => void
   updateParcel: (parcel: Parcel) => void
+  loadParcels: (user: User | null) => Promise<void> // Added loadParcels action
 }
 
 const initialFilters: ParcelFilters = {
@@ -45,11 +48,11 @@ export const useParcelStore = create<ParcelState>((set) => ({
   pagination: initialPagination,
   selectedParcel: null,
   galleryImages: [],
-  error: null, // Initialized error state
+  error: null,
 
   setParcels: (parcels, total) => set({ parcels, total }),
   setLoading: (loading) => set({ loading }),
-  setError: (error: string | null) => set({ error }), // Implemented setError action
+  setError: (error: string | null) => set({ error }),
   setFilters: (newFilters) =>
     set((state) => ({
       filters: { ...state.filters, ...newFilters },
@@ -73,4 +76,34 @@ export const useParcelStore = create<ParcelState>((set) => ({
       }
       return {}
     }),
-}))
+
+  loadParcels: async (user) => {
+    if (!user) {
+      set({ parcels: [], total: 0, loading: false }); // Clear parcels if no user
+      return;
+    }
+
+    set({ loading: true, error: null });
+    // Access other state properties using useParcelStore.getState()
+    const { filters, pagination } = useParcelStore.getState();
+
+    try {
+      const serviceFilters: ParcelFilters & { page?: number; pageSize?: number; customerCode?: string } = {
+        ...filters,
+        page: pagination.pageIndex + 1,
+        pageSize: pagination.pageSize,
+      };
+      if (user.role === "customer") {
+        serviceFilters.customerCode = user.customerCode;
+      }
+      const result: ParcelListResponse = await fetchParcels(serviceFilters);
+      set({ parcels: result.parcels, total: result.total, loading: false });
+    } catch (e: any) {
+      // Assuming error handled by withErrorHandling in service,
+      // but store can also set its own error message if needed.
+      // For now, rely on global error handling or service-level logging.
+      // If specific error display in component is needed, set it here.
+      set({ error: e?.message || "Failed to load parcels", loading: false, parcels: [], total: 0 });
+    }
+  },
+}));

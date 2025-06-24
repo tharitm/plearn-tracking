@@ -5,9 +5,9 @@ import type {
   // CreateCustomerPayload, // No longer used directly in store actions
   // UpdateCustomerPayload, // No longer used directly in store actions
   PaginationState,
-  // CustomerListResponse, // Data will be passed directly to setCustomers
+  CustomerListResponse,
 } from "@/lib/types";
-// No longer importing customerService here as async ops are removed
+import { fetchCustomers } from "@/services/customerService"; // Import fetchCustomers
 
 // Store Interface - mirroring ParcelState
 interface CustomerState {
@@ -28,6 +28,7 @@ interface CustomerState {
   setSelectedCustomer: (customer: Customer | null) => void;
   resetFilters: () => void;
   updateCustomer: (customer: Customer) => void; // For optimistic/local updates
+  loadCustomers: () => Promise<void>; // Added loadCustomers action
 }
 
 // Initial states, mirroring parcel-store
@@ -81,4 +82,20 @@ export const useCustomerStore = create<CustomerState>((set) => ({
       return {};
     }),
 
+  loadCustomers: async () => {
+    set({ loading: true, error: null });
+    const { filters, pagination } = useCustomerStore.getState();
+
+    try {
+      const query: CustomerQuery = {
+        ...filters,
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize,
+      };
+      const result: CustomerListResponse = await fetchCustomers(query);
+      set({ customers: result.data, total: result.pagination.total, loading: false });
+    } catch (e: any) {
+      set({ error: e?.message || "Failed to load customers", loading: false, customers: [], total: 0 });
+    }
+  },
 }));
