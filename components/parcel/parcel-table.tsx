@@ -8,5 +8,6 @@ interface ParcelTableProps<TData> {
 }
 
 export function ParcelTable<TData>({ table }: ParcelTableProps<TData>) {
-  return <DataTable table={table} compact />
+  // return 'hello'
+  return <DataTable table={table} />
 }

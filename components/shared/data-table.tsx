@@ -19,19 +19,20 @@ interface DataTableProps<TData> {
 }
 
 export function DataTable<TData>({ table, noDataMessage, className, compact = false }: DataTableProps<TData>) {
-  const hasRows = table.getRowModel().rows.length > 0
+  console.log(table)
+  // const hasRows = table.getRowModel().rows.length > 0
 
   return (
     <div className="rounded-md bg-white">
-      <Table
+      {/* <Table
         className={cn(
           className ?? "min-w-[1200px]",
           "divide-y-0 [&_th]:border-0 [&_td]:border-0",
           compact &&
           "[&_th]:h-10 [&_th]:px-3 [&_td]:px-3 [&_td]:py-2 text-sm"
         )}
-      >
-        <TableHeader className="border-0 [&_tr]:border-0">
+      > */}
+      {/* <TableHeader className="border-0 [&_tr]:border-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
@@ -49,8 +50,8 @@ export function DataTable<TData>({ table, noDataMessage, className, compact = fa
               ))}
             </TableRow>
           ))}
-        </TableHeader>
-        <TableBody>
+        </TableHeader> */}
+      {/* <TableBody>
           {hasRows ? (
             table.getRowModel().rows.map((row) => (
               <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
@@ -68,8 +69,8 @@ export function DataTable<TData>({ table, noDataMessage, className, compact = fa
               </TableCell>
             </TableRow>
           )}
-        </TableBody>
-      </Table>
+        </TableBody> */}
+      {/* </Table> */}
     </div>
   )
 }
