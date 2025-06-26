@@ -1,65 +1,75 @@
+// useParcels.ts
 "use client"
 
-import { useEffect, useCallback } from "react";
-import { useParcelStore } from "@/stores/parcel-store";
-import { useAuthStore } from "@/stores/auth-store";
-import type { ParcelListResponse, ParcelFilters } from "@/lib/types";
-// fetchParcelsService now refers to the wrapped version from parcelService.ts
-import { fetchParcels as fetchParcelsService } from "@/services/parcelService";
+import { useEffect, useCallback } from "react"
+import { useAuthStore } from "@/stores/auth-store"
+import { useParcelStore } from "@/stores/parcel-store"
+import { fetchParcels } from "@/services/parcelService"
+import type { ParcelFilters, ParcelListResponse } from "@/lib/types"
 
 export function useParcels() {
-  const { user } = useAuthStore();
-  const {
-    loading,
-    filters,
-    pagination,
-    setParcels,
-    setLoading,
-    setSelectedParcel,
-    setError,
-    error: parcelStoreError
-  } = useParcelStore();
+  // 1) ดึงเฉพาะค่าที่ต้อง subscribe โดยใช้ selector
+  const user = useAuthStore(state => state.user)
+  const filters = useParcelStore(state => state.filters)
+  const pageIndex = useParcelStore(state => state.pagination.pageIndex)
+  const pageSize = useParcelStore(state => state.pagination.pageSize)
+  const parcels = useParcelStore(state => state.parcels)
+  const total = useParcelStore(state => state.total)
+  const loading = useParcelStore(state => state.loading)
+  const error = useParcelStore(state => state.error)
 
+  // 2) ดึง action แยกอีกที
+  const setParcels = useParcelStore(state => state.setParcels)
+  const setLoading = useParcelStore(state => state.setLoading)
+  const setError = useParcelStore(state => state.setError)
+
+  // 3) สร้าง loadParcels ที่มี deps เป็น primitives เท่านั้น
   const loadParcels = useCallback(async () => {
-    if (!user) {
-      return;
-    }
+    if (!user) return
 
-    setLoading(true);
-    if (parcelStoreError) {
-      setError(null);
-    }
+    setLoading(true)
+    setError(null)
 
     try {
       const serviceFilters: ParcelFilters & { page?: number; pageSize?: number; customerCode?: string } = {
         ...filters,
-        page: pagination.pageIndex + 1,
-        pageSize: pagination.pageSize,
-      };
-
-      if (user.role === "customer" && user.customerCode) {
-        serviceFilters.customerCode = user.customerCode;
+        page: pageIndex + 1,
+        pageSize,
       }
-      const result: ParcelListResponse = await fetchParcelsService(serviceFilters);
-      setParcels(result.parcels, result.total);
-
-    } catch (error) {
-      console.error("Error in useParcels after API call (already handled globally):", error);
+      if (user.role === "customer") {
+        serviceFilters.customerCode = user.customerCode
+      }
+      const result: ParcelListResponse = await fetchParcels(serviceFilters)
+      setParcels(result.orders, result.total)
+    } catch {
+      // error handled by withErrorHandling
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [user, filters, pagination, setLoading, setParcels, setError, parcelStoreError]);
+  }, [
+    user?.role,
+    user?.customerCode,
+    filters.status,
+    filters.search,
+    filters.dateFrom,
+    filters.dateTo,
+    pageIndex,
+    pageSize,
+    setLoading,
+    setParcels,
+    setError,
+  ])
 
+  // 4) ให้ effect วิ่งแค่ตอน loadParcels เปลี่ยนจริง
   useEffect(() => {
-    loadParcels();
-  }, [loadParcels]);
+    loadParcels()
+  }, [loadParcels])
 
   return {
-    parcels: useParcelStore(state => state.parcels), // Get fresh parcels state
-    total: useParcelStore(state => state.total),     // Get fresh total state
+    parcels,
+    total,
     loading,
-    error: parcelStoreError, // Expose parcel-store specific error
+    error,
     refetch: loadParcels,
-    setSelectedParcel,
-  };
+  }
 }

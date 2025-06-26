@@ -5,7 +5,8 @@ import { useDropzone } from "react-dropzone"
 import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
 import { Upload, FileSpreadsheet, Check, X } from "lucide-react"
-import type { Parcel } from "@/lib/types"
+import type { Parcel } from "@/lib/types"  // or wherever your OrderEntity type is exported
+import moment from 'moment'
 
 interface ExcelUploadProps {
   onImport: (data: Partial<Parcel>[]) => void
@@ -26,26 +27,45 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer)
-        const workbook = XLSX.read(data, { type: "array" })
+        const workbook = XLSX.read(data, { type: "array", cellDates: true })
         const sheetName = workbook.SheetNames[0]
         const worksheet = workbook.Sheets[sheetName]
-        const jsonData = XLSX.utils.sheet_to_json(worksheet)
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true, defval: '' })
+        console.log('jsonData', jsonData)
         // Map Excel columns to our data structure
-        const mappedData = jsonData.slice(0, 5).map((row: any) => ({
-          parcelRef: row["เลขที่รับพัสดุ"] || row["parcelRef"] || "",
-          customerCode: row["รหัสลูกค้า"] || row["customerCode"] || "",
-          cnTracking: row["TRACKING จีน"] || row["cnTracking"] || "",
-          weight: Number.parseFloat(row["น้ำหนัก"] || row["weight"] || "0"),
-          volume: Number.parseFloat(row["ปริมาณ"] || row["volume"] || "0"),
-          freight: Number.parseFloat(row["ค่าขนส่ง"] || row["freight"] || "0"),
-          estimate: Number.parseFloat(row["ประมาณการ"] || row["estimate"] || "0"),
-          shipment: row["Shipment"] || row["shipment"] || "",
-          deliveryMethod: row["วิธีการจัดส่ง"] || row["deliveryMethod"] || "pickup",
-          status: "pending" as const,
-          paymentStatus: "unpaid" as const,
-          receiveDate: new Date().toISOString().split("T")[0],
+        const mappedData = jsonData.map((row: any) => ({
+          orderNo: row['PO'] || '',
+          orderDate: row['DATE'] ? moment(row['DATE'], 'YYYY-MM-DD').format('YYYY-MM-DD') : null,
+          customerName: row['Customer ID'] || '',
+          description: row['Description'] || '',
+          pack: Number.parseInt(row['pack'] || '0'),
+          weight: Number.parseFloat(row['น้ำหนัก (kg)'] || row['น้ำหนัก'] || '0'),
+          length: Number.parseFloat(row['ยาว'] || '0'),
+          width: Number.parseFloat(row['กว้าง'] || '0'),
+          height: Number.parseFloat(row['สูง'] || '0'),
+          cbm: Number.parseFloat(row['CBM'] || '0'),
+          transportation: row['Shipment'] || row['__EMPTY'] || '',
+          tracking: row['Tracking'] != null
+            ? (typeof row['Tracking'] === 'number'
+              ? row['Tracking'].toFixed(0)
+              : String(row['Tracking'])
+            )
+            : '',
+          cabinetCode: row['รหัสตู้'] || '',
+          estimate: row['ประมาณการ']
+            ? moment(row['ประมาณการ']).format('YYYY-MM-DD')
+            : null,
+          status: row['สถานะ'] || null,
+          flagStatus: false,
+          paymentStatus: false,
+          trackingTh: null,
+          receiptNumber: null,
+          shippingCost: null,
+          shippingRates: null,
+          picture: null,
+          createDate: moment().format('YYYY-MM-DD'),
+          warehouseId: 0,
         }))
-
         setPreviewData(mappedData)
       } catch (error) {
         console.error("Error reading Excel file:", error)
@@ -168,25 +188,41 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
                 <table className="w-full">
                   <thead>
                     <tr className="bg-gray-100/50">
-                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">เลขที่รับพัสดุ</th>
-                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">รหัสลูกค้า</th>
-                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">TRACKING จีน</th>
-                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">น้ำหนัก</th>
-                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ปริมาณ</th>
-                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ค่าขนส่ง</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">PO</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">DATE</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ลูกค้า</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">คำอธิบาย</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">แพ็ค</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">น้ำหนัก (kg)</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ความยาว</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">กว้าง</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">สูง</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">CBM</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Shipment</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">Tracking</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">รหัสตู้</th>
                       <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">ประมาณการ</th>
+                      <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">สถานะ</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {previewData.map((row, index) => (
+                    {previewData.slice(0, 5).map((row, index) => (
                       <tr key={index} className="hover:bg-white/60 transition-colors duration-200">
-                        <td className="px-3 py-2.5 text-sm text-gray-800 font-medium">{row.parcelRef}</td>
-                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.customerCode}</td>
-                        <td className="px-3 py-2.5 text-sm text-gray-700 font-mono">{row.cnTracking}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-800 font-medium">{row.orderNo}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.orderDate}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.customerName}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.description}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.pack}</td>
                         <td className="px-3 py-2.5 text-sm text-gray-700">{row.weight?.toFixed(2)}</td>
-                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.volume?.toFixed(2)}</td>
-                        <td className="px-3 py-2.5 text-sm text-emerald-600 font-medium">฿{row.freight?.toLocaleString()}</td>
-                        <td className="px-3 py-2.5 text-sm text-blue-600 font-medium">฿{row.estimate?.toLocaleString()}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.length?.toFixed(2)}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.width?.toFixed(2)}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.height?.toFixed(2)}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.cbm?.toFixed(4)}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.transportation}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700 font-mono">{row.tracking}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.cabinetCode}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.estimate}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.status}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -38,13 +38,18 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
 
   const { loading, refetch, parcels = [] } = useParcels()
-  const { setSelectedParcel, updateParcel, galleryImages, closeGallery } = useParcelStore()
+
+  // ดึงเฉพาะ method/state ที่ต้องการจาก zustand ให้ stable
+  const setSelectedParcel = useParcelStore(state => state.setSelectedParcel)
+  const updateParcel = useParcelStore(state => state.updateParcel)
+  const galleryImages = useParcelStore(state => state.galleryImages)
+  const closeGallery = useParcelStore(state => state.closeGallery)
 
   const [showParcelForm, setShowParcelForm] = useState(false)
   const [sorting, setSorting] = useState<SortingState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [editingParcel, setEditingParcel] = useState<Parcel | null>(null)
-  const [updatingStatusForId, setUpdatingStatusForId] = useState<string | null>(null); // New state
+  const [updatingStatusForId, setUpdatingStatusForId] = useState<string | null>(null)
 
   const handleStatusChange = useCallback(async (parcelId: string, newStatus: Parcel["status"]) => {
     setUpdatingStatusForId(parcelId); // Set loading state
@@ -161,7 +166,7 @@ export default function AdminDashboard() {
 
   const totalParcels = parcels.length
   // const totalRevenue = parcels.reduce((sum, p) => sum + p.estimate, 0) // Removed due to p.estimate being a date string
-  const uniqueCustomers = new Set(parcels.map((p) => p.customerCode)).size
+  const uniqueCustomers = new Set(parcels.map((p) => p.customerName)).size
   const pendingParcels = parcels.filter((p) => p.status === "pending").length
 
   const breadcrumbs = [{ label: "Admin Dashboard" }]

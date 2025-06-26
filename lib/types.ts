@@ -70,28 +70,31 @@ export interface User { // Basic user, might be useful for logged-in user contex
 }
 
 export interface Parcel {
-  id: string
-  parcelRef: string
-  receiveDate: string
-  customerCode: string
-  shipment: string
-  estimate: string
-  status: "pending" | "shipped" | "delivered" | "cancelled" | "arrived_china_wh" | "in_transit_th"
-  cnTracking: string
-  width?: number;
-  length?: number;
-  height?: number;
-  volume: number
-  weight: number
-  freight: number
-  images?: string[]
-  deliveryMethod: string
-  paymentStatus: "unpaid" | "paid"
-  createdAt: string
-  updatedAt: string
-  warehouse: string
-  description: string
-  pack: number
+  id: string;
+  orderNo: string | null;
+  customerName: string | null;
+  description: string | null;
+  pack: number | null;
+  weight: number | null;
+  length: number | null;
+  width: number | null;
+  height: number | null;
+  cbm: number | null;
+  transportation: string | null;
+  cabinetCode: string | null;
+  estimate: string | null;
+  status: string;
+  flagStatus: boolean;
+  paymentStatus: boolean;
+  tracking: string | null;
+  trackingTh: string | null;
+  receiptNumber: string | null;
+  shippingCost: number | null;
+  shippingRates: number | null;
+  images: string[];
+  orderDate: string | null;
+  createDate: string | null;
+  warehouseId: number | null;
 }
 
 export interface ParcelFilters {
@@ -134,7 +137,7 @@ export interface CustomerListResponse {
 }
 
 export interface ParcelListResponse {
-  parcels: Parcel[]
+  orders: Parcel[]
   total: number
   page: number
   pageSize: number

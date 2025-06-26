@@ -21,13 +21,15 @@ import {
 import { ParcelGalleryModal } from "../parcel/parcel-gallery-modal";
 
 const statusOptions: Parcel["status"][] = [
-  "pending",
-  "shipped",
-  "arrived_china_wh", // สินค้าถึงโกดังจีน
-  "in_transit_th",    // อยู่ระหว่างขนส่ง (จีน-ไทย)
-  "delivered",
-  "cancelled",
-];
+  "pending",                     // รอส่ง
+  "arrived_cn_warehouse",        // สินค้าถึงโกดังจีน
+  "container_closed",            // ตู้ปิดสินค้า
+  "arrived_th_warehouse",        // สินค้าถึงโกดังไทย
+  "ready_to_ship_to_customer",   // เตรียมส่งลูกค้า
+  "shipped_to_customer",         // ส่งแล้ว
+  "delivered_to_customer",       // ส่งถึงแล้ว
+  "cancelled",                   // ยกเลิก
+]
 
 export const getSortIcon = (isSorted: false | "asc" | "desc") => {
   if (isSorted === "asc") return <ArrowUp className="ml-2 h-4 w-4" />;
@@ -80,7 +82,7 @@ export const getParcelTableColumns = ({
       enableHiding: false,
     }),
     parcelRef: () => ({
-      accessorKey: "parcelRef",
+      accessorKey: "orderNo",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -97,7 +99,7 @@ export const getParcelTableColumns = ({
           className="h-auto p-0 font-medium text-blue-600"
           onClick={() => setSelectedParcel(row.original)}
         >
-          {row.getValue("parcelRef")}
+          {row.getValue("orderNo")}
         </Button>
       ),
     }),
@@ -108,13 +110,13 @@ export const getParcelTableColumns = ({
         const parcel = row.original;
         const [isGalleryModalOpen, setGalleryModalOpen] = useState(false);
         const images = parcel.images ?? [];
-        const thumb = images[0] || "/placeholder.jpg"; // Keep placeholder for thumbnail
+        const thumb = images.length > 0 ? images[0] : "https://placehold.co/600x400";
         return (
           <>
             <img
               src={thumb}
               alt="thumbnail"
-              className="h-12 w-12 cursor-pointer rounded object-cover"
+              className="h-24 w-24 cursor-pointer rounded object-cover"
               onClick={() => setGalleryModalOpen(true)}
             />
             <ParcelGalleryModal
@@ -128,7 +130,7 @@ export const getParcelTableColumns = ({
       enableSorting: false,
     }),
     receiveDate: () => ({
-      accessorKey: "receiveDate",
+      accessorKey: "orderDate",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -139,10 +141,10 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => new Date(row.getValue("receiveDate")).toLocaleDateString("th-TH"),
+      cell: ({ row }) => new Date(row.getValue("orderDate")).toLocaleDateString("th-TH"),
     }),
     customerCode: () => ({
-      accessorKey: "customerCode",
+      accessorKey: "customerName",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -155,7 +157,7 @@ export const getParcelTableColumns = ({
       ),
     }),
     shipment: () => ({
-      accessorKey: "shipment",
+      accessorKey: "transportation",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -234,7 +236,7 @@ export const getParcelTableColumns = ({
       },
     }),
     cnTracking: () => ({
-      accessorKey: "cnTracking",
+      accessorKey: "tracking",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -247,7 +249,7 @@ export const getParcelTableColumns = ({
       ),
     }),
     volume: () => ({
-      accessorKey: "volume",
+      accessorKey: "cbm",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -259,7 +261,7 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => {
-        const volume = row.getValue<number | undefined | null>("volume");
+        const volume = row.getValue<number | undefined | null>("cbm");
         if (typeof volume === "number" && !isNaN(volume)) {
           return volume.toFixed(2);
         }
@@ -281,7 +283,7 @@ export const getParcelTableColumns = ({
       cell: ({ row }) => row.getValue<number>("weight").toFixed(2),
     }),
     freight: () => ({
-      accessorKey: "freight",
+      accessorKey: "shippingCost",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -292,32 +294,10 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => `฿${row.getValue<number>("freight").toLocaleString()}`,
-    }),
-    deliveryMethod: () => ({
-      accessorKey: "deliveryMethod",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-auto p-0 font-semibold hover:bg-transparent"
-        >
-          วิธีการจัดส่ง
-          {getSortIcon(column.getIsSorted())}
-        </Button>
-      ),
-      cell: ({ row }) => {
-        const methodMap: Record<string, string> = {
-          pickup: "รับที่โกดัง",
-          delivery: "จัดส่งถึงบ้าน",
-          express: "Express",
-          economy: "Economy",
-        };
-        return methodMap[row.getValue("deliveryMethod") as string];
-      },
+      cell: ({ row }) => `฿${row.getValue<number>("shippingCost")}`,
     }),
     thTracking: () => ({
-      accessorKey: "thTracking",
+      accessorKey: "trackingTh",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -328,7 +308,7 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => row.getValue("thTracking") || "-",
+      cell: ({ row }) => row.getValue("trackingTh") || "-",
     }),
     paymentStatus: () => ({
       accessorKey: "paymentStatus",

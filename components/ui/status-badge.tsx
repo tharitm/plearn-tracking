@@ -13,25 +13,35 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, type, className }: StatusBadgeProps) {
   if (type === "parcel") {
     const statusConfig = {
-      pending: {
-        label: "รอส่ง",
-        icon: Clock,
-        className: "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200",
+      arrived_cn_warehouse: {
+        label: "ถึงโกดังจีน",
+        icon: Package,
+        className: "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200",
       },
-      shipped: {
+      container_closed: {
+        label: "ตู้ปิดสินค้า",
+        icon: AlertCircle,
+        className: "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200",
+      },
+      arrived_th_warehouse: {
+        label: "ถึงโกดังไทย",
+        icon: Package,
+        className: "bg-indigo-100 text-indigo-800 border-indigo-200 hover:bg-indigo-200",
+      },
+      ready_to_ship_to_customer: {
+        label: "เตรียมส่งลูกค้า",
+        icon: Truck,
+        className: "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200",
+      },
+      shipped_to_customer: {
         label: "ส่งแล้ว",
         icon: Truck,
         className: "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200",
       },
-      delivered: {
+      delivered_to_customer: {
         label: "ส่งถึงแล้ว",
         icon: CheckCircle,
         className: "bg-green-100 text-green-800 border-green-200 hover:bg-green-200",
-      },
-      cancelled: {
-        label: "ยกเลิก",
-        icon: XCircle,
-        className: "bg-red-100 text-red-800 border-red-200 hover:bg-red-200",
       },
     }
 

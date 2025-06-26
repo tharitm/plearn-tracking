@@ -4,7 +4,7 @@ import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/ap
 import { isApiErrorResponse } from '@/lib/apiTypes';
 import { withErrorHandling } from './apiService';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_MOCK_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 if (!API_BASE_URL) {
   console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
@@ -28,7 +28,7 @@ async function _fetchParcels(
   if (filters?.search) params.trackingNo = filters.search;
 
   const queryString = new URLSearchParams(params).toString();
-  const url = `${API_BASE_URL || ''}/api/parcel?${queryString}`;
+  const url = `${API_BASE_URL || ''}/api/orders/orders?${queryString}`;
 
   try {
     const res = await fetch(url, {
