@@ -59,7 +59,7 @@ export function ParcelDetailModal() {
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Package className="h-5 w-5" />
-            <span>รายละเอียดพัสดุ: {selectedParcel.parcelRef}</span>
+            <span>รายละเอียดพัสดุ: {selectedParcel.orderNo}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -98,7 +98,7 @@ export function ParcelDetailModal() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">ค่าขนส่ง:</span>
-                  <span>฿{selectedParcel.freight?.toLocaleString() || "0"}</span>
+                  <span>฿{selectedParcel.shippingCost?.toLocaleString() || "0"}</span>
                 </div>
               </div>
             </div>
@@ -108,19 +108,15 @@ export function ParcelDetailModal() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">เลขรับสินค้า:</span>
-                  <span>{selectedParcel.parcelRef}</span>
+                  <span>{selectedParcel.orderNo}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Warehouse:</span>
-                  <span>{selectedParcel.warehouse || "-"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">ขนส่งโดย:</span>
-                  <span>{selectedParcel.deliveryMethod}</span>
+                  <span>{selectedParcel.warehouseId || "-"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipment:</span>
-                  <span>{selectedParcel.shipment}</span>
+                  <span>{selectedParcel.transportation}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">ประมาณการ:</span>
@@ -130,10 +126,10 @@ export function ParcelDetailModal() {
                   <span className="text-gray-600">สถานะ:</span>
                   <StatusBadge status={selectedParcel.status} type="parcel" />
                 </div>
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span className="text-gray-600">สถานะชำระเงิน:</span>
-                  <StatusBadge status={selectedParcel.paymentStatus} type="payment" />
-                </div>
+                  <StatusBadge status={selectedParcel.} type="payment" />
+                </div> */}
               </div>
             </div>
           </div>

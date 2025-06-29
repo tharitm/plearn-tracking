@@ -31,17 +31,13 @@ export const useAuthStore = create<AuthState>()(
         }
       },
       logout: async () => {
+        document.cookie = 'token=; path=/; max-age=0';
         set({ isLoading: true, error: null });
         try {
-          await logoutService(); // Call the logout service
           set({ user: null, isAuthenticated: false, isLoading: false, error: null });
-          // Client-side redirect will be handled in the component or layout after logout action
         } catch (err) {
-          // Even if server logout fails, we should clear client state
           const errorMessage = err instanceof Error ? err.message : "Logout failed";
           set({ user: null, isAuthenticated: false, isLoading: false, error: errorMessage });
-          // Optionally re-throw if the caller needs to know about the error
-          // throw err;
         }
       },
       checkAuth: () => {

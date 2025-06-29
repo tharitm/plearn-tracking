@@ -37,7 +37,7 @@ async function _login(username: string, password: string): Promise<User> {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include', // Important for cookies
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ customerCode: username, password }),
     });
 
     const apiResponse: ApiResponse<AuthResponse> = await res.json();
@@ -48,14 +48,14 @@ async function _login(username: string, password: string): Promise<User> {
     }
     const resultData = (apiResponse as ApiSuccessResponse<AuthResponse>).resultData;
     return {
-        id: resultData.id,
-        customerCode: resultData.customerCode,
-        username: resultData.username,
-        name: resultData.name,
-        phone: resultData.phone,
-        email: resultData.email,
-        address: resultData.address,
-        role: resultData.role,
+      id: resultData.id,
+      customerCode: resultData.customerCode,
+      username: resultData.username,
+      name: resultData.name,
+      phone: resultData.phone,
+      email: resultData.email,
+      address: resultData.address,
+      role: resultData.role,
     };
 
   } catch (error) {
@@ -96,6 +96,6 @@ async function _logout(): Promise<void> {
 
 export const login = withErrorHandling(_login);
 export const logout = withErrorHandling(_logout); // Wrap withErrorHandling if you want global error display
-                                                  // Or call it directly if errors are handled locally by authStore
-                                                  // For logout, often direct call is fine as UI just clears state.
-                                                  // Using withErrorHandling for consistency here.
+// Or call it directly if errors are handled locally by authStore
+// For logout, often direct call is fine as UI just clears state.
+// Using withErrorHandling for consistency here.

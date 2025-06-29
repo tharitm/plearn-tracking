@@ -24,7 +24,7 @@ async function _fetchParcels(
   if (filters?.trackingNo) params.trackingNo = filters.trackingNo;
   if (filters?.dateFrom) params.dateFrom = filters.dateFrom;
   if (filters?.dateTo) params.dateTo = filters.dateTo;
-  if (filters?.customerCode) params.customerCode = filters.customerCode;
+  if (filters?.customerCode) params.customerName = filters.customerCode;
   if (filters?.search) params.trackingNo = filters.search;
 
   const queryString = new URLSearchParams(params).toString();

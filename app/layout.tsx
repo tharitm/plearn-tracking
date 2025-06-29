@@ -16,7 +16,7 @@ import { useRouter, usePathname } from "next/navigation"; // Import for redirect
 //   description: "ระบบจัดการเลขพัสดุ",
 // };
 
-const noto SansThai = Noto_Sans_Thai({
+const notoSansThai = Noto_Sans_Thai({
   subsets: ['thai'],
   display: 'swap',
   variable: '--font-noto-sans-thai',

@@ -103,32 +103,32 @@ export const getParcelTableColumns = ({
         </Button>
       ),
     }),
-    images: () => ({
-      id: "images",
-      header: "รูปภาพ",
-      cell: ({ row }) => {
-        const parcel = row.original;
-        const [isGalleryModalOpen, setGalleryModalOpen] = useState(false);
-        const images = parcel.images ?? [];
-        const thumb = images.length > 0 ? images[0] : "https://placehold.co/600x400";
-        return (
-          <>
-            <img
-              src={thumb}
-              alt="thumbnail"
-              className="h-24 w-24 cursor-pointer rounded object-cover"
-              onClick={() => setGalleryModalOpen(true)}
-            />
-            <ParcelGalleryModal
-              images={images}
-              open={isGalleryModalOpen}
-              onClose={() => setGalleryModalOpen(false)}
-            />
-          </>
-        );
-      },
-      enableSorting: false,
-    }),
+    // images: () => ({
+    //   id: "images",
+    //   header: "รูปภาพ",
+    //   cell: ({ row }) => {
+    //     const parcel = row.original;
+    //     const [isGalleryModalOpen, setGalleryModalOpen] = useState(false);
+    //     const images = parcel.images ?? [];
+    //     const thumb = images.length > 0 ? images[0] : "https://placehold.co/600x400";
+    //     return (
+    //       <>
+    //         <img
+    //           src={thumb}
+    //           alt="thumbnail"
+    //           className="h-24 w-24 cursor-pointer rounded object-cover"
+    //           onClick={() => setGalleryModalOpen(true)}
+    //         />
+    //         <ParcelGalleryModal
+    //           images={images}
+    //           open={isGalleryModalOpen}
+    //           onClose={() => setGalleryModalOpen(false)}
+    //         />
+    //       </>
+    //     );
+    //   },
+    //   enableSorting: false,
+    // }),
     receiveDate: () => ({
       accessorKey: "orderDate",
       header: ({ column }) => (
