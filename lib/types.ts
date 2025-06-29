@@ -95,6 +95,15 @@ export interface Parcel {
   orderDate: string | null;
   createDate: string | null;
   warehouseId: number | null;
+  trackingEvents?: TrackingEvent[]; // Added for parcel detail modal
+}
+
+// Interface for tracking events, moved from parcel-detail-modal
+export interface TrackingEvent {
+  date: string;
+  status: string;
+  description: string;
+  location?: string;
 }
 
 export interface ParcelFilters {

@@ -2,17 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { useParcelStore } from "@/stores/parcel-store"
+import { fetchParcelById } from "@/services/parcelService" // Import the new service
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import { Truck, Package, CheckCircle, XCircle } from "lucide-react"
 import { StatusBadge } from "../ui/status-badge"
-
-interface TrackingEvent {
-  date: string
-  status: string
-  description: string
-  location?: string
-}
+import type { TrackingEvent } from "@/lib/types" // Import TrackingEvent
 
 export function ParcelDetailModal() {
   const { selectedParcel, setSelectedParcel } = useParcelStore()
@@ -20,19 +15,23 @@ export function ParcelDetailModal() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (selectedParcel) {
+    if (selectedParcel?.id) { // Ensure selectedParcel and its id is available
       fetchTrackingDetails(selectedParcel.id)
     }
-  }, [selectedParcel])
+  }, [selectedParcel?.id]) // Depend on selectedParcel.id
 
   const fetchTrackingDetails = async (parcelId: string) => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/parcel/${parcelId}`)
-      const data = await response.json()
-      setTrackingEvents(data.trackingEvents || [])
+      // Use the new service function
+      const parcelDetails = await fetchParcelById(parcelId)
+      // Assuming parcelDetails contains trackingEvents directly or adjust as needed
+      setTrackingEvents(parcelDetails.trackingEvents || [])
+      // Optionally, update the selectedParcel in the store if the fetched details are more complete
+      // setSelectedParcel(parcelDetails) // Be cautious with this, ensure it doesn't cause loops or override needed state
     } catch (error) {
       console.error("Failed to fetch tracking details:", error)
+      setTrackingEvents([]) // Clear tracking events on error
     } finally {
       setLoading(false)
     }

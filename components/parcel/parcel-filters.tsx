@@ -72,8 +72,8 @@ export function ParcelFilters({ compact = false }: ParcelFiltersProps) {
           <div className="w-full sm:w-64 md:w-72">
             <Input
               placeholder="ค้นหาเลขพัสดุ..."
-              value={localFilters.trackingNo || ""}
-              onChange={(e) => setLocalFilters({ ...localFilters, trackingNo: e.target.value })}
+              value={localFilters.search || ""} // Changed from trackingNo to search
+              onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })} // Changed from trackingNo to search
               className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 touch-target"
               startIcon={<Search className="h-4 w-4 text-gray-400" />}
             />

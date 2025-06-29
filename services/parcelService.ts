@@ -86,6 +86,33 @@ async function _updateParcelStatus(
   }
 }
 
+// Service function to fetch a single parcel by ID
+async function _fetchParcelById(id: string): Promise<Parcel> { // This is the type for the 'data' field
+  const url = `${API_BASE_URL || ''}/api/orders/${id}`;
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+
+    const apiResponse: ApiResponse<Parcel> = await res.json();
+
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `HTTP error ${res.status} (no developer message)`);
+    }
+
+    return (apiResponse as ApiSuccessResponse<Parcel>).resultData;
+
+  } catch (error) {
+    console.error('[_fetchParcelById service error]:', error instanceof Error ? error.message : error);
+    throw error; // Re-throw for withErrorHandling
+  }
+}
+
 // Export wrapped functions
 export const fetchParcels = withErrorHandling(_fetchParcels);
 export const updateParcelStatus = withErrorHandling(_updateParcelStatus);
+export const fetchParcelById = withErrorHandling(_fetchParcelById);
