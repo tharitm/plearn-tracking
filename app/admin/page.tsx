@@ -34,7 +34,6 @@ import { Button } from "@/components/ui/button"
 import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
 
 export default function AdminDashboard() {
-  console.log('==== Admin Dashboard Page ====')
   const { user, isAuthenticated } = useAuthStore()
 
   const { loading, refetch, parcels = [] } = useParcels()
@@ -222,7 +221,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid - Mobile responsive */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatCard
             title="พัสดุทั้งหมด"
             value={totalParcels}
@@ -230,7 +229,6 @@ export default function AdminDashboard() {
             icon={<Package />}
             variant="blue"
           />
-          {/* StatCard for totalRevenue removed */}
           <StatCard
             title="ลูกค้า"
             value={uniqueCustomers}
@@ -245,7 +243,7 @@ export default function AdminDashboard() {
             icon={<TrendingUp />}
             variant="green"
           />
-        </div>
+        </div> */}
 
         {/* Excel Upload Section */}
         <div className="stagger-item">

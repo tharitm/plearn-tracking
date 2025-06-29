@@ -32,9 +32,8 @@ import { useParcelStore } from "@/stores/parcel-store"
 export default function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
-  const { loading, parcels = [], setSelectedParcel } = useParcels()
-  const { galleryImages, closeGallery } = useParcelStore()
-
+  const { loading, parcels = [] } = useParcels()
+  const { galleryImages, closeGallery, setSelectedParcel } = useParcelStore()
   const [sorting, setSorting] = useState<SortingState>([])
 
 
@@ -98,7 +97,7 @@ export default function CustomerDashboard() {
         </div>
 
         {/* Stats Grid - Mobile responsive */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatCard
             title="พัสดุทั้งหมด"
             value={totalParcels}
@@ -127,7 +126,7 @@ export default function CustomerDashboard() {
             icon={<CheckCircle />}
             variant="green"
           />
-        </div>
+        </div> */}
 
         {/* Filters Section */}
         <div className="stagger-item">

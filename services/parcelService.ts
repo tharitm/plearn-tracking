@@ -88,7 +88,7 @@ async function _updateParcelStatus(
 
 // Service function to fetch a single parcel by ID
 async function _fetchParcelById(id: string): Promise<Parcel> { // This is the type for the 'data' field
-  const url = `${API_BASE_URL || ''}/api/orders/${id}`;
+  const url = `${API_BASE_URL || ''}/api/orders/orders/${id}`;
 
   try {
     const res = await fetch(url, {

@@ -33,18 +33,15 @@ export default function RootLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    checkAuth(); // Check authentication status when the app loads/hydrates
+    checkAuth();
   }, [checkAuth]);
 
   useEffect(() => {
-    // Define public paths that don't require authentication
     const publicPaths = ["/login"];
     const pathIsPublic = publicPaths.includes(pathname);
-
     if (!isAuthenticated && !pathIsPublic) {
       router.push("/login");
     } else if (isAuthenticated && pathIsPublic) {
-      // If authenticated and on a public path (like login), redirect to appropriate dashboard
       if (user?.role === "admin") {
         router.push("/admin");
       } else {
@@ -53,11 +50,6 @@ export default function RootLayout({
     }
   }, [isAuthenticated, pathname, router, user]);
 
-
-  // Optional: Render a loading state or null while checking auth to prevent flicker
-  // This depends on how quickly `checkAuth` resolves and updates `isAuthenticated`
-  // For a simple check like this, it might be quick enough.
-  // Consider this if you see a flash of content before redirection.
 
   return (
     <html lang="th" className={notoSansThai.variable}>
