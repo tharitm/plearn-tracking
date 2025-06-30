@@ -97,7 +97,9 @@ export function ParcelDetailModal() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">ค่าขนส่ง:</span>
-                  <span>฿{selectedParcel.shippingCost?.toLocaleString() || "0"}</span>
+                  {selectedParcel.shippingCost != null
+                    ? <span>฿{selectedParcel.shippingCost.toLocaleString()}</span>
+                    : <span>-</span>}
                 </div>
               </div>
             </div>

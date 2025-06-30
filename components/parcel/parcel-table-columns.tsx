@@ -141,7 +141,11 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => new Date(row.getValue("orderDate")).toLocaleDateString("th-TH"),
+      cell: ({ row }) => {
+        const value = row.getValue<string | null>("orderDate")
+        if (!value) return "-"
+        return new Date(value).toISOString().split('T')[0]
+      },
     }),
     customerCode: () => ({
       accessorKey: "customerName",
@@ -181,8 +185,11 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      // Display estimate as a string (YYYY-MM-DD) or reformat if needed
-      cell: ({ row }) => row.getValue("estimate"),
+      cell: ({ row }) => {
+        const value = row.getValue<string | null>("estimate")
+        if (!value) return "-"
+        return new Date(value).toISOString().split('T')[0]
+      },
     }),
     status: () => ({
       accessorKey: "status",
@@ -294,7 +301,10 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => `฿${row.getValue<number>("shippingCost")}`,
+      cell: ({ row }) => {
+        const value = row.getValue<number | null>("shippingCost")
+        return value != null ? `฿${value.toLocaleString()}` : "-"
+      },
     }),
     // thTracking: () => ({
     //   accessorKey: "trackingTh",
