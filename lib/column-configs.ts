@@ -100,7 +100,7 @@ export const ALL_COLUMN_IDS = [
   "weight",
   "freight",
   "deliveryMethod",
-  "thTracking",
-  "paymentStatus",
+  // "thTracking", // Removed as per request
+  // "paymentStatus", // Removed as per request
   "actions",
 ];

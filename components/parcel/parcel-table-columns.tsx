@@ -210,7 +210,7 @@ export const getParcelTableColumns = ({
               }}
               disabled={isUpdating || !onStatusChange}
             >
-              <SelectTrigger className="min-w-[110px] border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
+              <SelectTrigger className="min-w-[180px] border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
                 {isUpdating ? (
                   <div className="flex items-center px-3 py-1">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -296,34 +296,34 @@ export const getParcelTableColumns = ({
       ),
       cell: ({ row }) => `฿${row.getValue<number>("shippingCost")}`,
     }),
-    thTracking: () => ({
-      accessorKey: "trackingTh",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-auto p-0 font-semibold hover:bg-transparent"
-        >
-          TRACKING ไทย
-          {getSortIcon(column.getIsSorted())}
-        </Button>
-      ),
-      cell: ({ row }) => row.getValue("trackingTh") || "-",
-    }),
-    paymentStatus: () => ({
-      accessorKey: "paymentStatus",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-auto p-0 font-semibold hover:bg-transparent"
-        >
-          สถานะชำระเงิน
-          {getSortIcon(column.getIsSorted())}
-        </Button>
-      ),
-      cell: ({ row }) => <StatusBadge status={row.getValue("paymentStatus")} type="payment" />,
-    }),
+    // thTracking: () => ({
+    //   accessorKey: "trackingTh",
+    //   header: ({ column }) => (
+    //     <Button
+    //       variant="ghost"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //       className="h-auto p-0 font-semibold hover:bg-transparent"
+    //     >
+    //       TRACKING ไทย
+    //       {getSortIcon(column.getIsSorted())}
+    //     </Button>
+    //   ),
+    //   cell: ({ row }) => row.getValue("trackingTh") || "-",
+    // }),
+    // paymentStatus: () => ({
+    //   accessorKey: "paymentStatus",
+    //   header: ({ column }) => (
+    //     <Button
+    //       variant="ghost"
+    //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //       className="h-auto p-0 font-semibold hover:bg-transparent"
+    //     >
+    //       สถานะชำระเงิน
+    //       {getSortIcon(column.getIsSorted())}
+    //     </Button>
+    //   ),
+    //   cell: ({ row }) => <StatusBadge status={row.getValue("paymentStatus")} type="payment" />,
+    // }),
     actions: () => ({
       id: "actions",
       header: "Actions",

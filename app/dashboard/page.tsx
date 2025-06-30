@@ -9,6 +9,7 @@ import {
   getPaginationRowModel,
   type ColumnDef,
   type SortingState,
+  type PaginationState, // Import PaginationState
 } from "@tanstack/react-table"
 import { Package, TrendingUp, Clock, CheckCircle } from "lucide-react"
 
@@ -25,7 +26,7 @@ import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton";
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
-import { StatCard } from "@/components/ui/stat-card"
+// import { StatCard } from "@/components/ui/stat-card" // StatCard is commented out, so import can be too
 import { useParcels } from "@/hooks/use-parcels"
 import { useParcelStore } from "@/stores/parcel-store"
 
@@ -33,7 +34,13 @@ export default function CustomerDashboard() {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
   const { loading, parcels = [] } = useParcels()
-  const { galleryImages, closeGallery, setSelectedParcel } = useParcelStore()
+  const {
+    galleryImages,
+    closeGallery,
+    setSelectedParcel,
+    pagination, // Get pagination state from store
+    setPagination, // Get setPagination action from store
+  } = useParcelStore()
   const [sorting, setSorting] = useState<SortingState>([])
 
 
@@ -54,8 +61,13 @@ export default function CustomerDashboard() {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
+    // Manual pagination because data is fetched externally
+    manualPagination: true,
+    // Pass the pagination state from the store
+    onPaginationChange: setPagination, // Use the action from the store
     state: {
       sorting,
+      pagination, // Pass pagination state from store
     },
   });
 
