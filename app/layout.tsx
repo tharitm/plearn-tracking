@@ -35,7 +35,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, checkAuth, user } = useAuthStore();
+  const { isAuthenticated, user, isInitializing } = useAuthStore(); // Added isInitializing, removed checkAuth as it's not used here
   const router = useRouter();
   const pathname = usePathname();
 
@@ -65,18 +65,25 @@ export default function RootLayout({
   }, []); // Empty dependency array: run once on mount
 
   useEffect(() => {
+    // Wait for auth store to initialize before attempting to redirect
+    if (isInitializing) {
+      return;
+    }
+
     const publicPaths = ["/login"];
     const pathIsPublic = publicPaths.includes(pathname);
+
     if (!isAuthenticated && !pathIsPublic) {
       router.push("/login");
     } else if (isAuthenticated && pathIsPublic) {
+      // If authenticated and on a public path, redirect to the appropriate dashboard
       if (user?.role === "admin") {
         router.push("/admin");
-      } else {
+      } else { // Assuming default role is customer or similar
         router.push("/dashboard");
       }
     }
-  }, [isAuthenticated, pathname, router, user]);
+  }, [isAuthenticated, pathname, router, user, isInitializing]); // Added isInitializing to dependencies
 
 
   return (
