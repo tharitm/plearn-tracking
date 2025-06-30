@@ -21,9 +21,7 @@ async function _fetchCustomers(filters?: CustomerQuery): Promise<CustomerListRes
     const params = new URLSearchParams();
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
-    if (filters?.name) params.append('name', filters.name);
-    if (filters?.email) params.append('email', filters.email);
-    if (filters?.status) params.append('status', filters.status);
+    if (filters?.search) params.append('search', filters.search);
     if (filters?.sortBy) params.append('sortBy', filters.sortBy);
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
 
