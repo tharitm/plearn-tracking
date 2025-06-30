@@ -144,7 +144,7 @@ export const getParcelTableColumns = ({
       cell: ({ row }) => {
         const value = row.getValue<string | null>("orderDate")
         if (!value) return "-"
-        return new Date(value).toISOString().split('T')[0]
+        return <div className="min-w-[110px]">{new Date(value).toISOString().split('T')[0]}</div>
       },
     }),
     customerCode: () => ({
@@ -188,7 +188,7 @@ export const getParcelTableColumns = ({
       cell: ({ row }) => {
         const value = row.getValue<string | null>("estimate")
         if (!value) return "-"
-        return new Date(value).toISOString().split('T')[0]
+        return <div className="min-w-[110px]">{new Date(value).toISOString().split('T')[0]}</div>
       },
     }),
     status: () => ({
@@ -217,7 +217,7 @@ export const getParcelTableColumns = ({
               }}
               disabled={isUpdating || !onStatusChange}
             >
-              <SelectTrigger className="min-w-[180px] border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
+              <SelectTrigger className="min-w-[120px] border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
                 {isUpdating ? (
                   <div className="flex items-center px-3 py-1">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -255,25 +255,33 @@ export const getParcelTableColumns = ({
         </Button>
       ),
     }),
-    volume: () => ({
-      accessorKey: "cbm",
+    description: () => ({
+      accessorKey: "description",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="h-auto p-0 font-semibold hover:bg-transparent"
         >
-          ปริมาณ (CBM)
+          รายละเอียด
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => {
-        const volume = row.getValue<number | undefined | null>("cbm");
-        if (typeof volume === "number" && !isNaN(volume)) {
-          return volume.toFixed(2);
-        }
-        return "-";
-      },
+      cell: ({ row }) => row.getValue("description") || "-",
+    }),
+    pack: () => ({
+      accessorKey: "pack",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          Pack
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+      cell: ({ row }) => row.getValue("pack") || "-",
     }),
     weight: () => ({
       accessorKey: "weight",
@@ -287,7 +295,89 @@ export const getParcelTableColumns = ({
           {getSortIcon(column.getIsSorted())}
         </Button>
       ),
-      cell: ({ row }) => row.getValue<number>("weight").toFixed(2),
+      cell: ({ row }) => {
+        const value = row.getValue<number | null>("weight")
+        return value != null ? value.toFixed(2) : "-"
+      },
+    }),
+    length: () => ({
+      accessorKey: "length",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          ความยาว (CM)
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+      cell: ({ row }) => row.getValue("length") || "-",
+    }),
+    width: () => ({
+      accessorKey: "width",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          ความกว้าง (CM)
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+      cell: ({ row }) => row.getValue("width") || "-",
+    }),
+    height: () => ({
+      accessorKey: "height",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          ความสูง (CM)
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+      cell: ({ row }) => row.getValue("height") || "-",
+    }),
+    volume: () => ({
+      accessorKey: "cbm",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          ปริมาตร (CBM)
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const volume = row.getValue<number | undefined | null>("cbm");
+        if (typeof volume === "number" && !isNaN(volume)) {
+          return volume.toFixed(4); // Changed from 2 to 4 decimal places
+        }
+        return "-";
+      },
+    }),
+    shippingRate: () => ({
+      accessorKey: "shippingRate",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          เรทค่าขนส่ง
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const value = row.getValue<number | null>("shippingRate")
+        return value != null ? `฿${value.toLocaleString()}` : "-"
+      },
     }),
     freight: () => ({
       accessorKey: "shippingCost",
