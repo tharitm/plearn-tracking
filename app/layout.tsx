@@ -9,11 +9,18 @@ import { Toaster } from "sonner";
 import { GlobalErrorSonner } from "@/components/ui/GlobalErrorSonner";
 import { useAuthStore } from "@/stores/auth-store"; // Import auth store
 import { useRouter, usePathname } from "next/navigation"; // Import for redirection
+import type { Metadata } from "next"; // Import Metadata type for static metadata
 
 // Metadata can be exported from page.tsx or defined statically if not dynamic
+// Since this is a Client Component ("use client"), static metadata export is ignored.
+// We will set title and favicon dynamically using useEffect.
 // export const metadata: Metadata = {
 //   title: "Plearn Tracking",
 //   description: "ระบบจัดการเลขพัสดุ",
+//   icons: {
+//     icon: "/plearn-logo.png", // Path to your logo in the public folder
+//     // apple: "/apple-icon.png", // Example for apple touch icon
+//   },
 // };
 
 const notoSansThai = Noto_Sans_Thai({
@@ -33,8 +40,29 @@ export default function RootLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    // Set document title
+    document.title = "Plearn Tracking";
+
+    // Set favicon
+    let favicon = document.querySelector<HTMLLinkElement>("link[rel='icon']");
+    if (favicon) {
+      favicon.href = "/plearn-logo.png";
+      favicon.type = "image/png"; // Ensure type is correct
+    } else {
+      favicon = document.createElement("link");
+      favicon.rel = "icon";
+      favicon.href = "/plearn-logo.png";
+      favicon.type = "image/png";
+      document.head.appendChild(favicon);
+    }
+
+    // The checkAuth call was removed from auth-store's immediate execution.
+    // If it's intended to run on layout mount, it can be kept here.
+    // However, the rehydration logic in auth-store might cover initial auth state.
+    // For now, let's assume rehydration handles the initial isAuthenticated state.
+    // If checkAuth() is meant to be a periodic token validation, its placement might differ.
+    // useAuthStore.getState().checkAuth(); // Re-evaluating if this is needed or how it should work with isInitializing
+  }, []); // Empty dependency array: run once on mount
 
   useEffect(() => {
     const publicPaths = ["/login"];

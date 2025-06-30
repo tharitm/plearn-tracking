@@ -31,7 +31,7 @@ import { useParcels } from "@/hooks/use-parcels"
 import { useParcelStore } from "@/stores/parcel-store"
 
 export default function CustomerDashboard() {
-  const { user, isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated, isInitializing } = useAuthStore() // Add isInitializing
   const router = useRouter()
   const { loading, parcels = [] } = useParcels()
   const {
@@ -72,19 +72,34 @@ export default function CustomerDashboard() {
   });
 
   useEffect(() => {
+    // Wait until initialization is complete before checking auth status
+    if (isInitializing) {
+      return; // Do nothing while store is initializing
+    }
+
     if (!isAuthenticated) {
-      router.push("/login")
-      return
+      router.push("/login");
+      return;
     }
 
+    // Ensure user object exists before checking role, though isAuthenticated should cover this.
     if (user?.role !== "customer") {
-      router.push("/admin")
-      return
+      router.push("/admin");
+      return;
     }
-  }, [isAuthenticated, user, router])
+  }, [isAuthenticated, user, router, isInitializing]); // Add isInitializing to dependency array
 
-  if (!isAuthenticated || user?.role !== "customer") {
-    return null
+  // Show loading or null while initializing to prevent flash of unauthenticated content or premature redirect
+  if (isInitializing) {
+    // Optionally, return a loading spinner or a minimal layout skeleton here
+    return null;
+  }
+
+  // If not initializing and not authenticated for this page, render null (or redirect handled by useEffect)
+  // This condition also handles the case where user is authenticated but not a customer
+  if (!isAuthenticated || (user && user.role !== "customer")) {
+    // useEffect will handle the redirect, returning null here prevents rendering the dashboard content
+    return null;
   }
 
   // Calculate stats from the store's parcels
