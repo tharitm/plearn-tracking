@@ -195,7 +195,7 @@ async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage
   }
 }
 
-async function _resetPassword(customerId: string): Promise<SimpleSuccessMessage> {
+async function _resetPassword(customerId: number): Promise<SimpleSuccessMessage> {
   try {
     const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}/reset-password`;
 

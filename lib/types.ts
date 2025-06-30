@@ -10,6 +10,16 @@ export enum UserStatus {
   INACTIVE = 'false',
 }
 
+// ParcelStatus matches backend parcel status
+export enum ParcelStatus {
+  ARRIVED_CN_WAREHOUSE = 'arrived_cn_warehouse',
+  CONTAINER_CLOSED = 'container_closed',
+  ARRIVED_TH_WAREHOUSE = 'arrived_th_warehouse',
+  READY_TO_SHIP = 'ready_to_ship_to_customer',
+  SHIPPED = 'shipped_to_customer',
+  DELIVERED = 'delivered_to_customer',
+}
+
 // This will represent the Customer data, aligned with UserResponse from backend
 export interface Customer {
   id: number;

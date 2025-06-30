@@ -22,7 +22,7 @@ import { ParcelGalleryModal } from "../parcel/parcel-gallery-modal";
 
 const statusOptions: Parcel["status"][] = [
   "arrived_cn_warehouse",        // สินค้าถึงโกดังจีน
-  "container_closed",            // ตู้ปิดสินค้า
+  "container_closed",            // ปิดตู้สินค้าแล้ว
   "arrived_th_warehouse",        // สินค้าถึงโกดังไทย
   "ready_to_ship_to_customer",   // เตรียมส่งลูกค้า
   "shipped_to_customer",         // ส่งแล้ว
@@ -207,24 +207,22 @@ export const getParcelTableColumns = ({
           const isUpdating = row.original.id === updatingStatusForId;
           return (
             <Select
-              value={parcelStatus}
+              value={parcelStatus || ""}
               onValueChange={(newStatus) => {
-                if (onStatusChange) { // Ensure onStatusChange is provided
+                if (onStatusChange) {
                   onStatusChange(row.original.id, newStatus as Parcel["status"]);
                 }
               }}
               disabled={isUpdating || !onStatusChange}
             >
-              <SelectTrigger className="min-w-[120px] border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
+              <SelectTrigger className="min-w-[180px] border-none p-0 focus:ring-0 data-[disabled]:opacity-100 data-[disabled]:cursor-wait">
                 {isUpdating ? (
                   <div className="flex items-center px-3 py-1">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Updating...
                   </div>
                 ) : (
-                  <SelectValue
-                    placeholder={<StatusBadge status={parcelStatus} type="parcel" />}
-                  />
+                  <SelectValue placeholder={<div className="text-gray-500">กรุณาเลือกสถานะ</div>} />
                 )}
               </SelectTrigger>
               <SelectContent>

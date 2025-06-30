@@ -5,7 +5,7 @@ import { Package, Truck, CheckCircle, XCircle, Clock, CreditCard, AlertCircle } 
 import { cn } from "@/lib/utils"
 
 interface StatusBadgeProps {
-  status: string
+  status: string | null
   type: "parcel" | "payment"
   className?: string
 }
@@ -19,7 +19,7 @@ export function StatusBadge({ status, type, className }: StatusBadgeProps) {
         className: "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200",
       },
       container_closed: {
-        label: "ตู้ปิดสินค้า",
+        label: "ปิดตู้สินค้าแล้ว",
         icon: AlertCircle,
         className: "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200",
       },
@@ -45,8 +45,12 @@ export function StatusBadge({ status, type, className }: StatusBadgeProps) {
       },
     }
 
-    const config = statusConfig[status as keyof typeof statusConfig] || {
+    const config = status ? (statusConfig[status as keyof typeof statusConfig] || {
       label: status,
+      icon: Package,
+      className: "bg-gray-100 text-gray-800 border-gray-200",
+    }) : {
+      label: "ไม่มีสถานะ",
       icon: Package,
       className: "bg-gray-100 text-gray-800 border-gray-200",
     }
@@ -80,8 +84,12 @@ export function StatusBadge({ status, type, className }: StatusBadgeProps) {
       },
     }
 
-    const config = statusConfig[status as keyof typeof statusConfig] || {
+    const config = status ? (statusConfig[status as keyof typeof statusConfig] || {
       label: status,
+      icon: CreditCard,
+      className: "bg-gray-100 text-gray-800 border-gray-200",
+    }) : {
+      label: "ไม่มีสถานะ",
       icon: CreditCard,
       className: "bg-gray-100 text-gray-800 border-gray-200",
     }
