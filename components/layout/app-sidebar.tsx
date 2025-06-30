@@ -37,34 +37,14 @@ const customerMenuItems = [
 
 const adminMenuItems = [
   {
-    title: "Dashboard",
+    title: "รายการสินค้าเข้าโกดัง",
     url: "/admin",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "จัดการพัสดุ",
-    url: "/admin/parcels",
     icon: Package,
   },
   {
     title: "จัดการลูกค้า",
     url: "/admin/customers",
     icon: Users,
-  },
-  {
-    title: "รายงาน",
-    url: "/admin/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "การขนส่ง",
-    url: "/admin/shipping",
-    icon: Truck,
-  },
-  {
-    title: "คลังสินค้า",
-    url: "/admin/warehouse",
-    icon: Archive,
   },
 ]
 

@@ -426,7 +426,7 @@ export const getParcelTableColumns = ({
     // }),
     actions: () => ({
       id: "actions",
-      header: "Actions",
+      header: "จัดการ",
       cell: ({ row }) => (
         <Button variant="outline" size="sm" onClick={() => {
           if (onEdit) { // Ensure onEdit is provided
