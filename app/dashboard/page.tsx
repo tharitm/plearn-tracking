@@ -77,12 +77,21 @@ export default function CustomerDashboard() {
       return; // Do nothing while store is initializing
     }
 
-    if (!isAuthenticated) {
+    // Assuming RootLayout has handled the unauthenticated redirect.
+    // This useEffect now primarily focuses on role-based authorization for this specific page.
+    // If isAuthenticated is true, then check the user's role.
+    if (isAuthenticated) {
+      if (user?.role !== "customer") {
+        router.push("/admin");
+        return;
+      }
+    } else {
+      // If, for some reason, RootLayout didn't redirect and this page is reached
+      // while not authenticated (and not initializing), redirect to login.
+      // This acts as a secondary safeguard.
       router.push("/login");
       return;
     }
-
-    // Ensure user object exists before checking role, though isAuthenticated should cover this.
     if (user?.role !== "customer") {
       router.push("/admin");
       return;
