@@ -10,7 +10,7 @@ export function ParcelPagination() {
     <TablePagination
       total={total}
       pagination={pagination}
-      onPageChange={(page) => setPagination({ pageIndex: page - 1 })}
+      onPageChange={(pageIndex) => setPagination({ pageIndex })}
       onPageSizeChange={(size) => setPagination({ pageIndex: 0, pageSize: size })}
     />
   )

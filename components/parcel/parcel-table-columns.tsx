@@ -21,14 +21,12 @@ import {
 import { ParcelGalleryModal } from "../parcel/parcel-gallery-modal";
 
 const statusOptions: Parcel["status"][] = [
-  "pending",                     // รอส่ง
   "arrived_cn_warehouse",        // สินค้าถึงโกดังจีน
   "container_closed",            // ตู้ปิดสินค้า
   "arrived_th_warehouse",        // สินค้าถึงโกดังไทย
   "ready_to_ship_to_customer",   // เตรียมส่งลูกค้า
   "shipped_to_customer",         // ส่งแล้ว
   "delivered_to_customer",       // ส่งถึงแล้ว
-  "cancelled",                   // ยกเลิก
 ]
 
 export const getSortIcon = (isSorted: false | "asc" | "desc") => {

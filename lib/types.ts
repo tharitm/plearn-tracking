@@ -4,25 +4,30 @@ export enum UserRole {
   CUSTOMER = 'customer',
 }
 
-// UserStatus matches backend User status
+// UserStatus matches backend User status as string
 export enum UserStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
+  ACTIVE = 'true',
+  INACTIVE = 'false',
 }
 
 // This will represent the Customer data, aligned with UserResponse from backend
 export interface Customer {
-  id: string;
-  name: string;
-  email: string;
+  id: number;
+  email: string | null;
+  firstName: string;
+  nickName: string;
   phone: string;
+  phoneSub: string;
+  address: string;
+  cardNumber: string;
+  status: boolean;
+  flagStatus: boolean;
+  picture: string;
   customerCode: string;
-  address?: string;
-  role: UserRole;
-  status: UserStatus;
-  createdAt: string; // Assuming string format from API (e.g., ISO date string)
-  updatedAt: string; // Assuming string format from API
-  // passwordHash should not be included
+  priceEk: number;
+  priceSea: number;
+  textPrice: string;
+  createDate: string;
 }
 
 // Query parameters for fetching customers (aligns with GetUsersQuery on backend)
@@ -34,31 +39,43 @@ export interface CustomerQuery {
   name?: string;
   email?: string;
   status?: UserStatus;
-  // We can add a generic 'search' if needed, to be handled by the backend
+  search?: string; // Dynamic search field for name, email, customerCode
 }
 
 // Payload for creating a customer (aligns with CreateUserRequest on backend)
 export interface CreateCustomerPayload {
-  name: string;
-  email: string;
+  firstName: string;
+  nickName?: string;
+  email: string | null;
   phone: string;
+  phoneSub?: string;
   customerCode: string;
-  address?: string;
-  password?: string; // Optional, backend might autogenerate or require
-  role?: UserRole;
-  status?: UserStatus;
+  address: string;
+  cardNumber?: string;
+  status: boolean;
+  flagStatus: boolean;
+  picture?: string;
+  priceEk: number;
+  priceSea: number;
+  textPrice?: string;
 }
 
 // Payload for updating a customer (aligns with UpdateUserRequest on backend)
 export interface UpdateCustomerPayload {
-  name?: string;
-  email?: string;
+  firstName?: string;
+  nickName?: string;
+  email?: string | null;
   phone?: string;
+  phoneSub?: string;
   customerCode?: string;
   address?: string;
-  role?: UserRole;
-  status?: UserStatus;
-  // Password updates should ideally be a separate process (e.g., resetPassword)
+  cardNumber?: string;
+  status?: boolean;
+  flagStatus?: boolean;
+  picture?: string;
+  priceEk?: number;
+  priceSea?: number;
+  textPrice?: string;
 }
 
 
@@ -136,13 +153,10 @@ export interface ApiResponse<T> {
 
 // Specific response for fetching a list of customers (aligns with backend GET /api/users response)
 export interface CustomerListResponse {
-  data: Customer[]; // The actual list of customers
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  users: Customer[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export interface ParcelListResponse {

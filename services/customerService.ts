@@ -10,7 +10,7 @@ import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/ap
 import { isApiErrorResponse } from '@/lib/apiTypes';
 import { withErrorHandling } from './apiService';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_MOCK_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 if (!API_BASE_URL) {
   console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
@@ -28,11 +28,20 @@ async function _fetchCustomers(filters?: CustomerQuery): Promise<CustomerListRes
     if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
 
     const queryString = params.toString();
-    const url = `${API_BASE_URL || ''}/api/users${queryString ? `?${queryString}` : ''}`;
+    const url = `${API_BASE_URL || ''}/api/admin/users${queryString ? `?${queryString}` : ''}`;
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
 
     const res = await fetch(url, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       credentials: 'include',
     });
 
@@ -51,10 +60,20 @@ async function _fetchCustomers(filters?: CustomerQuery): Promise<CustomerListRes
 
 async function _addCustomer(customerData: CreateCustomerPayload): Promise<Customer> {
   try {
-    const url = `${API_BASE_URL || ''}/api/users`;
+    const url = `${API_BASE_URL || ''}/api/admin/users`;
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       credentials: 'include',
       body: JSON.stringify(customerData),
     });
@@ -72,14 +91,65 @@ async function _addCustomer(customerData: CreateCustomerPayload): Promise<Custom
   }
 }
 
-async function _updateCustomer(customerId: string, customerData: UpdateCustomerPayload): Promise<Customer> {
+async function _fetchCustomerById(customerId: number): Promise<Customer> {
   try {
-    const url = `${API_BASE_URL || ''}/api/users/${customerId}`;
+    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}`;
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      credentials: 'include',
+    });
+
+    const apiResponse: ApiResponse<Customer> = await res.json();
+
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `Failed to fetch customer: HTTP ${res.status}`);
+    }
+    return (apiResponse as ApiSuccessResponse<Customer>).resultData;
+  } catch (error) {
+    console.error('[_fetchCustomerById service error]:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+}
+
+async function _updateCustomer(customerId: number, customerData: UpdateCustomerPayload): Promise<Customer> {
+  try {
+    // First, fetch the current customer data
+    const currentCustomer = await _fetchCustomerById(customerId);
+
+    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}`;
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    // Merge current data with updates
+    const updatedData = {
+      ...currentCustomer,
+      ...customerData,
+    };
+
     const res = await fetch(url, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       credentials: 'include',
-      body: JSON.stringify(customerData),
+      body: JSON.stringify(updatedData),
     });
 
     const apiResponse: ApiResponse<Customer> = await res.json();
@@ -97,10 +167,20 @@ async function _updateCustomer(customerId: string, customerData: UpdateCustomerP
 
 async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage> {
   try {
-    const url = `${API_BASE_URL || ''}/api/users/${customerId}`;
+    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}`;
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     const res = await fetch(url, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }, // Though DELETE might not always need Content-Type
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       credentials: 'include',
     });
 
@@ -119,12 +199,21 @@ async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage
 
 async function _resetPassword(customerId: string): Promise<SimpleSuccessMessage> {
   try {
-    const url = `${API_BASE_URL || ''}/api/users/${customerId}/reset-password`;
+    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}/reset-password`;
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }, // POST usually has Content-Type
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       credentials: 'include',
-      // No body expected for this specific reset password endpoint as per current design
     });
 
     const apiResponse: ApiResponse<SimpleSuccessMessage> = await res.json();
@@ -146,3 +235,4 @@ export const addCustomer = withErrorHandling(_addCustomer);
 export const updateCustomer = withErrorHandling(_updateCustomer);
 export const deleteCustomer = withErrorHandling(_deleteCustomer);
 export const resetPassword = withErrorHandling(_resetPassword);
+export const fetchCustomerById = withErrorHandling(_fetchCustomerById);

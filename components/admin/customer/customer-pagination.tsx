@@ -10,7 +10,7 @@ export function CustomerPagination() {
     <TablePagination
       total={total}
       pagination={pagination}
-      onPageChange={(page) => setPagination({ pageIndex: page })}
+      onPageChange={(pageIndex) => setPagination({ pageIndex })}
       onPageSizeChange={(size) => setPagination({ pageIndex: 0, pageSize: size })}
       pageSizeOptions={[10, 20, 30, 40, 50]}
       className="px-2"

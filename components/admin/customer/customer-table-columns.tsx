@@ -1,11 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Customer, UserStatus } from "@/lib/types";
+import { Customer } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, KeyRound, Edit3, User, Mail, Activity } from "lucide-react";
+import { ArrowUpDown, KeyRound, Edit3, User, Mail, Phone, Hash, Calendar, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { th } from "date-fns/locale";
 
 export type CustomerTableActions = {
   onEdit: (customer: Customer) => void;
@@ -14,7 +16,7 @@ export type CustomerTableActions = {
 
 export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableActions): ColumnDef<Customer>[] => [
   {
-    accessorKey: "name",
+    accessorKey: "firstName",
     header: ({ column }) => {
       return (
         <Button
@@ -31,7 +33,10 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
     cell: ({ row }) => (
       <div className="flex items-center gap-3 py-1">
         <div>
-          <div className="font-medium text-gray-800 text-sm">{row.getValue("name")}</div>
+          <div className="font-medium text-gray-800 text-sm">{row.getValue("firstName")}</div>
+          {row.original.nickName && (
+            <div className="text-xs text-gray-500">{row.original.nickName}</div>
+          )}
         </div>
       </div>
     ),
@@ -53,50 +58,98 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
     },
     cell: ({ row }) => (
       <div className="flex items-center gap-3 py-1">
-        <div className="text-sm text-gray-700 font-mono">{row.getValue("email")}</div>
+        <div className="text-sm text-gray-700 font-mono">{row.getValue("email") || "-"}</div>
       </div>
     ),
   },
   {
-    accessorKey: "status",
+    accessorKey: "phone",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="h-4 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
+          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
         >
-          <Activity className="mr-2 h-2 w-2" />
-          <span className="text-sm font-medium">สถานะ</span>
+          <Phone className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">เบอร์โทร</span>
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-1 py-1">
+        <div className="text-sm text-gray-700">{row.getValue("phone")}</div>
+        {row.original.phoneSub && (
+          <div className="text-xs text-gray-500">{row.original.phoneSub}</div>
+        )}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "customerCode",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
+        >
+          <Hash className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">รหัสลูกค้า</span>
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="flex items-center gap-3 py-1">
+        <div className="text-sm font-mono text-gray-700">{row.getValue("customerCode")}</div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "address",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
+        >
+          <MapPin className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">ที่อยู่</span>
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="flex items-center gap-3 py-1">
+        <div className="text-sm text-gray-700 line-clamp-2">{row.getValue("address") || "-"}</div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "createDate",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-8 px-2 hover:bg-gray-50 rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-800"
+        >
+          <Calendar className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">วันที่สร้าง</span>
           <ArrowUpDown className="ml-2 h-3 w-3" />
         </Button>
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue("status") as UserStatus;
-      const isActive = status === UserStatus.ACTIVE;
-
+      const date = new Date(row.getValue("createDate"));
       return (
         <div className="flex items-center gap-3 py-1">
-          <div className={cn(
-            "w-4 h-4 rounded-full flex items-center justify-center",
-            isActive ? "bg-emerald-100" : "bg-gray-100"
-          )}>
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              isActive ? "bg-emerald-500" : "bg-gray-400"
-            )} />
+          <div className="text-sm text-gray-700">
+            {format(date, "d MMM yyyy", { locale: th })}
           </div>
-          <Badge
-            className={cn(
-              "text-xs font-medium px-3 py-1 rounded-full border-0 shadow-soft-sm",
-              isActive
-                ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-            )}
-          >
-            {isActive ? "ใช้งานอยู่" : "ไม่ใช้งาน"}
-          </Badge>
         </div>
       );
     },

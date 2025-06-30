@@ -33,7 +33,7 @@ export function useParcels() {
     try {
       const serviceFilters: ParcelFilters & { page?: number; pageSize?: number; customerCode?: string } = {
         ...filters,
-        page: pageIndex + 1,
+        page: pageIndex + 1, // API expects 1-based page number
         pageSize,
       }
       if (user.role === "customer") {
