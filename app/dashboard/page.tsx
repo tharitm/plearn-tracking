@@ -61,10 +61,7 @@ export default function CustomerDashboard() {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
-    // Manual pagination because data is fetched externally
     manualPagination: true,
-    // Pass the pagination state from the store
-    onPaginationChange: setPagination, // Use the action from the store
     state: {
       sorting,
       pagination, // Pass pagination state from store
