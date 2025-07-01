@@ -235,7 +235,11 @@ export const getParcelTableColumns = ({
             </Select>
           );
         }
-        return <StatusBadge status={parcelStatus} type="parcel" />;
+        return (
+          <div className={userRole === "customer" ? "min-w-[120px]" : "min-w-[180px]"}>
+            <StatusBadge status={parcelStatus} type="parcel" />
+          </div>
+        );
       },
     }),
     cnTracking: () => ({

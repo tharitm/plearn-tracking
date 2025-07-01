@@ -6,43 +6,40 @@ import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getPaginationRowModel,
   type ColumnDef,
   type SortingState,
-  type PaginationState, // Import PaginationState
 } from "@tanstack/react-table"
 import { Package, TrendingUp, Clock, CheckCircle } from "lucide-react"
 
 import { useAuthStore } from "@/stores/auth-store"
 import type { Parcel } from "@/lib/types"
-import type { Role } from "@/lib/column-configs"; // Import Role type
+import type { Role } from "@/lib/column-configs"
 
 import { getParcelTableColumns } from "@/components/parcel/parcel-table-columns"
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ParcelFilters } from "@/components/parcel/parcel-filters"
 import { ParcelTable } from "@/components/parcel/parcel-table"
-import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"; // Add this line
+import { ParcelTableSkeleton } from "@/components/parcel/parcel-table-skeleton"
 import { ParcelPagination } from "@/components/parcel/parcel-pagination"
 import { ParcelDetailModal } from "@/components/parcel/parcel-detail-modal"
 import { ParcelGalleryModal } from "@/components/parcel/parcel-gallery-modal"
-// import { StatCard } from "@/components/ui/stat-card" // StatCard is commented out, so import can be too
+import { StatCard } from "@/components/ui/stat-card"
 import { useParcels } from "@/hooks/use-parcels"
 import { useParcelStore } from "@/stores/parcel-store"
 
 export default function CustomerDashboard() {
-  const { user, isAuthenticated, isInitializing } = useAuthStore() // Add isInitializing
+  const { user, isAuthenticated, isInitializing } = useAuthStore()
   const router = useRouter()
-  const { loading, parcels = [] } = useParcels()
-  const {
-    galleryImages,
-    closeGallery,
-    setSelectedParcel,
-    pagination, // Get pagination state from store
-    setPagination, // Get setPagination action from store
-  } = useParcelStore()
-  const [sorting, setSorting] = useState<SortingState>([])
 
+  const { loading, parcels = [], setFilters, resetFilters } = useParcels()
+
+  // ดึงเฉพาะ method/state ที่ต้องการจาก zustand ให้ stable
+  const setSelectedParcel = useParcelStore(state => state.setSelectedParcel)
+  const galleryImages = useParcelStore(state => state.galleryImages)
+  const closeGallery = useParcelStore(state => state.closeGallery)
+
+  const [sorting, setSorting] = useState<SortingState>([])
 
   const columns = useMemo<ColumnDef<Parcel>[]>(() => {
     if (!user?.role) {
@@ -59,52 +56,33 @@ export default function CustomerDashboard() {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
-    manualPagination: true,
     state: {
       sorting,
-      pagination, // Pass pagination state from store
     },
   });
 
   useEffect(() => {
-    // Wait until initialization is complete before checking auth status
     if (isInitializing) {
-      return; // Do nothing while store is initializing
+      return;
     }
 
-    // Assuming RootLayout has handled the unauthenticated redirect.
-    // This useEffect now primarily focuses on role-based authorization for this specific page.
-    // If isAuthenticated is true, then check the user's role.
     if (isAuthenticated) {
       if (user?.role !== "customer") {
         router.push("/admin");
         return;
       }
     } else {
-      // If, for some reason, RootLayout didn't redirect and this page is reached
-      // while not authenticated (and not initializing), redirect to login.
-      // This acts as a secondary safeguard.
       router.push("/login");
       return;
     }
-    if (user?.role !== "customer") {
-      router.push("/admin");
-      return;
-    }
-  }, [isAuthenticated, user, router, isInitializing]); // Add isInitializing to dependency array
+  }, [isAuthenticated, user, router, isInitializing]);
 
-  // Show loading or null while initializing to prevent flash of unauthenticated content or premature redirect
   if (isInitializing) {
-    // Optionally, return a loading spinner or a minimal layout skeleton here
     return null;
   }
 
-  // If not initializing and not authenticated for this page, render null (or redirect handled by useEffect)
-  // This condition also handles the case where user is authenticated but not a customer
   if (!isAuthenticated || (user && user.role !== "customer")) {
-    // useEffect will handle the redirect, returning null here prevents rendering the dashboard content
     return null;
   }
 
@@ -116,21 +94,36 @@ export default function CustomerDashboard() {
 
   const breadcrumbs = [{ label: "Dashboard" }];
 
+  const handleSearch = (filters: any) => {
+    setFilters(filters);
+  };
+
+  const handleReset = () => {
+    resetFilters();
+  };
+
   return (
     <DashboardLayout breadcrumbs={breadcrumbs} tableInstance={table}>
       <div className="space-y-6 sm:space-y-8">
         {/* Header Section */}
-        <div className="stagger-item">
-          <h1 className="text-xl sm:text-heading font-bold text-[#212121] mb-1 sm:mb-2">
-            Plearn Tracking
-          </h1>
-          <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
-            จัดการและติดตามพัสดุของคุณ
-          </p>
+        <div className="stagger-item bg-white rounded-3xl p-3 shadow-soft-xl border border-gray-100/50">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-3 bg-blue-50 rounded-2xl shadow-soft-sm">
+              <Package className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-heading font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+                Plearn Tracking
+              </h1>
+              <p className="text-sm sm:text-subtitle text-gray-600 font-normal">
+                จัดการและติดตามพัสดุของคุณ
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Stats Grid - Mobile responsive */}
-        {/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatCard
             title="พัสดุทั้งหมด"
             value={totalParcels}
@@ -159,21 +152,21 @@ export default function CustomerDashboard() {
             icon={<CheckCircle />}
             variant="green"
           />
-        </div> */}
+        </div>
 
         {/* Filters Section */}
         <div className="stagger-item">
-          <ParcelFilters />
+          <ParcelFilters onSearch={handleSearch} onReset={handleReset} />
         </div>
 
         {/* Table Section */}
         <div className="stagger-item">
-          {loading ? ( // loading state from useParcelStore
+          {loading ? (
             <div className="space-y-4 sm:space-y-6">
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
                 <ParcelTableSkeleton />
               </div>
-              <ParcelPagination /> {/* Consider if pagination should also have a skeleton or be hidden */}
+              <ParcelPagination />
             </div>
           ) : (
             <div className="space-y-4 sm:space-y-6">
