@@ -34,7 +34,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Trash2 } from "lucide-react"
-import { useParcels } from "@/hooks/use-parcels"
 
 export interface ParcelFormData {
   orderNo: string
@@ -65,6 +64,7 @@ export interface ParcelFormProps {
   onSubmit: (data: ParcelFormData) => void
   initialData?: Parcel // For editing
   isEditMode?: boolean // To toggle UI and behavior
+  refetch: () => Promise<void>
 }
 
 export function ParcelForm({
@@ -73,9 +73,9 @@ export function ParcelForm({
   onSubmit,
   initialData,
   isEditMode = false,
+  refetch,
 }: ParcelFormProps) {
   const { user } = useAuthStore()
-  const { refetch } = useParcels()
   const isAdmin = user?.role === 'admin'
   const [images, setImages] = useState<File[]>([])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)

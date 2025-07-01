@@ -280,12 +280,13 @@ export default function AdminDashboard() {
           <ParcelForm
             open={showParcelForm}
             onClose={() => {
-              setShowParcelForm(false);
-              setEditingParcel(null);
+              setShowParcelForm(false)
+              setEditingParcel(null)
             }}
             onSubmit={handleFormSubmit}
             initialData={editingParcel || undefined}
             isEditMode={!!editingParcel}
+            refetch={refetch}
           />
         )}
       </div>
