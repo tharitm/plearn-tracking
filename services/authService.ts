@@ -30,8 +30,19 @@ interface AuthResponse {
   role: string;
 }
 
+interface UserProfileResponse {
+  id: number;
+  customerCode: string;
+  username: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  role: string;
+}
+
 async function _login(username: string, password: string): Promise<User> {
-  const url = `${API_BASE_URL || ''}/api/login`;
+  const url = `${API_BASE_URL || ''}/api/auth/login`;
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -94,8 +105,33 @@ async function _logout(): Promise<void> {
   }
 }
 
+async function _fetchUserProfile(userId: number): Promise<UserProfileResponse> {
+  const url = `${API_BASE_URL || ''}/api/admin/users/${userId}`;
+  try {
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      credentials: 'include',
+    });
+
+    const apiResponse: ApiResponse<UserProfileResponse> = await res.json();
+
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `HTTP error ${res.status}`);
+    }
+
+    return (apiResponse as ApiSuccessResponse<UserProfileResponse>).resultData;
+  } catch (error) {
+    console.error('[_fetchUserProfile service error]:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+}
+
 export const login = withErrorHandling(_login);
-export const logout = withErrorHandling(_logout); // Wrap withErrorHandling if you want global error display
-// Or call it directly if errors are handled locally by authStore
-// For logout, often direct call is fine as UI just clears state.
-// Using withErrorHandling for consistency here.
+export const logout = withErrorHandling(_logout);
+export const fetchUserProfile = withErrorHandling(_fetchUserProfile);
