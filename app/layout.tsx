@@ -29,25 +29,34 @@ const notoSansThai = Noto_Sans_Thai({
   variable: '--font-noto-sans-thai',
 });
 
+// กำหนด route configuration
+const ROUTES = {
+  login: "/login",
+  protected: {
+    admin: ["/admin"],
+    customer: ["/dashboard"]
+  },
+  home: {
+    admin: "/admin",
+    customer: "/dashboard"
+  }
+} as const;
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, user, isInitializing } = useAuthStore(); // Added isInitializing, removed checkAuth as it's not used here
+  const { isAuthenticated, user, isInitializing, checkAuth } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    // Set document title
     document.title = "Plearn Tracking";
-
-    // Set favicon
     let favicon = document.querySelector<HTMLLinkElement>("link[rel='icon']");
     if (favicon) {
       favicon.href = "/plearn-logo.png";
-      favicon.type = "image/png"; // Ensure type is correct
+      favicon.type = "image/png";
     } else {
       favicon = document.createElement("link");
       favicon.rel = "icon";
@@ -55,36 +64,63 @@ export default function RootLayout({
       favicon.type = "image/png";
       document.head.appendChild(favicon);
     }
+  }, []);
 
-    // The checkAuth call was removed from auth-store's immediate execution.
-    // If it's intended to run on layout mount, it can be kept here.
-    // However, the rehydration logic in auth-store might cover initial auth state.
-    // For now, let's assume rehydration handles the initial isAuthenticated state.
-    // If checkAuth() is meant to be a periodic token validation, its placement might differ.
-    // useAuthStore.getState().checkAuth(); // Re-evaluating if this is needed or how it should work with isInitializing
-  }, []); // Empty dependency array: run once on mount
-
+  // เช็ค auth state เฉพาะตอน mount component
   useEffect(() => {
-    // Wait for auth store to initialize before attempting to redirect
+    checkAuth();
+  }, []);
+
+  // จัดการ route protection
+  useEffect(() => {
     if (isInitializing) {
       return;
     }
 
-    const publicPaths = ["/login"];
-    const pathIsPublic = publicPaths.includes(pathname);
+    const currentPath = pathname === "/" ? ROUTES.login : pathname;
+    const isLoginPage = currentPath === ROUTES.login;
 
-    if (!isAuthenticated && !pathIsPublic) {
-      router.push("/login");
-    } else if (isAuthenticated && pathIsPublic) {
-      // If authenticated and on a public path, redirect to the appropriate dashboard
-      if (user?.role === "admin") {
-        router.push("/admin");
-      } else { // Assuming default role is customer or similar
-        router.push("/dashboard");
+    // ถ้าไม่ได้ login -> ไปหน้า login
+    if (!isAuthenticated) {
+      if (!isLoginPage) {
+        router.replace(ROUTES.login);
       }
+      return;
     }
-  }, [isAuthenticated, pathname, router, user, isInitializing]); // Added isInitializing to dependencies
 
+    // ถ้า login แล้ว
+    const role = user?.role || 'customer';
+
+    // ถ้าอยู่หน้า login -> ไปหน้าหลักตาม role
+    if (isLoginPage) {
+      router.replace(ROUTES.home[role as keyof typeof ROUTES.home]);
+      return;
+    }
+
+    // เช็คว่าอยู่ในหน้าที่มีสิทธิ์เข้าถึงหรือไม่
+    const allowedRoutes = role === 'admin'
+      ? [...ROUTES.protected.admin, ...ROUTES.protected.customer]  // admin เข้าได้ทั้ง 2 ส่วน
+      : ROUTES.protected.customer;  // customer เข้าได้แค่ส่วน customer
+
+    const hasAccess = allowedRoutes.some(route => currentPath.startsWith(route));
+
+    if (!hasAccess) {
+      router.replace(ROUTES.home[role as keyof typeof ROUTES.home]);
+    }
+  }, [isAuthenticated, user?.role, pathname, isInitializing]);
+
+  // แสดง loading state ถ้ากำลัง initialize
+  if (isInitializing) {
+    return (
+      <html lang="th" className={notoSansThai.variable}>
+        <body className='font-sans'>
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+          </div>
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="th" className={notoSansThai.variable}>
