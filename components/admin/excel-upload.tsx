@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Upload, FileSpreadsheet, Check, X } from "lucide-react"
 import type { Parcel } from "@/lib/types"  // or wherever your OrderEntity type is exported
 import moment from 'moment'
+import { showToast } from "@/lib/toast-utils"
 
 interface ExcelUploadProps {
   onImport: (data: Partial<Parcel>[]) => void
@@ -69,7 +70,7 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
         setPreviewData(mappedData)
       } catch (error) {
         console.error("Error reading Excel file:", error)
-        alert("เกิดข้อผิดพลาดในการอ่านไฟล์ Excel")
+        showToast("เกิดข้อผิดพลาดในการอ่านไฟล์ Excel")
       }
     }
 
@@ -91,10 +92,10 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
       onImport(previewData)
       setPreviewData([])
       setFileName("")
-      alert("นำเข้าข้อมูลสำเร็จ!")
+      showToast("นำเข้าข้อมูลสำเร็จ!")
     } catch (error) {
       console.error("Import failed:", error)
-      alert("เกิดข้อผิดพลาดในการนำเข้าข้อมูล")
+      showToast("เกิดข้อผิดพลาดในการนำเข้าข้อมูล")
     } finally {
       setUploading(false)
     }

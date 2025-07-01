@@ -112,7 +112,90 @@ async function _fetchParcelById(id: string): Promise<Parcel> { // This is the ty
   }
 }
 
+// เพิ่ม interface สำหรับ request body
+interface CreateOrderPayload {
+  orderNo: string;
+  customerName: string;
+  description: string;
+  pack: number;
+  weight: number;
+  length: number;
+  width: number;
+  height: number;
+  cbm: number;
+  transportation: string;
+  cabinetCode: string;
+  estimate: string;
+  status: string;
+  tracking: string;
+  trackingTh: string | null;
+  receiptNumber: string | null;
+  shippingCost: number | null;
+  shippingRates: number | null;
+  picture: string | null;
+  orderDate: string;
+}
+
+interface BulkCreateOrdersPayload {
+  orders: CreateOrderPayload[];
+}
+
+// เพิ่มฟังก์ชันใหม่
+async function _createOrders(orders: CreateOrderPayload[]): Promise<ApiResponse<any>> {
+  try {
+    const url = `${API_BASE_URL || ''}/api/orders/orders`;
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const payload: BulkCreateOrdersPayload = {
+      orders: orders.map(order => ({
+        ...order,
+        // แปลงค่าตัวเลขให้เป็น number
+        pack: Number(order.pack),
+        weight: Number(order.weight),
+        length: Number(order.length),
+        width: Number(order.width),
+        height: Number(order.height),
+        cbm: Number(order.cbm),
+        shippingCost: order.shippingCost ? Number(order.shippingCost) : null,
+        shippingRates: order.shippingRates ? Number(order.shippingRates) : null,
+        // แปลงวันที่ให้อยู่ในรูปแบบ YYYY-MM-DD
+        orderDate: new Date(order.orderDate).toISOString().split('T')[0],
+        estimate: new Date(order.estimate).toISOString().split('T')[0]
+      }))
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    const apiResponse: ApiResponse<any> = await res.json();
+
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `HTTP error ${res.status}`);
+    }
+
+    return apiResponse;
+
+  } catch (error) {
+    console.error('[_createOrders service error]:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+}
+
 // Export wrapped functions
 export const fetchParcels = withErrorHandling(_fetchParcels);
 export const updateParcelStatus = withErrorHandling(_updateParcelStatus);
 export const fetchParcelById = withErrorHandling(_fetchParcelById);
+export const createOrders = withErrorHandling(_createOrders);
