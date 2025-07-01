@@ -193,20 +193,20 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
                 <Button
                   onClick={handleImport}
                   disabled={uploading}
-                  size="sm"
-                  className="h-8 px-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
+                  size="lg"
+                  className="px-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
                 >
-                  <Check className="h-4 w-4 mr-1.5" />
-                  <span className="text-sm">{uploading ? "กำลังนำเข้า..." : "นำเข้า"}</span>
+                  <Check className="h-5 w-5 mr-2" />
+                  <span className="text-base font-medium">{uploading ? "กำลังนำเข้า..." : "นำเข้าข้อมูล"}</span>
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleCancel}
                   disabled={uploading}
-                  size="sm"
-                  className="h-8 px-3 bg-gray-50 hover:bg-gray-100 border-0 rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
+                  size="lg"
+                  className="px-6 bg-gray-50 hover:bg-gray-100 border-0 rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
                 >
-                  <X className="h-4 w-4 text-gray-500" />
+                  <X className="h-5 w-5 text-gray-500" />
                 </Button>
               </div>
             </div>

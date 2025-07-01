@@ -259,23 +259,6 @@ export default function AdminDashboard() {
           <ExcelUpload onImport={handleExcelImport} />
         </div>
 
-        {/* Action Header */}
-        <div className="stagger-item flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-lg sm:text-title font-semibold text-[#212121]">
-            รายการพัสดุในคลัง
-          </h2>
-          <Button
-            onClick={() => {
-              setEditingParcel(null)
-              setShowParcelForm(true)
-            }}
-            className="ripple bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium px-4 sm:px-5 py-2 rounded-lg shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            <span className="text-sm">เพิ่มรายการสินค้า</span>
-          </Button>
-        </div>
-
         {/* Table Section */}
         <div className="stagger-item">
           {loading ? (
@@ -287,16 +270,28 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4">
-              <div className="flex flex-col sm:flex-row gap-2 items-center">
+              <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div className="flex flex-col sm:flex-row gap-2 items-center">
+                  <Button
+                    onClick={handleBulkDeliver}
+                    disabled={Object.keys(rowSelection).length === 0}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
+                    <PackageCheck className="mr-2 h-4 w-4" /> Mark All Delivered ({Object.keys(rowSelection).length})
+                  </Button>
+                  <ColumnVisibilityDropdown table={table} />
+                </div>
                 <Button
-                  onClick={handleBulkDeliver}
-                  disabled={Object.keys(rowSelection).length === 0}
-                  variant="outline"
-                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    setEditingParcel(null)
+                    setShowParcelForm(true)
+                  }}
+                  className="ripple bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium px-4 sm:px-5 py-2 rounded-lg shadow-material-4 transition-all duration-300 hover:shadow-material-8 touch-target w-full sm:w-auto"
                 >
-                  <PackageCheck className="mr-2 h-4 w-4" /> Mark All Delivered ({Object.keys(rowSelection).length})
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span className="text-sm">เพิ่มรายการสินค้า</span>
                 </Button>
-                <ColumnVisibilityDropdown table={table} />
               </div>
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
                 <ParcelFilters
