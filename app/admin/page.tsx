@@ -32,7 +32,7 @@ import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
 import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
-import { deleteOrder } from "@/services/parcelService"
+import { deleteOrder, createOrders, type CreateOrderPayload } from "@/services/parcelService"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -147,19 +147,14 @@ export default function AdminDashboard() {
     },
   });
 
-  const handleExcelImport = async (data: Partial<Parcel>[]) => {
+  const handleExcelImport = async (data: CreateOrderPayload[]) => {
     try {
-      const response = await fetch("/api/admin/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ parcels: data }),
-      })
-
-      if (response.ok) {
-        refetch()
-      }
+      await createOrders(data)
+      refetch()
+      showToast("นำเข้าข้อมูลสำเร็จ!", "success")
     } catch (error) {
       console.error("Failed to import Excel data:", error)
+      showToast("เกิดข้อผิดพลาดในการนำเข้าข้อมูล", "error")
       throw error
     }
   }

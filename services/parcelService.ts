@@ -112,7 +112,7 @@ async function _fetchParcelById(id: string): Promise<Parcel> { // This is the ty
 }
 
 // เพิ่ม interface สำหรับ request body
-interface CreateOrderPayload {
+export interface CreateOrderPayload {
   orderNo: string;
   customerName: string;
   description: string;

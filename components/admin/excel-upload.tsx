@@ -5,18 +5,41 @@ import { useDropzone } from "react-dropzone"
 import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
 import { Upload, FileSpreadsheet, Check, X } from "lucide-react"
-import type { Parcel } from "@/lib/types"  // or wherever your OrderEntity type is exported
 import moment from 'moment'
 import { showToast } from "@/lib/toast-utils"
+import type { CreateOrderPayload } from "@/services/parcelService"
+
+// Add status mapping
+const STATUS_MAPPING: { [key: string]: string } = {
+  "ถึงโกดังจีน": "arrived_cn_warehouse",
+  "ตู้ปิดสินค้า": "container_closed",
+  "ถึงโกดังไทย": "arrived_th_warehouse",
+  "เตรียมส่งลูกค้า": "ready_to_ship_to_customer",
+  "ส่งแล้ว": "shipped_to_customer",
+  "ส่งถึงแล้ว": "delivered_to_customer",
+}
+interface PreviewData extends Omit<CreateOrderPayload, 'status'> {
+  status: string;
+  mappedStatus: string;
+}
 
 interface ExcelUploadProps {
-  onImport: (data: Partial<Parcel>[]) => void
+  onImport: (data: CreateOrderPayload[]) => void
 }
 
 export function ExcelUpload({ onImport }: ExcelUploadProps) {
-  const [previewData, setPreviewData] = useState<Partial<Parcel>[]>([])
+  const [previewData, setPreviewData] = useState<PreviewData[]>([])
   const [fileName, setFileName] = useState<string>("")
   const [uploading, setUploading] = useState(false)
+
+  const mapStatus = (thaiStatus: string): string => {
+    const mappedStatus = STATUS_MAPPING[thaiStatus]
+    if (!mappedStatus) {
+      console.warn(`Unknown status: ${thaiStatus}, defaulting to arrived_cn_warehouse`)
+      return "arrived_cn_warehouse"
+    }
+    return mappedStatus
+  }
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
@@ -34,39 +57,39 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: true, defval: '' })
         console.log('jsonData', jsonData)
         // Map Excel columns to our data structure
-        const mappedData = jsonData.map((row: any) => ({
-          orderNo: row['PO'] || '',
-          orderDate: row['DATE'] ? moment(row['DATE'], 'YYYY-MM-DD').format('YYYY-MM-DD') : null,
-          customerName: row['Customer ID'] || '',
-          description: row['Description'] || '',
-          pack: Number.parseInt(row['pack'] || '0'),
-          weight: Number.parseFloat(row['น้ำหนัก (kg)'] || row['น้ำหนัก'] || '0'),
-          length: Number.parseFloat(row['ยาว'] || '0'),
-          width: Number.parseFloat(row['กว้าง'] || '0'),
-          height: Number.parseFloat(row['สูง'] || '0'),
-          cbm: Number.parseFloat(row['CBM'] || '0'),
-          transportation: row['Shipment'] || row['__EMPTY'] || '',
-          tracking: row['Tracking'] != null
-            ? (typeof row['Tracking'] === 'number'
-              ? row['Tracking'].toFixed(0)
-              : String(row['Tracking'])
-            )
-            : '',
-          cabinetCode: row['รหัสตู้'] || '',
-          estimate: row['ประมาณการ']
-            ? moment(row['ประมาณการ']).format('YYYY-MM-DD')
-            : null,
-          status: row['สถานะ'] || null,
-          flagStatus: false,
-          paymentStatus: false,
-          trackingTh: null,
-          receiptNumber: null,
-          shippingCost: null,
-          shippingRates: null,
-          picture: null,
-          createDate: moment().format('YYYY-MM-DD'),
-          warehouseId: 0,
-        }))
+        const mappedData = jsonData.map((row: any) => {
+          const thaiStatus = row['สถานะ'] || 'ถึงโกดังจีน' // Default to ถึงโกดังจีน if no status
+          return {
+            orderNo: row['PO'] || '',
+            orderDate: row['DATE'] ? moment(row['DATE'], 'YYYY-MM-DD').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
+            customerName: row['Customer ID'] || '',
+            description: row['Description'] || '',
+            pack: Number.parseInt(row['pack'] || '0'),
+            weight: Number.parseFloat(row['น้ำหนัก (kg)'] || row['น้ำหนัก'] || '0'),
+            length: Number.parseFloat(row['ยาว'] || '0'),
+            width: Number.parseFloat(row['กว้าง'] || '0'),
+            height: Number.parseFloat(row['สูง'] || '0'),
+            cbm: Number.parseFloat(row['CBM'] || '0'),
+            transportation: row['Shipment'] || row['__EMPTY'] || '',
+            tracking: row['Tracking'] != null
+              ? (typeof row['Tracking'] === 'number'
+                ? row['Tracking'].toFixed(0)
+                : String(row['Tracking'])
+              )
+              : '',
+            cabinetCode: row['รหัสตู้'] || '',
+            estimate: row['ประมาณการ']
+              ? moment(row['ประมาณการ']).format('YYYY-MM-DD')
+              : moment().format('YYYY-MM-DD'),
+            status: thaiStatus,
+            mappedStatus: mapStatus(thaiStatus),
+            trackingTh: null,
+            receiptNumber: null,
+            shippingCost: null,
+            shippingRates: null,
+            picture: null,
+          }
+        })
         setPreviewData(mappedData)
       } catch (error) {
         console.error("Error reading Excel file:", error)
@@ -89,7 +112,12 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
   const handleImport = async () => {
     setUploading(true)
     try {
-      onImport(previewData)
+      // Convert preview data to CreateOrderPayload format
+      const importData: CreateOrderPayload[] = previewData.map(data => ({
+        ...data,
+        status: data.mappedStatus // Use the mapped status for API
+      }))
+      onImport(importData)
       setPreviewData([])
       setFileName("")
       showToast("นำเข้าข้อมูลสำเร็จ!")
@@ -220,7 +248,7 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
                         <td className="px-3 py-2.5 text-sm text-gray-700">{row.height?.toFixed(2)}</td>
                         <td className="px-3 py-2.5 text-sm text-gray-700">{row.cbm?.toFixed(4)}</td>
                         <td className="px-3 py-2.5 text-sm text-gray-700">{row.transportation}</td>
-                        <td className="px-3 py-2.5 text-sm text-gray-700 font-mono">{row.tracking}</td>
+                        <td className="px-3 py-2.5 text-sm text-gray-700">{row.tracking}</td>
                         <td className="px-3 py-2.5 text-sm text-gray-700">{row.cabinetCode}</td>
                         <td className="px-3 py-2.5 text-sm text-gray-700">{row.estimate}</td>
                         <td className="px-3 py-2.5 text-sm text-gray-700">{row.status}</td>
