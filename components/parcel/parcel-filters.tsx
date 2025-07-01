@@ -16,10 +16,10 @@ import { useAuthStore } from "@/stores/auth-store"
 interface ParcelFiltersProps {
   compact?: boolean;
   onSearch: (filters: any) => void;
-  onReset: () => void;
+  onReset?: () => void;
 }
 
-export function ParcelFilters({ compact = false, onSearch, onReset }: ParcelFiltersProps) {
+export function ParcelFilters({ compact = false, onSearch, onReset = () => { } }: ParcelFiltersProps) {
   const { user } = useAuthStore()
   const isAdmin = user?.role === 'admin'
   const { filters } = useParcelStore()

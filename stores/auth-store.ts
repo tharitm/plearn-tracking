@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { login as loginService, logout as logoutService, User } from "@/services/authService";
+import { useParcelStore } from "./parcel-store";
 
 interface AuthState {
   user: User | null;
@@ -75,6 +76,9 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             token
           });
+
+          // Reset filters when logging in
+          useParcelStore.getState().resetFilters();
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : "Login failed";
           set({
@@ -99,6 +103,9 @@ export const useAuthStore = create<AuthState>()(
             error: null,
             token: null
           });
+
+          // Reset filters when logging out
+          useParcelStore.getState().resetFilters();
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : "Logout failed";
           set({
