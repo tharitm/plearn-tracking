@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParcelStore } from "@/stores/parcel-store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,8 +15,8 @@ import { useAuthStore } from "@/stores/auth-store"
 
 interface ParcelFiltersProps {
   compact?: boolean;
-  onSearch: (filters: any) => void; // Callback for search
-  onReset: () => void; // Callback for reset
+  onSearch: (filters: any) => void;
+  onReset: () => void;
 }
 
 export function ParcelFilters({ compact = false, onSearch, onReset }: ParcelFiltersProps) {
@@ -24,6 +24,11 @@ export function ParcelFilters({ compact = false, onSearch, onReset }: ParcelFilt
   const isAdmin = user?.role === 'admin'
   const { filters } = useParcelStore()
   const [localFilters, setLocalFilters] = useState(filters)
+
+  // Sync with store filters
+  useEffect(() => {
+    setLocalFilters(filters)
+  }, [filters])
 
   // Initialize date range from filters
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
@@ -56,19 +61,21 @@ export function ParcelFilters({ compact = false, onSearch, onReset }: ParcelFilt
   }
 
   const handleSearch = () => {
-    // Prepare API filters based on role
+    const searchTerm = localFilters.search?.trim() || ""
+    // Prepare API filters based on role and search term length
     const apiFilters = {
       ...localFilters,
-      // For admin, search in multiple fields
-      ...(isAdmin ? {
-        customerName: localFilters.search, // Search in customer name
-        trackingNo: localFilters.search,   // and tracking number
+      // For admin, check search term length
+      ...(isAdmin && searchTerm.length === 4 ? {
+        customerName: searchTerm, // If length is 4, it's a customer code
+        trackingNo: undefined
       } : {
-        // For customer, search only in tracking number
-        trackingNo: localFilters.search
+        trackingNo: searchTerm, // Otherwise, it's a tracking number
+        customerName: undefined
       }),
-      search: undefined // Remove search as it's not in API spec
+      search: searchTerm // Keep the original search term
     }
+
     onSearch(apiFilters)
   }
 

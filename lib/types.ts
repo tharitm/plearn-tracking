@@ -140,6 +140,7 @@ export interface ParcelFilters {
   status?: string
   paymentStatus?: string
   search?: string
+  customerName?: string
 }
 
 export interface PaginationState {

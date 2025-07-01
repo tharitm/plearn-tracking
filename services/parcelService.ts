@@ -18,14 +18,13 @@ async function _fetchParcels(
     page: String(filters?.page || 1),
     pageSize: String(filters?.pageSize || 10),
   };
-  // Add filters to params as before
   if (filters?.status && filters.status !== 'all') params.status = filters.status;
   if (filters?.paymentStatus && filters.paymentStatus !== 'all') params.paymentStatus = filters.paymentStatus;
   if (filters?.trackingNo) params.trackingNo = filters.trackingNo;
   if (filters?.dateFrom) params.dateFrom = filters.dateFrom;
   if (filters?.dateTo) params.dateTo = filters.dateTo;
   if (filters?.customerCode) params.customerName = filters.customerCode;
-  if (filters?.search) params.trackingNo = filters.search;
+  if (filters?.customerName) params.customerName = filters.customerName;
 
   const queryString = new URLSearchParams(params).toString();
   const url = `${API_BASE_URL || ''}/api/orders/orders?${queryString}`;
