@@ -173,6 +173,19 @@ export const getParcelTableColumns = ({
         </Button>
       ),
     }),
+    cabinetCode: () => ({
+      accessorKey: "cabinetCode",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="h-auto p-0 font-semibold hover:bg-transparent"
+        >
+          รหัสตู้
+          {getSortIcon(column.getIsSorted())}
+        </Button>
+      ),
+    }),
     estimate: () => ({
       accessorKey: "estimate",
       header: ({ column }) => (
@@ -467,6 +480,31 @@ export const getParcelTableColumns = ({
       columns.push(columnDefinitions[columnId]());
     }
   });
+
+  // Ensure columns are in the correct order
+  const columnOrder = [
+    "select",
+    "parcelRef",
+    "images",
+    "receiveDate",
+    "customerCode",
+    "shipment",
+    "cabinetCode", // Add cabinetCode after shipment
+    "estimate",
+    "status",
+    "cnTracking",
+    "length",
+    "width",
+    "height",
+    "volume",
+    "weight",
+    "shippingRate",
+    "freight",
+    "deliveryMethod",
+    "thTracking",
+    "paymentStatus",
+    "actions",
+  ];
 
   return columns;
 };
