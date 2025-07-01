@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, FilePenLine } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Loader2, FilePenLine, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -35,12 +35,13 @@ export const getSortIcon = (isSorted: false | "asc" | "desc") => {
   return <ArrowUpDown className="ml-2 h-4 w-4" />;
 };
 
-// Add userRole to the props
+// Add onDelete to the props
 interface GetParcelTableColumnsProps {
   userRole: Role;
   setSelectedParcel: (parcel: Parcel) => void;
   onStatusChange?: (parcelId: string, newStatus: Parcel["status"]) => void;
   onEdit?: (parcel: Parcel) => void;
+  onDelete?: (parcel: Parcel) => void;
   updatingStatusForId?: string | null;
 }
 
@@ -49,6 +50,7 @@ export const getParcelTableColumns = ({
   setSelectedParcel,
   onStatusChange,
   onEdit,
+  onDelete,
   updatingStatusForId,
 }: GetParcelTableColumnsProps): ColumnDef<Parcel>[] => {
   const columns: ColumnDef<Parcel>[] = [];
@@ -428,15 +430,32 @@ export const getParcelTableColumns = ({
       id: "actions",
       header: "จัดการ",
       cell: ({ row }) => (
-        <Button variant="outline" size="sm" onClick={() => {
-          if (onEdit) { // Ensure onEdit is provided
-            onEdit(row.original);
-          }
-        }}
-          disabled={!onEdit} // Disable if onEdit is not provided
-        >
-          <FilePenLine className="mr-2 h-4 w-4" /> Edit
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (onEdit) {
+                onEdit(row.original);
+              }
+            }}
+            disabled={!onEdit}
+          >
+            <FilePenLine className="mr-2 h-4 w-4" /> Edit
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => {
+              if (onDelete) {
+                onDelete(row.original);
+              }
+            }}
+            disabled={!onDelete}
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> Delete
+          </Button>
+        </div>
       ),
     }),
   };

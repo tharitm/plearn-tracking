@@ -32,6 +32,17 @@ import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
 import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
+import { deleteOrder } from "@/services/parcelService"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
@@ -49,6 +60,7 @@ export default function AdminDashboard() {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [editingParcel, setEditingParcel] = useState<Parcel | null>(null)
   const [updatingStatusForId, setUpdatingStatusForId] = useState<string | null>(null)
+  const [deletingParcel, setDeletingParcel] = useState<Parcel | null>(null)
 
   const handleStatusChange = useCallback(async (parcelId: string, newStatus: Parcel["status"]) => {
     setUpdatingStatusForId(parcelId); // Set loading state
@@ -85,19 +97,40 @@ export default function AdminDashboard() {
     setEditingParcel(null);
   };
 
+  // Add delete handler
+  const handleDelete = useCallback(async (parcel: Parcel) => {
+    setDeletingParcel(parcel);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (!deletingParcel) return;
+
+    try {
+      await deleteOrder(deletingParcel.id);
+      showToast("ลบพัสดุสำเร็จ", "success");
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete parcel:", error);
+      showToast("ไม่สามารถลบพัสดุได้", "error");
+    } finally {
+      setDeletingParcel(null);
+    }
+  };
+
   // Get columns from the shared function
   const columns = useMemo<ColumnDef<Parcel>[]>(() => {
-    if (!user?.role) { // Guard clause in case user or role is not yet available
+    if (!user?.role) {
       return [];
     }
     return getParcelTableColumns({
-      userRole: user.role as Role, // Pass the user's role
+      userRole: user.role as Role,
       setSelectedParcel,
-      onStatusChange: handleStatusChange, // Already passed
-      onEdit: handleEdit,                 // Already passed
-      updatingStatusForId,              // Already passed
+      onStatusChange: handleStatusChange,
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+      updatingStatusForId,
     });
-  }, [user?.role, setSelectedParcel, handleStatusChange, handleEdit, updatingStatusForId]); // Add user.role to dependency array
+  }, [user?.role, setSelectedParcel, handleStatusChange, handleEdit, handleDelete, updatingStatusForId]);
 
   const table = useReactTable({
     data: parcels,
@@ -302,6 +335,23 @@ export default function AdminDashboard() {
             refetch={refetch}
           />
         )}
+
+        <AlertDialog open={!!deletingParcel} onOpenChange={(open) => !open && setDeletingParcel(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>ยืนยันการลบพัสดุ</AlertDialogTitle>
+              <AlertDialogDescription>
+                คุณต้องการลบพัสดุ {deletingParcel?.orderNo || deletingParcel?.id} ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                ลบพัสดุ
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );

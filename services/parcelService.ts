@@ -193,12 +193,6 @@ async function _createOrders(orders: CreateOrderPayload[]): Promise<ApiResponse<
   }
 }
 
-// Export wrapped functions
-export const fetchParcels = withErrorHandling(_fetchParcels);
-export const updateParcelStatus = withErrorHandling(_updateParcelStatus);
-export const fetchParcelById = withErrorHandling(_fetchParcelById);
-export const createOrders = withErrorHandling(_createOrders);
-
 const _updateOrder = async (id: string, data: Partial<Parcel>) => {
   // Get token from cookie
   const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -227,4 +221,36 @@ const _updateOrder = async (id: string, data: Partial<Parcel>) => {
   return response.json();
 };
 
+const _deleteOrder = async (id: string) => {
+  // Get token from cookie
+  const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/orders/orders/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    if (isApiErrorResponse(error)) {
+      throw new Error('Failed to delete order');
+    }
+    throw new Error('Failed to delete order');
+  }
+
+  return response.json();
+};
+
+// Export wrapped functions
+export const fetchParcels = withErrorHandling(_fetchParcels);
+export const updateParcelStatus = withErrorHandling(_updateParcelStatus);
+export const fetchParcelById = withErrorHandling(_fetchParcelById);
+export const createOrders = withErrorHandling(_createOrders);
 export const updateOrder = withErrorHandling(_updateOrder);
+export const deleteOrder = withErrorHandling(_deleteOrder);
