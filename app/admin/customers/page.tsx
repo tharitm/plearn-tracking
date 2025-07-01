@@ -35,17 +35,17 @@ export default function AdminCustomersPage() {
   const router = useRouter();
   const {
     customers,
-    loading,
+    isLoading,
+    error,
+    refetch,
   } = useCustomers();
-
-  const storeUpdateCustomerOptimistic = useCustomerStore((state) => state.updateCustomer);
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [customerForPasswordReset, setCustomerForPasswordReset] = useState<Customer | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Local loading state for CRUD actions
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const columns = useMemo(() => getCustomerColumns({
     onEdit: (customer) => {
@@ -79,22 +79,34 @@ export default function AdminCustomersPage() {
     setIsSubmitting(true);
     try {
       if (editingCustomer) {
-        const updatedCustomer = await customerService.updateCustomer(editingCustomer.id, data as UpdateCustomerPayload);
+        const updatedCustomer = await customerService.updateCustomer(editingCustomer.id, {
+          ...data,
+          status: true,
+          flagStatus: false,
+        } as UpdateCustomerPayload);
         if (updatedCustomer) {
-          storeUpdateCustomerOptimistic(updatedCustomer); // Optimistic update in store
+          await refetch();
           showToast("Customer updated successfully!", "success");
           setIsFormModalOpen(false);
           setEditingCustomer(null);
         }
       } else {
-        const newCustomer = await customerService.addCustomer(data as CreateCustomerPayload);
+        const newCustomer = await customerService.addCustomer({
+          ...data,
+          status: true,
+          flagStatus: false,
+          strType: "customer",
+          applicationDate: new Date().toISOString().split('T')[0],
+        } as CreateCustomerPayload);
         if (newCustomer) {
           showToast("Customer created successfully!", "success");
           setIsFormModalOpen(false);
+          await refetch();
         }
       }
     } catch (err: any) {
       console.error("Form submission error:", err);
+      showToast(err.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -105,7 +117,7 @@ export default function AdminCustomersPage() {
       setIsSubmitting(true);
       try {
         await customerService.resetPassword(customerForPasswordReset.id);
-        showToast(`Password reset for ${customerForPasswordReset.name} initiated.`, "success");
+        showToast(`Password reset for ${customerForPasswordReset.firstName} initiated.`, "success");
       } catch (err: any) {
         console.error("Password reset error:", err);
       } finally {
@@ -169,7 +181,7 @@ export default function AdminCustomersPage() {
 
           {/* Table Section */}
           <div>
-            {loading ? (
+            {isLoading ? (
               <div className="p-2">
                 <CustomerTableSkeleton />
               </div>
@@ -206,7 +218,7 @@ export default function AdminCustomersPage() {
             setCustomerForPasswordReset(null);
           }}
           onConfirm={handlePasswordResetConfirm}
-          customerName={customerForPasswordReset?.name}
+          customerName={customerForPasswordReset?.firstName}
         />
       </div>
     </DashboardLayout>

@@ -8,9 +8,6 @@ import { Customer, UserRole, UserStatus, CreateCustomerPayload, UpdateCustomerPa
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -22,24 +19,26 @@ import {
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 
-const customerFormSchema = z.object({
+const createCustomerSchema = z.object({
+  email: z.string().email("อีเมลไม่ถูกต้อง").min(1, "อีเมลจำเป็นต้องกรอก"),
+  password: z.string().min(4, "รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร"),
   firstName: z.string().min(1, "ชื่อจำเป็นต้องกรอก"),
   nickName: z.string().optional(),
-  email: z.string().email("อีเมลไม่ถูกต้อง").nullable(),
-  phone: z.string().min(1, "เบอร์โทรจำเป็นต้องกรอก"),
+  phone: z.string().optional(),
   phoneSub: z.string().optional(),
-  customerCode: z.string().min(1, "รหัสลูกค้าจำเป็นต้องกรอก"),
-  address: z.string().min(1, "ที่อยู่จำเป็นต้องกรอก"),
+  address: z.string().optional(),
   cardNumber: z.string().optional(),
-  status: z.boolean(),
-  flagStatus: z.boolean(),
   picture: z.string().optional(),
+  strPassword: z.string().optional(),
+  textPrice: z.string().optional(),
   priceEk: z.number().default(0),
   priceSea: z.number().default(0),
-  textPrice: z.string().optional(),
+  customerCode: z.string().length(4, "รหัสลูกค้าต้องมี 4 ตัวอักษร").optional(),
 });
 
-export type CustomerFormData = z.infer<typeof customerFormSchema>;
+const editCustomerSchema = createCustomerSchema.omit({ password: true });
+
+export type CustomerFormData = z.infer<typeof createCustomerSchema>;
 
 interface CustomerFormModalProps {
   isOpen: boolean;
@@ -61,26 +60,26 @@ export function CustomerFormModal({
     handleSubmit,
     reset,
     control,
-    watch,
     formState: { errors, isDirty, isValid },
   } = useForm<CustomerFormData>({
-    resolver: zodResolver(customerFormSchema),
+    resolver: zodResolver(isEditMode ? editCustomerSchema : createCustomerSchema),
     defaultValues: {
+      email: "",
+      password: "",
       firstName: "",
       nickName: "",
-      email: null,
       phone: "",
       phoneSub: "",
       customerCode: "",
       address: "",
       cardNumber: "",
-      status: true,
-      flagStatus: false,
       picture: "",
+      strPassword: "",
+      textPrice: "",
       priceEk: 0,
       priceSea: 0,
-      textPrice: "",
     },
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -89,39 +88,48 @@ export function CustomerFormModal({
         reset({
           firstName: initialData.firstName,
           nickName: initialData.nickName,
-          email: initialData.email,
+          email: initialData.email || "",
           phone: initialData.phone,
           phoneSub: initialData.phoneSub,
           customerCode: initialData.customerCode,
           address: initialData.address,
           cardNumber: initialData.cardNumber,
-          status: initialData.status,
-          flagStatus: initialData.flagStatus,
           picture: initialData.picture,
           priceEk: initialData.priceEk,
           priceSea: initialData.priceSea,
           textPrice: initialData.textPrice,
+        }, {
+          keepDefaultValues: true,
         });
       } else {
         reset({
           firstName: "",
           nickName: "",
-          email: null,
+          email: "",
+          password: "",
           phone: "",
           phoneSub: "",
           customerCode: "",
           address: "",
           cardNumber: "",
-          status: true,
-          flagStatus: false,
           picture: "",
+          strPassword: "",
+          textPrice: "",
           priceEk: 0,
           priceSea: 0,
-          textPrice: "",
         });
       }
     }
   }, [isOpen, isEditMode, initialData, reset]);
+
+  useEffect(() => {
+    console.log('Form State:', {
+      isValid,
+      isDirty,
+      errors,
+      isEditMode
+    });
+  }, [isValid, isDirty, errors, isEditMode]);
 
   const handleFormSubmit = (data: CustomerFormData) => {
     onSubmit(data);
@@ -142,73 +150,57 @@ export function CustomerFormModal({
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="firstName">ชื่อ</Label>
+              <Label htmlFor="email">อีเมล *</Label>
+              <Input id="email" type="email" {...register("email")} />
+              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+            </div>
+            {!isEditMode && (
+              <div className="space-y-1">
+                <Label htmlFor="password">รหัสผ่าน *</Label>
+                <Input id="password" type="password" {...register("password")} />
+                {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="firstName">ชื่อ *</Label>
               <Input id="firstName" {...register("firstName")} />
               {errors.firstName && <p className="text-sm text-red-600">{errors.firstName.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="nickName">ชื่อเล่น</Label>
               <Input id="nickName" {...register("nickName")} />
-              {errors.nickName && <p className="text-sm text-red-600">{errors.nickName.message}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="email">อีเมล</Label>
-              <Input id="email" type="email" {...register("email")} />
-              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="customerCode">รหัสลูกค้า</Label>
-              <Input id="customerCode" {...register("customerCode")} readOnly={isEditMode} />
+              <Label htmlFor="customerCode">รหัสลูกค้า (4 ตัวอักษร)</Label>
+              <Input id="customerCode" {...register("customerCode")} maxLength={4} />
               {errors.customerCode && <p className="text-sm text-red-600">{errors.customerCode.message}</p>}
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="phone">เบอร์โทร</Label>
               <Input id="phone" {...register("phone")} />
-              {errors.phone && <p className="text-sm text-red-600">{errors.phone.message}</p>}
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="phoneSub">เบอร์โทรสำรอง</Label>
               <Input id="phoneSub" {...register("phoneSub")} />
-              {errors.phoneSub && <p className="text-sm text-red-600">{errors.phoneSub.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="cardNumber">เลขบัตรประชาชน</Label>
+              <Input id="cardNumber" {...register("cardNumber")} />
             </div>
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="address">ที่อยู่</Label>
-            <Textarea id="address" {...register("address")} />
-            {errors.address && <p className="text-sm text-red-600">{errors.address.message}</p>}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label htmlFor="cardNumber">เลขบัตร/เลขทะเบียน</Label>
-              <Input id="cardNumber" {...register("cardNumber")} />
-              {errors.cardNumber && <p className="text-sm text-red-600">{errors.cardNumber.message}</p>}
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="status" className="block mb-2">สถานะ</Label>
-              <div className="flex items-center space-x-2">
-                <Controller
-                  name="status"
-                  control={control}
-                  render={({ field }) => (
-                    <Switch
-                      id="status"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
-                <span>{watch("status") ? "ใช้งาน" : "ไม่ใช้งาน"}</span>
-              </div>
-              {errors.status && <p className="text-sm text-red-600">{errors.status.message}</p>}
-            </div>
+            <Input id="address" {...register("address")} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -219,7 +211,6 @@ export function CustomerFormModal({
                 type="number"
                 {...register("priceEk", { valueAsNumber: true })}
               />
-              {errors.priceEk && <p className="text-sm text-red-600">{errors.priceEk.message}</p>}
             </div>
             <div className="space-y-1">
               <Label htmlFor="priceSea">ราคา Sea</Label>
@@ -228,14 +219,12 @@ export function CustomerFormModal({
                 type="number"
                 {...register("priceSea", { valueAsNumber: true })}
               />
-              {errors.priceSea && <p className="text-sm text-red-600">{errors.priceSea.message}</p>}
             </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="textPrice">หมายเหตุราคา</Label>
+            <Label htmlFor="textPrice">ข้อความราคา</Label>
             <Input id="textPrice" {...register("textPrice")} />
-            {errors.textPrice && <p className="text-sm text-red-600">{errors.textPrice.message}</p>}
           </div>
 
           <div className="flex justify-between pt-2">
@@ -244,7 +233,12 @@ export function CustomerFormModal({
                 ยกเลิก ×
               </Button>
             </DialogClose>
-            <Button type="submit" className="hover:scale-105 transition-transform" style={{ backgroundColor: "#5B5FEE" }} disabled={!isDirty && !isValid && isEditMode}>
+            <Button
+              type="submit"
+              className="hover:scale-105 transition-transform"
+              style={{ backgroundColor: "#5B5FEE" }}
+              disabled={isEditMode ? !isValid : (!isValid || !isDirty)}
+            >
               ยืนยัน 💾
             </Button>
           </div>
@@ -253,3 +247,4 @@ export function CustomerFormModal({
     </Dialog>
   );
 }
+

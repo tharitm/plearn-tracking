@@ -54,20 +54,24 @@ export interface CustomerQuery {
 
 // Payload for creating a customer (aligns with CreateUserRequest on backend)
 export interface CreateCustomerPayload {
+  email: string;
+  password: string;
+  strType: string;
   firstName: string;
   nickName?: string;
-  email: string | null;
-  phone: string;
+  phone?: string;
   phoneSub?: string;
-  customerCode: string;
-  address: string;
+  address?: string;
   cardNumber?: string;
-  status: boolean;
-  flagStatus: boolean;
+  status?: boolean;
+  flagStatus?: boolean;
   picture?: string;
-  priceEk: number;
-  priceSea: number;
+  strPassword?: string;
   textPrice?: string;
+  priceEk?: number;
+  priceSea?: number;
+  customerCode?: string;
+  applicationDate?: string;
 }
 
 // Payload for updating a customer (aligns with UpdateUserRequest on backend)
