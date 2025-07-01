@@ -36,7 +36,7 @@ import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "luci
 export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuthStore()
 
-  const { loading, refetch, parcels = [] } = useParcels()
+  const { loading, refetch, parcels = [], setFilters, resetFilters } = useParcels()
 
   // ดึงเฉพาะ method/state ที่ต้องการจาก zustand ให้ stable
   const setSelectedParcel = useParcelStore(state => state.setSelectedParcel)
@@ -170,6 +170,15 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSearch = (filters: any) => {
+    // Update store filters which will trigger API call via useParcels hook
+    setFilters(filters);
+  };
+
+  const handleReset = () => {
+    resetFilters();
+  };
+
   return (
     <DashboardLayout breadcrumbs={breadcrumbs} tableInstance={table}>
       <div className="space-y-5 sm:space-y-6">
@@ -246,7 +255,7 @@ export default function AdminDashboard() {
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
                 <ParcelTableSkeleton />
               </div>
-              <ParcelPagination /> {/* Consider if pagination should also have a skeleton or be hidden */}
+              <ParcelPagination />
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4">
@@ -262,7 +271,11 @@ export default function AdminDashboard() {
                 <ColumnVisibilityDropdown table={table} />
               </div>
               <div className="glass-effect rounded-2xl overflow-hidden shadow-material-4">
-                <ParcelFilters compact />
+                <ParcelFilters
+                  compact
+                  onSearch={handleSearch}
+                  onReset={handleReset}
+                />
                 <ParcelTable<Parcel> table={table} />
               </div>
               <ParcelPagination />

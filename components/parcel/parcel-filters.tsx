@@ -11,13 +11,18 @@ import { DateRangePicker } from "@/components/ui/date-range-picker"
 import type { DateRange } from "react-day-picker"
 import { ParcelStatus } from "@/lib/types"
 import { StatusBadge } from "@/components/ui/status-badge"
+import { useAuthStore } from "@/stores/auth-store"
 
 interface ParcelFiltersProps {
-  compact?: boolean
+  compact?: boolean;
+  onSearch: (filters: any) => void; // Callback for search
+  onReset: () => void; // Callback for reset
 }
 
-export function ParcelFilters({ compact = false }: ParcelFiltersProps) {
-  const { filters, setFilters, resetFilters } = useParcelStore()
+export function ParcelFilters({ compact = false, onSearch, onReset }: ParcelFiltersProps) {
+  const { user } = useAuthStore()
+  const isAdmin = user?.role === 'admin'
+  const { filters } = useParcelStore()
   const [localFilters, setLocalFilters] = useState(filters)
 
   // Initialize date range from filters
@@ -51,10 +56,23 @@ export function ParcelFilters({ compact = false }: ParcelFiltersProps) {
   }
 
   const handleSearch = () => {
-    setFilters(localFilters)
+    // Prepare API filters based on role
+    const apiFilters = {
+      ...localFilters,
+      // For admin, search in multiple fields
+      ...(isAdmin ? {
+        customerName: localFilters.search, // Search in customer name
+        trackingNo: localFilters.search,   // and tracking number
+      } : {
+        // For customer, search only in tracking number
+        trackingNo: localFilters.search
+      }),
+      search: undefined // Remove search as it's not in API spec
+    }
+    onSearch(apiFilters)
   }
 
-  const handleReset = () => {
+  const handleResetLocal = () => {
     const resetFilters = {
       dateFrom: "",
       dateTo: "",
@@ -64,8 +82,14 @@ export function ParcelFilters({ compact = false }: ParcelFiltersProps) {
       search: "",
     }
     setLocalFilters(resetFilters)
-    setFilters(resetFilters)
     setDateRange(undefined)
+    onReset()
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
   }
 
   const content = (
@@ -73,9 +97,10 @@ export function ParcelFilters({ compact = false }: ParcelFiltersProps) {
       {/* Search Input - Reduced width */}
       <div className="w-full sm:w-64 md:w-72">
         <Input
-          placeholder="ค้นหาเลขพัสดุ..."
-          value={localFilters.search || ""} // Changed from trackingNo to search
-          onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })} // Changed from trackingNo to search
+          placeholder={isAdmin ? "ค้นหาด้วย รหัสลูกค้า, เลขพัสดุ..." : "ค้นหาเลขพัสดุ..."}
+          value={localFilters.search || ""}
+          onChange={(e) => setLocalFilters({ ...localFilters, search: e.target.value })}
+          onKeyDown={handleKeyDown}
           className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 touch-target"
           startIcon={<Search className="h-4 w-4 text-gray-400" />}
         />
@@ -147,7 +172,7 @@ export function ParcelFilters({ compact = false }: ParcelFiltersProps) {
         </Button>
         <Button
           variant="outline"
-          onClick={handleReset}
+          onClick={handleResetLocal}
           className="ripple border-gray-200 hover:bg-gray-50 font-medium px-4 h-10 sm:h-12 rounded-lg sm:rounded-xl transition-all duration-200 touch-target"
         >
           <RotateCcw className="h-4 w-4" />

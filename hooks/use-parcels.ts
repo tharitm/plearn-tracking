@@ -22,6 +22,8 @@ export function useParcels() {
   const setParcels = useParcelStore(state => state.setParcels)
   const setLoading = useParcelStore(state => state.setLoading)
   const setError = useParcelStore(state => state.setError)
+  const setFilters = useParcelStore(state => state.setFilters)
+  const resetFilters = useParcelStore(state => state.resetFilters)
 
   // 3) สร้าง loadParcels ที่มี deps เป็น primitives เท่านั้น
   const loadParcels = useCallback(async () => {
@@ -67,11 +69,18 @@ export function useParcels() {
     }
   }, [user]) // เปลี่ยนจาก [loadParcels] เป็น [user] เพื่อโหลดครั้งแรกเท่านั้น
 
+  // Fetch parcels when filters or pagination changes
+  useEffect(() => {
+    loadParcels()
+  }, [filters, pageIndex, pageSize])
+
   return {
     parcels,
     total,
     loading,
     error,
     refetch: loadParcels,
+    setFilters,
+    resetFilters
   }
 }
