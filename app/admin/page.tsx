@@ -81,36 +81,8 @@ export default function AdminDashboard() {
   }, []);
 
   const handleFormSubmit = async (data: ParcelFormData) => {
-    const url = editingParcel ? `/api/admin/parcel/${editingParcel.id}` : "/api/admin/parcel";
-    const method = editingParcel ? "PUT" : "POST";
-    const { images, ...rest } = data;
-    const formData = new FormData();
-    formData.append("parcel", JSON.stringify(rest));
-    images?.forEach((file) => formData.append("images", file));
-
-    try {
-      const response = await fetch(url, {
-        method,
-        body: formData,
-      });
-
-      if (response.ok) {
-        refetch();
-        if (editingParcel) {
-          showToast("อัปเดตข้อมูลพัสดุสำเร็จ!", "success");
-        } else {
-          showToast("เพิ่มรายการสินค้าสำเร็จ!", "success");
-        }
-        setShowParcelForm(false);
-        setEditingParcel(null);
-      } else {
-        const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
-        showToast("เกิดข้อผิดพลาด", "error", { description: errorData.message || response.statusText });
-      }
-    } catch (error) {
-      console.error("Failed to submit parcel form:", error);
-      showToast("เกิดข้อผิดพลาดที่ไม่คาดคิด", "error");
-    }
+    setShowParcelForm(false);
+    setEditingParcel(null);
   };
 
   // Get columns from the shared function

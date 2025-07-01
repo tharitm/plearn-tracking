@@ -60,10 +60,12 @@ export function useParcels() {
     setError,
   ])
 
-  // 4) ให้ effect วิ่งแค่ตอน loadParcels เปลี่ยนจริง
+  // 4) โหลดข้อมูลครั้งแรกเมื่อ user พร้อม
   useEffect(() => {
-    loadParcels()
-  }, [loadParcels])
+    if (user) {
+      loadParcels()
+    }
+  }, [user]) // เปลี่ยนจาก [loadParcels] เป็น [user] เพื่อโหลดครั้งแรกเท่านั้น
 
   return {
     parcels,

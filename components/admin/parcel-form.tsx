@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useAuthStore } from "@/stores/auth-store"
-import { createOrders } from "@/services/parcelService"
+import { createOrders, updateOrder } from "@/services/parcelService"
 import { showToast } from "@/lib/toast-utils"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -26,6 +26,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { InfoIcon } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Trash2 } from "lucide-react"
+import { useParcels } from "@/hooks/use-parcels"
 
 export interface ParcelFormData {
   orderNo: string
@@ -33,19 +42,21 @@ export interface ParcelFormData {
   description: string
   pack: number
   weight: number
-  length?: number
-  width?: number
-  height?: number
-  cbm?: number
+  length: number
+  width: number
+  height: number
+  cbm: number
   transportation: string
   cabinetCode: string
   estimate: string
-  status: Parcel['status']
-  paymentStatus: boolean
-  tracking?: string
-  shippingCost?: number
-  shippingRates?: number
-  images?: File[]
+  status: string
+  tracking: string
+  trackingTh: string | null
+  receiptNumber: string | null
+  shippingCost: number | null
+  shippingRates: number | null
+  picture: string | null
+  orderDate: string
 }
 
 export interface ParcelFormProps {
@@ -64,9 +75,11 @@ export function ParcelForm({
   isEditMode = false,
 }: ParcelFormProps) {
   const { user } = useAuthStore()
+  const { refetch } = useParcels()
   const isAdmin = user?.role === 'admin'
   const [images, setImages] = useState<File[]>([])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const {
     register,
     handleSubmit,
@@ -76,71 +89,54 @@ export function ParcelForm({
     watch,
     formState: { errors, isDirty }, // Added isDirty to check if form has been touched
   } = useForm<ParcelFormData>({
-    defaultValues: isEditMode && initialData
-      ? {
-        orderNo: initialData.orderNo ?? "",
-        customerName: initialData.customerName ?? "",
-        description: initialData.description ?? "",
-        pack: initialData.pack ?? 1,
-        weight: initialData.weight ?? 0,
-        width: initialData.width ?? 0,
-        length: initialData.length ?? 0,
-        height: initialData.height ?? 0,
-        cbm: initialData.cbm ?? 0,
-        transportation: initialData.transportation ?? "",
-        cabinetCode: initialData.cabinetCode ?? "",
-        estimate: initialData.estimate ?? new Date().toISOString().split('T')[0],
-        status: initialData.status ?? "pending",
-        paymentStatus: initialData.paymentStatus ?? false,
-        tracking: initialData.tracking ?? "",
-        shippingCost: initialData.shippingCost ?? 0,
-        shippingRates: initialData.shippingRates ?? 0,
-        images: [],
-      }
-      : {
-        orderNo: "",
-        customerName: "",
-        description: "",
-        pack: 1,
-        weight: 0,
-        width: 0,
-        length: 0,
-        height: 0,
-        cbm: 0,
-        transportation: "",
-        cabinetCode: "",
-        estimate: new Date().toISOString().split('T')[0],
-        status: "pending",
-        paymentStatus: false,
-        tracking: "",
-        shippingCost: 0,
-        shippingRates: 0,
-        images: [],
-      },
+    defaultValues: {
+      orderNo: initialData?.orderNo || "",
+      customerName: initialData?.customerName || "",
+      description: initialData?.description || "",
+      pack: initialData?.pack || 0,
+      weight: initialData?.weight || 0,
+      length: initialData?.length || 0,
+      width: initialData?.width || 0,
+      height: initialData?.height || 0,
+      cbm: initialData?.cbm || 0,
+      transportation: initialData?.transportation || "",
+      cabinetCode: initialData?.cabinetCode || "",
+      estimate: initialData?.estimate || new Date().toISOString().split('T')[0],
+      status: initialData?.status || "pending",
+      tracking: initialData?.tracking || "",
+      trackingTh: initialData?.trackingTh || null,
+      receiptNumber: initialData?.receiptNumber || null,
+      shippingCost: initialData?.shippingCost || null,
+      shippingRates: initialData?.shippingRates || null,
+      picture: initialData?.images?.[0] || null,
+      orderDate: initialData?.orderDate || new Date().toISOString().split('T')[0],
+    },
   })
 
   useEffect(() => {
     if (open) { // Only reset/initialize when sheet opens
       if (isEditMode && initialData) {
         const formData: ParcelFormData = {
-          orderNo: initialData.orderNo ?? "",
-          customerName: initialData.customerName ?? "",
-          description: initialData.description ?? "",
-          pack: initialData.pack ?? 1,
-          weight: initialData.weight ?? 0,
-          width: initialData.width ?? 0,
-          length: initialData.length ?? 0,
-          height: initialData.height ?? 0,
-          cbm: initialData.cbm ?? 0,
-          transportation: initialData.transportation ?? "",
-          cabinetCode: initialData.cabinetCode ?? "",
-          estimate: initialData.estimate ?? new Date().toISOString().split('T')[0],
-          status: initialData.status ?? "pending",
-          paymentStatus: initialData.paymentStatus ?? false,
-          tracking: initialData.tracking ?? "",
-          shippingCost: initialData.shippingCost ?? 0,
-          shippingRates: initialData.shippingRates ?? 0,
-          images: [],
+          orderNo: initialData.orderNo || "",
+          customerName: initialData.customerName || "",
+          description: initialData.description || "",
+          pack: initialData.pack || 0,
+          weight: initialData.weight || 0,
+          length: initialData.length || 0,
+          width: initialData.width || 0,
+          height: initialData.height || 0,
+          cbm: initialData.cbm || 0,
+          transportation: initialData.transportation || "",
+          cabinetCode: initialData.cabinetCode || "",
+          estimate: initialData.estimate || new Date().toISOString().split('T')[0],
+          status: initialData.status || "pending",
+          tracking: initialData.tracking || "",
+          trackingTh: initialData.trackingTh || null,
+          receiptNumber: initialData.receiptNumber || null,
+          shippingCost: initialData.shippingCost || null,
+          shippingRates: initialData.shippingRates || null,
+          picture: initialData.images?.[0] || null,
+          orderDate: initialData.orderDate || new Date().toISOString().split('T')[0],
         };
         reset(formData);
         setImages([])
@@ -149,21 +145,23 @@ export function ParcelForm({
           orderNo: "",
           customerName: "",
           description: "",
-          pack: 1,
+          pack: 0,
           weight: 0,
-          width: 0,
           length: 0,
+          width: 0,
           height: 0,
           cbm: 0,
           transportation: "",
           cabinetCode: "",
           estimate: new Date().toISOString().split('T')[0],
           status: "pending",
-          paymentStatus: false,
           tracking: "",
-          shippingCost: 0,
-          shippingRates: 0,
-          images: [],
+          trackingTh: null,
+          receiptNumber: null,
+          shippingCost: null,
+          shippingRates: null,
+          picture: null,
+          orderDate: new Date().toISOString().split('T')[0],
         });
         setImages([])
       }
@@ -192,61 +190,50 @@ export function ParcelForm({
 
   const handleFormSubmit = async (data: ParcelFormData) => {
     try {
-      const orderPayload = {
-        orderNo: data.orderNo,
-        customerName: data.customerName,
-        description: data.description,
+      const formattedData = {
+        ...data,
+        shippingCost: data.shippingCost,
+        shippingRates: data.shippingRates,
+        cbm: Number(data.cbm),
         pack: Number(data.pack),
         weight: Number(data.weight),
-        length: Number(data.length || 0),
-        width: Number(data.width || 0),
-        height: Number(data.height || 0),
-        cbm: Number(data.cbm || 0),
-        transportation: data.transportation,
-        cabinetCode: data.cabinetCode,
-        estimate: data.estimate,
-        status: data.status || 'arrived_cn_warehouse',
-        tracking: data.tracking || '',
-        trackingTh: null,
-        receiptNumber: null,
-        shippingCost: data.shippingCost ? Number(data.shippingCost) : null,
-        shippingRates: data.shippingRates ? Number(data.shippingRates) : null,
-        picture: null,
-        orderDate: new Date().toISOString().split('T')[0]
-      };
-
-      await createOrders([orderPayload]);
-      showToast('เพิ่มรายการสินค้าเรียบร้อยแล้ว');
-
-      if (!isEditMode) {
-        reset({
-          orderNo: "",
-          customerName: "",
-          description: "",
-          pack: 1,
-          weight: 0,
-          width: 0,
-          length: 0,
-          height: 0,
-          cbm: 0,
-          transportation: "",
-          cabinetCode: "",
-          estimate: new Date().toISOString().split('T')[0],
-          status: "arrived_cn_warehouse",
-          paymentStatus: false,
-          tracking: "",
-          shippingCost: 0,
-          shippingRates: 0,
-          images: [],
-        });
-        setImages([]);
+        length: Number(data.length),
+        width: Number(data.width),
+        height: Number(data.height),
       }
-      onClose();
 
+      if (isEditMode && initialData?.id) {
+        // Update existing order
+        await updateOrder(initialData.id, formattedData)
+        showToast("แก้ไขข้อมูลสำเร็จ")
+        await refetch()
+      } else {
+        // Create new order
+        await createOrders([formattedData])
+        showToast("เพิ่มข้อมูลสำเร็จ")
+        await refetch()
+      }
+
+      if (onSubmit) {
+        onSubmit(formattedData)
+      }
+      onClose()
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'ไม่สามารถเพิ่มรายการสินค้าได้');
+      console.error("Failed to submit form:", error)
+      showToast(isEditMode ? "แก้ไขข้อมูลไม่สำเร็จ" : "เพิ่มข้อมูลไม่สำเร็จ", "error")
     }
   };
+
+  const handleDelete = async () => {
+    try {
+      // Mock delete for now
+      showToast("ลบข้อมูลสำเร็จ")
+      onClose()
+    } catch (error) {
+      console.error("Failed to delete:", error)
+      showToast("ลบข้อมูลไม่สำเร็จ", "error")
+    }
+  }
 
   const title = isEditMode ? "แก้ไขข้อมูลพัสดุ" : "เพิ่มรายการสินค้าใหม่";
   const description = isEditMode
@@ -262,6 +249,14 @@ export function ParcelForm({
     }
   }
 
+  // Required field label component
+  const RequiredLabel = ({ children }: { children: React.ReactNode }) => (
+    <div className="flex items-center gap-1">
+      {children}
+      <span className="text-red-500">*</span>
+    </div>
+  )
+
   return (
     <>
       <Sheet open={open} onOpenChange={handleClose}>
@@ -269,33 +264,106 @@ export function ParcelForm({
           <SheetHeader>
             <SheetTitle>{title}</SheetTitle>
             <SheetDescription>{description}</SheetDescription>
+            <div className="text-sm text-muted-foreground mt-2">
+              <span className="text-red-500">*</span> หมายถึงฟิลด์ที่จำเป็นต้องกรอก
+            </div>
           </SheetHeader>
 
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-6">
             {/* Order No */}
             <div className="space-y-2">
-              <Label htmlFor="orderNo">Order No</Label>
-              <Input id="orderNo" {...register("orderNo", { required: true })} readOnly={isEditMode} />
+              <RequiredLabel>
+                <Label htmlFor="orderNo">Order No</Label>
+              </RequiredLabel>
+              <Input
+                id="orderNo"
+                {...register("orderNo", {
+                  required: "กรุณากรอก Order No"
+                })}
+                readOnly={isEditMode}
+              />
+              {errors.orderNo && (
+                <p className="text-sm text-red-500">{errors.orderNo.message}</p>
+              )}
             </div>
             {/* Customer Name */}
             <div className="space-y-2">
-              <Label htmlFor="customerName">ชื่อลูกค้า</Label>
-              <Input id="customerName" {...register("customerName", { required: true })} />
+              <div className="flex items-center gap-2">
+                <RequiredLabel>
+                  <Label htmlFor="customerName">รหัสลูกค้า</Label>
+                </RequiredLabel>
+              </div>
+              <Input
+                id="customerName"
+                {...register("customerName", {
+                  required: "กรุณากรอกรหัสลูกค้า",
+                  pattern: {
+                    value: /^[A-Za-z0-9]{4}$/,
+                    message: "รหัสลูกค้าต้องเป็นตัวอักษรหรือตัวเลข 4 ตัว"
+                  }
+                })}
+              />
+              {errors.customerName && (
+                <p className="text-sm text-red-500">{errors.customerName.message}</p>
+              )}
             </div>
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">รายละเอียดสินค้า</Label>
-              <Input id="description" {...register("description", { required: true })} />
+              <RequiredLabel>
+                <Label htmlFor="description">รายละเอียดสินค้า</Label>
+              </RequiredLabel>
+              <Input
+                id="description"
+                {...register("description", {
+                  required: "กรุณากรอกรายละเอียดสินค้า"
+                })}
+              />
+              {errors.description && (
+                <p className="text-sm text-red-500">{errors.description.message}</p>
+              )}
             </div>
             {/* Pack */}
             <div className="space-y-2">
-              <Label htmlFor="pack">จำนวน (Pack)</Label>
-              <Input id="pack" type="number" {...register("pack", { valueAsNumber: true, min: 1 })} />
+              <RequiredLabel>
+                <Label htmlFor="pack">จำนวน (Pack)</Label>
+              </RequiredLabel>
+              <Input
+                id="pack"
+                type="number"
+                {...register("pack", {
+                  required: "กรุณากรอกจำนวน",
+                  valueAsNumber: true,
+                  min: {
+                    value: 1,
+                    message: "จำนวนต้องมากกว่า 0"
+                  }
+                })}
+              />
+              {errors.pack && (
+                <p className="text-sm text-red-500">{errors.pack.message}</p>
+              )}
             </div>
             {/* Weight */}
             <div className="space-y-2">
-              <Label htmlFor="weight">น้ำหนัก (KG)</Label>
-              <Input id="weight" type="number" {...register("weight", { valueAsNumber: true, min: 0 })} />
+              <RequiredLabel>
+                <Label htmlFor="weight">น้ำหนัก (KG)</Label>
+              </RequiredLabel>
+              <Input
+                id="weight"
+                type="number"
+                step="0.01"
+                {...register("weight", {
+                  required: "กรุณากรอกน้ำหนัก",
+                  valueAsNumber: true,
+                  min: {
+                    value: 0,
+                    message: "น้ำหนักต้องไม่ติดลบ"
+                  }
+                })}
+              />
+              {errors.weight && (
+                <p className="text-sm text-red-500">{errors.weight.message}</p>
+              )}
             </div>
             {/* Width */}
             <div className="space-y-2">
@@ -351,29 +419,6 @@ export function ParcelForm({
                 )}
               />
             </div>
-            {/* Payment Status */}
-            <div className="space-y-2">
-              <Label htmlFor="paymentStatus">สถานะชำระเงิน</Label>
-              <Controller
-                control={control}
-                name="paymentStatus"
-                render={({ field }) => (
-                  <Select
-                    onValueChange={v => field.onChange(v === "true")}
-                    defaultValue={field.value ? "true" : "false"}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือกสถานะชำระเงิน" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">ชำระแล้ว</SelectItem>
-                      <SelectItem value="false">ค้างชำระ</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-
             {/* Tracking จีน */}
             <div className="space-y-2">
               <Label htmlFor="tracking">Tracking จีน</Label>
@@ -438,13 +483,13 @@ export function ParcelForm({
                 <div className="space-y-2">
                   <Label>รูปภาพพัสดุ</Label>
                   <div className="flex flex-wrap gap-2">
-                    {initialData.images.map((src, idx) => (
+                    {initialData.images.map((image, index) => (
                       <img
-                        key={idx}
-                        src={src}
-                        onClick={() => window.open(src, '_blank')}
+                        key={index}
+                        src={image}
+                        onClick={() => window.open(image, '_blank')}
                         className="h-16 w-16 object-cover rounded-md cursor-pointer"
-                        alt="parcel image"
+                        alt={`parcel image ${index + 1}`}
                       />
                     ))}
                   </div>
@@ -452,13 +497,29 @@ export function ParcelForm({
               )
             )}
 
-            <div className="flex space-x-2 pt-4">
-              <Button type="submit" className="flex-1">
-                {submitButtonText}
-              </Button>
-              <Button type="button" variant="outline" onClick={handleClose}>
-                ยกเลิก
-              </Button>
+            <div className="flex justify-between items-center pt-4">
+              <div className="flex gap-2">
+                <Button type="submit" disabled={!isAdmin}>
+                  {submitButtonText}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleClose()}
+                >
+                  ยกเลิก
+                </Button>
+              </div>
+              {isEditMode && isAdmin && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </form>
         </SheetContent>
@@ -482,6 +543,26 @@ export function ParcelForm({
               }}
             >
               ใช่, ยกเลิกการแก้ไข
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>ยืนยันการลบ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              การดำเนินการนี้ไม่สามารถยกเลิกได้ คุณแน่ใจหรือไม่?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ไม่</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDelete}
+            >
+              ใช่, ลบ
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

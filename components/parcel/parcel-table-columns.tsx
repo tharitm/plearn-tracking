@@ -359,7 +359,7 @@ export const getParcelTableColumns = ({
       },
     }),
     shippingRate: () => ({
-      accessorKey: "shippingRate",
+      accessorKey: "shippingRates",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -371,7 +371,7 @@ export const getParcelTableColumns = ({
         </Button>
       ),
       cell: ({ row }) => {
-        const value = row.getValue<number | null>("shippingRate")
+        const value = row.getValue<number | null>("shippingRates")
         return value != null ? `฿${value.toLocaleString()}` : "-"
       },
     }),

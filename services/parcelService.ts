@@ -199,3 +199,33 @@ export const fetchParcels = withErrorHandling(_fetchParcels);
 export const updateParcelStatus = withErrorHandling(_updateParcelStatus);
 export const fetchParcelById = withErrorHandling(_fetchParcelById);
 export const createOrders = withErrorHandling(_createOrders);
+
+const _updateOrder = async (id: string, data: Partial<Parcel>) => {
+  // Get token from cookie
+  const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/orders/orders/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    if (isApiErrorResponse(error)) {
+      throw new Error('Failed to update order');
+    }
+    throw new Error('Failed to update order');
+  }
+
+  return response.json();
+};
+
+export const updateOrder = withErrorHandling(_updateOrder);
