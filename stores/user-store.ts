@@ -3,8 +3,8 @@ import { persist } from "zustand/middleware"
 
 interface UserProfile {
   id: string
-  name: string
-  email: string
+  firstName: string
+  email: string | null
   avatar?: string
   phone?: string
   address?: string

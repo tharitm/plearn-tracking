@@ -19,19 +19,9 @@ import { Package, LayoutDashboard, Users, FileText, Settings, BarChart3, Truck, 
 
 const customerMenuItems = [
   {
-    title: "Dashboard",
+    title: "ติดตามพัสดุ",
     url: "/dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    title: "ติดตามพัสดุ",
-    url: "/dashboard/tracking",
-    icon: Package,
-  },
-  {
-    title: "ประวัติการสั่งซื้อ",
-    url: "/dashboard/orders",
-    icon: FileText,
   },
 ]
 
@@ -107,7 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup className="mt-6 sm:mt-8">
+        {/* <SidebarGroup className="mt-6 sm:mt-8">
           <SidebarGroupLabel className="text-sm sm:text-body font-semibold text-[#212121] mb-2 sm:mb-3">
             ตั้งค่า
           </SidebarGroupLabel>
@@ -129,7 +119,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup> */}
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

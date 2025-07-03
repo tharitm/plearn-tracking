@@ -49,25 +49,25 @@ export function CustomerFilters({ compact = false }: CustomerFiltersProps) {
   const content = (
     <div className="flex flex-wrap gap-3 items-center">
       {/* Search Input */}
-      <div className="w-full sm:w-96">
+      <div className="flex-1 min-w-[240px]">
         <div className="relative">
           <Input
             placeholder="ค้นหาด้วย ชื่อ, อีเมล, รหัสลูกค้า..."
             value={localSearch}
             onChange={handleSearchChange}
             onKeyDown={handleKeyDown}
-            className="h-9 pl-10 pr-4 bg-gray-50/80 border-0 rounded-xl text-sm placeholder:text-gray-400 focus:bg-white focus:shadow-soft-md focus:ring-2 focus:ring-blue-100 transition-all duration-300"
+            className="h-9 pl-10 pr-4 bg-gray-50/80 border-0 rounded-xl text-sm placeholder:text-gray-400 focus:bg-white focus:shadow-soft-md focus:ring-2 focus:ring-gray-100 transition-all duration-300"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 ml-auto">
+      <div className="flex gap-2">
         <Button
           onClick={applyFilters}
           size="sm"
-          className="h-9 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300 font-medium border-0"
+          className="h-9 px-4 bg-gray-800 hover:bg-gray-900 text-white rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300 font-medium border-0"
         >
           <Search className="h-4 w-4 mr-2" />
           <span className="text-sm">ค้นหา</span>
@@ -77,7 +77,7 @@ export function CustomerFilters({ compact = false }: CustomerFiltersProps) {
           variant="outline"
           onClick={handleResetFilters}
           size="sm"
-          className="h-9 px-3 bg-gray-50/80 hover:bg-gray-100 border-0 rounded-2xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
+          className="h-9 w-9 p-0 bg-gray-50/80 hover:bg-gray-100 border-0 rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-300"
         >
           <X className="h-4 w-4 text-gray-500" />
         </Button>
@@ -87,14 +87,14 @@ export function CustomerFilters({ compact = false }: CustomerFiltersProps) {
 
   if (compact) {
     return (
-      <div className="p-4 bg-white/50 backdrop-blur-sm border-b border-gray-100/50">
+      <div className="p-1 bg-white/50 backdrop-blur-sm ">
         {content}
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-soft-lg borderoverflow-hidden">
+    <div className="bg-white rounded-3xl shadow-soft-lg ">
       {content}
     </div>
   )

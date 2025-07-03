@@ -16,6 +16,14 @@ export type CustomerTableActions = {
 
 export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableActions): ColumnDef<Customer>[] => [
   {
+    id: "index",
+    header: "#",
+    cell: ({ row }) => (
+      <div className="text-sm text-gray-500 w-10">{row.index + 1}</div>
+    ),
+    enableSorting: false,
+  },
+  {
     accessorKey: "firstName",
     header: ({ column }) => {
       return (
@@ -34,7 +42,7 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
       <div className="flex items-center gap-3 py-1">
         <div>
           <div className="font-medium text-gray-800 text-sm">{row.getValue("firstName")}</div>
-          {row.original.nickName && (
+          {row.original.nickName && row.original.nickName !== "NULL" && (
             <div className="text-xs text-gray-500">{row.original.nickName}</div>
           )}
         </div>

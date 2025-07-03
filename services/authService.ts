@@ -9,9 +9,9 @@ export interface User {
   id: number;
   customerCode: string;
   username: string;
-  name: string;
+  firstName: string;
   phone: string;
-  email: string;
+  email: string | null;
   address: string;
   role: string;
 }
@@ -20,9 +20,9 @@ interface AuthResponse {
   id: number;
   customerCode: string;
   username: string;
-  name: string;
+  firstName: string;
   phone: string;
-  email: string;
+  email: string | null;
   address: string;
   role: string;
 }
@@ -31,9 +31,9 @@ interface UserProfileResponse {
   id: number;
   customerCode: string;
   username: string;
-  name: string;
+  firstName: string;
   phone: string;
-  email: string;
+  email: string | null;
   address: string;
   role: string;
 }
@@ -73,7 +73,7 @@ async function _login(username: string, password: string): Promise<User> {
       id: resultData.id,
       customerCode: resultData.customerCode,
       username: resultData.username,
-      name: resultData.name,
+      firstName: resultData.firstName,
       phone: resultData.phone,
       email: resultData.email,
       address: resultData.address,

@@ -9,7 +9,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table"
-import { Package, TrendingUp, Clock, CheckCircle } from "lucide-react"
+import { Package, TrendingUp, Clock, CheckCircle, Truck, Warehouse } from "lucide-react"
 
 import { useAuthStore } from "@/stores/auth-store"
 import type { Parcel } from "@/lib/types"
@@ -88,9 +88,11 @@ export default function CustomerDashboard() {
 
   // Calculate stats from the store's parcels
   const totalParcels = parcels.length;
-  const pendingParcels = parcels.filter((p) => p.status === "pending").length;
-  const shippedParcels = parcels.filter((p) => p.status === "shipped").length;
-  const deliveredParcels = parcels.filter((p) => p.status === "delivered").length;
+  const inChinaParcels = parcels.filter((p) => p.status === "arrived_cn_warehouse").length;
+  const inTransitParcels = parcels.filter((p) => ["container_closed", "arrived_th_warehouse"].includes(p.status)).length;
+  const readyToShipParcels = parcels.filter((p) => p.status === "ready_to_ship_to_customer").length;
+  const shippedParcels = parcels.filter((p) => p.status === "shipped_to_customer").length;
+  const deliveredParcels = parcels.filter((p) => p.status === "delivered_to_customer").length;
 
   const breadcrumbs = [{ label: "Dashboard" }];
 
@@ -125,24 +127,24 @@ export default function CustomerDashboard() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           <StatCard
-            title="พัสดุทั้งหมด"
-            value={totalParcels}
+            title="ถึงโกดังจีน"
+            value={inChinaParcels}
             subtitle="รายการ"
-            icon={<Package />}
+            icon={<Warehouse />}
             variant="blue"
           />
           <StatCard
-            title="รอส่ง"
-            value={pendingParcels}
+            title="กำลังขนส่ง"
+            value={inTransitParcels}
             subtitle="รายการ"
-            icon={<Clock />}
+            icon={<Truck />}
             variant="pink"
           />
           <StatCard
-            title="ส่งแล้ว"
-            value={shippedParcels}
+            title="เตรียมส่งลูกค้า"
+            value={readyToShipParcels}
             subtitle="รายการ"
-            icon={<TrendingUp />}
+            icon={<Package />}
             variant="cyan"
           />
           <StatCard

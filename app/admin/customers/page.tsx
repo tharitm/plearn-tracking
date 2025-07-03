@@ -38,6 +38,7 @@ export default function AdminCustomersPage() {
     isLoading,
     error,
     refetch,
+    total,
   } = useCustomers();
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -137,7 +138,7 @@ export default function AdminCustomersPage() {
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
-        {/* Header Section with SoftUI Design */}
+        {/* Header Section */}
         <div className="bg-white rounded-3xl p-3 shadow-soft-xl border border-gray-100/50">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-3 bg-blue-50 rounded-2xl shadow-soft-sm">
@@ -156,27 +157,26 @@ export default function AdminCustomersPage() {
 
         {/* Actions Section */}
         <div className="bg-white rounded-3xl p-5 shadow-soft-lg border border-gray-100/50">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold text-gray-700">รายชื่อลูกค้า</h2>
               <div className="px-3 py-1 bg-gray-100 rounded-full">
                 <span className="text-xs font-medium text-gray-600">
-                  {customers.length} คน
+                  {total} คน
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 w-full lg:w-auto">
-              {/* Add User Button */}
-              <Button
-                onClick={handleOpenCreateModal}
-                size="sm"
-                className="h-9 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-soft-md hover:shadow-soft-lg transition-all duration-200 font-medium"
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
+            <Button
+              onClick={handleOpenCreateModal}
+              size="sm"
+              className="h-10 px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl shadow-colored shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 font-medium"
+            >
+              <div className="flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />
                 <span className="text-sm">เพิ่มลูกค้า</span>
-              </Button>
-            </div>
+              </div>
+            </Button>
           </div>
 
           {/* Table Section */}

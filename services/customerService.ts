@@ -16,23 +16,39 @@ if (!API_BASE_URL) {
   console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
 }
 
-async function _fetchCustomers(params: any): Promise<any> {
-  const url = '/api/admin/users';  // Use relative path
-  const queryString = new URLSearchParams(params).toString();
+async function _fetchCustomers(params: CustomerQuery): Promise<CustomerListResponse> {
+  const url = '/api/admin/users';
+
+  // Clean up undefined values and create query string
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(([_, value]) => value !== undefined && value !== '')
+  );
+  const queryString = new URLSearchParams(cleanParams).toString();
   const finalUrl = queryString ? `${url}?${queryString}` : url;
 
   try {
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
     const res = await fetch(finalUrl, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       credentials: 'include',
     });
 
-    if (!res.ok) {
-      throw new Error(`HTTP error ${res.status}`);
-    }
+    const apiResponse: ApiResponse<CustomerListResponse> = await res.json();
 
-    return res.json();
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `Failed to fetch customers: HTTP ${res.status}`);
+    }
+    return (apiResponse as ApiSuccessResponse<CustomerListResponse>).resultData;
   } catch (error) {
     console.error('[_fetchCustomers service error]:', error instanceof Error ? error.message : error);
     throw error;
