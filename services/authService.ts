@@ -2,11 +2,8 @@ import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/ap
 import { isApiErrorResponse } from '@/lib/apiTypes';
 import { withErrorHandling } from './apiService';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_BASE_URL) {
-  console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
-}
+// Remove API_BASE_URL since we'll use relative paths
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export interface User {
   id: number;
@@ -42,7 +39,7 @@ interface UserProfileResponse {
 }
 
 async function _login(username: string, password: string): Promise<User> {
-  const url = `${API_BASE_URL || ''}/api/auth/login`;
+  const url = '/api/auth/login';  // Use relative path
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -76,7 +73,7 @@ async function _login(username: string, password: string): Promise<User> {
 }
 
 async function _logout(): Promise<void> {
-  const url = `${API_BASE_URL || ''}/api/logout`; // Assuming a /api/logout endpoint
+  const url = '/api/logout';  // Use relative path
   try {
     const res = await fetch(url, {
       method: 'POST', // or 'GET', depending on your API
@@ -106,7 +103,7 @@ async function _logout(): Promise<void> {
 }
 
 async function _fetchUserProfile(userId: number): Promise<UserProfileResponse> {
-  const url = `${API_BASE_URL || ''}/api/admin/users/${userId}`;
+  const url = `/api/admin/users/${userId}`;  // Use relative path
   try {
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
     if (!token) {

@@ -18,28 +18,8 @@ interface AuthState {
 
 // Helper function to get token from cookies
 const getTokenFromCookie = () => {
-  // Debug logging
-  console.log('All cookies:', document.cookie);
-
-  if (!document.cookie) {
-    console.log('No cookies found');
-    return null;
-  }
-
-  const cookies = document.cookie.split(';').map(c => c.trim());
-  console.log('Split cookies:', cookies);
-
-  const tokenCookie = cookies.find(cookie => cookie.startsWith('token='));
-  console.log('Found token cookie:', tokenCookie);
-
-  if (!tokenCookie) {
-    console.log('No token cookie found');
-    return null;
-  }
-
-  const token = tokenCookie.split('=')[1];
-  console.log('Extracted token:', token);
-  return token;
+  const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+  return token || null;
 };
 
 export const useAuthStore = create<AuthState>()(

@@ -16,40 +16,23 @@ if (!API_BASE_URL) {
   console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
 }
 
-async function _fetchCustomers(filters?: CustomerQuery): Promise<CustomerListResponse> {
+async function _fetchCustomers(params: any): Promise<any> {
+  const url = '/api/admin/users';  // Use relative path
+  const queryString = new URLSearchParams(params).toString();
+  const finalUrl = queryString ? `${url}?${queryString}` : url;
+
   try {
-    const params = new URLSearchParams();
-    if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.limit) params.append('limit', filters.limit.toString());
-    if (filters?.search) params.append('search', filters.search);
-    if (filters?.sortBy) params.append('sortBy', filters.sortBy);
-    if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
-
-    const queryString = params.toString();
-    const url = `${API_BASE_URL || ''}/api/admin/users${queryString ? `?${queryString}` : ''}`;
-
-    // Get token from cookie
-    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    const res = await fetch(url, {
+    const res = await fetch(finalUrl, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
 
-    const apiResponse: ApiResponse<CustomerListResponse> = await res.json();
-
-    if (!res.ok || isApiErrorResponse(apiResponse)) {
-      const errorResponse = apiResponse as ApiErrorResponse;
-      throw new Error(errorResponse.developerMessage || `Failed to fetch customers: HTTP ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`HTTP error ${res.status}`);
     }
-    return (apiResponse as ApiSuccessResponse<CustomerListResponse>).resultData;
+
+    return res.json();
   } catch (error) {
     console.error('[_fetchCustomers service error]:', error instanceof Error ? error.message : error);
     throw error;

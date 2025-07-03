@@ -27,14 +27,19 @@ async function _fetchParcels(
   if (filters?.customerName) params.customerName = filters.customerName;
 
   const queryString = new URLSearchParams(params).toString();
-  const url = `${API_BASE_URL || ''}/api/orders/orders?${queryString}`;
+  const url = '/api/orders/orders';  // Use relative path
+  const finalUrl = queryString ? `${url}?${queryString}` : url;
 
   try {
-    const res = await fetch(url, {
+    const res = await fetch(finalUrl, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
+
+    if (!res.ok) {
+      throw new Error(`HTTP error ${res.status}`);
+    }
 
     const apiResponse: ApiResponse<ParcelListResponse> = await res.json();
     if (!res.ok || isApiErrorResponse(apiResponse)) {
@@ -43,13 +48,9 @@ async function _fetchParcels(
     }
 
     return (apiResponse as ApiSuccessResponse<ParcelListResponse>).resultData;
-
   } catch (error) {
-    // Log specific service error and re-throw for the wrapper to catch
-    // If error is already Error instance with developerMessage, it will propagate
-    // If it's a new error from this block (e.g. network error before res.json()), it's caught.
     console.error('[_fetchParcels service error]:', error instanceof Error ? error.message : error);
-    throw error; // Re-throw for withErrorHandling
+    throw error;
   }
 }
 

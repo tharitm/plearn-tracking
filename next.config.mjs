@@ -12,7 +12,15 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
-  devIndicators: false
+  devIndicators: false,
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://plearn-tracking-be.onrender.com/api/:path*'
+      }
+    ]
+  }
 }
 
 export default nextConfig
