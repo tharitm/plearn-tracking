@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Package, LogIn } from "lucide-react";
-// No longer importing User from lib/types, as auth-store will use User from authService
+import { LogIn } from "lucide-react";
+import plearnLogo from '../plearn-logo.png';
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -54,7 +54,11 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm rounded-2xl">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <Package className="h-12 w-12 text-blue-600" />
+            <img
+              src={plearnLogo.src}
+              alt="Plearn Logo"
+              className="h-24 w-24 rounded-xl shadow-lg object-contain"
+            />
           </div>
           <div>
             <CardTitle className="text-2xl">เข้าสู่ระบบ</CardTitle>
@@ -100,12 +104,6 @@ export default function LoginPage() {
               <LogIn className="h-4 w-4" />
               <span>{isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}</span>
             </Button>
-
-            <div className="mt-4 text-center text-sm text-gray-600">
-              <p>Demo Account:</p>
-              <p>Username: admin หรือ customer</p>
-              <p>Password: password</p>
-            </div>
           </form>
         </CardContent>
       </Card>
