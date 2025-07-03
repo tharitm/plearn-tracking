@@ -16,6 +16,32 @@ interface AuthState {
   _setIsInitializing: (isInitializing: boolean) => void;
 }
 
+// Helper function to get token from cookies
+const getTokenFromCookie = () => {
+  // Debug logging
+  console.log('All cookies:', document.cookie);
+
+  if (!document.cookie) {
+    console.log('No cookies found');
+    return null;
+  }
+
+  const cookies = document.cookie.split(';').map(c => c.trim());
+  console.log('Split cookies:', cookies);
+
+  const tokenCookie = cookies.find(cookie => cookie.startsWith('token='));
+  console.log('Found token cookie:', tokenCookie);
+
+  if (!tokenCookie) {
+    console.log('No token cookie found');
+    return null;
+  }
+
+  const token = tokenCookie.split('=')[1];
+  console.log('Extracted token:', token);
+  return token;
+};
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -28,7 +54,7 @@ export const useAuthStore = create<AuthState>()(
       _setIsInitializing: (isInitializing) => set({ isInitializing }),
 
       checkAuth: async () => {
-        const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+        const token = getTokenFromCookie();
         if (!token) {
           set({
             user: null,
@@ -40,10 +66,6 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          // ทำการ validate token กับ backend ถ้าจำเป็น
-          // const response = await fetch('/api/validate-token');
-          // if (!response.ok) throw new Error('Invalid token');
-
           set({
             isAuthenticated: true,
             token,
@@ -56,7 +78,7 @@ export const useAuthStore = create<AuthState>()(
             token: null,
             isInitializing: false
           });
-          document.cookie = 'token=; path=/; max-age=0';
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         }
       },
 
@@ -64,9 +86,13 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const userData = await loginService(username, password);
-          const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+
+          // Use the helper function to get token
+          const token = getTokenFromCookie();
+          console.log('Token after login:', token);
 
           if (!token) {
+            console.error('Login successful but no token found in cookies');
             throw new Error('No token received after login');
           }
 
@@ -77,7 +103,6 @@ export const useAuthStore = create<AuthState>()(
             token
           });
 
-          // Reset filters when logging in
           useParcelStore.getState().resetFilters();
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : "Login failed";
@@ -93,7 +118,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        document.cookie = 'token=; path=/; max-age=0';
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         set({ isLoading: true, error: null });
         try {
           set({
@@ -104,7 +129,6 @@ export const useAuthStore = create<AuthState>()(
             token: null
           });
 
-          // Reset filters when logging out
           useParcelStore.getState().resetFilters();
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : "Logout failed";
@@ -128,7 +152,6 @@ export const useAuthStore = create<AuthState>()(
             return;
           }
 
-          // เรียก checkAuth หลังจาก rehydrate เพื่อตรวจสอบ token
           if (state) {
             await state.checkAuth();
           }
