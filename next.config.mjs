@@ -17,7 +17,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://plearn-tracking-be.onrender.com/api/:path*'
+        destination: 'https://plearn-tracking-be.fly.dev/api/:path*',
       }
     ]
   }

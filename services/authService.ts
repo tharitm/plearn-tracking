@@ -39,21 +39,35 @@ interface UserProfileResponse {
 }
 
 async function _login(username: string, password: string): Promise<User> {
-  const url = '/api/auth/login';  // Use relative path
+  const url = '/api/auth/login';
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // Important for cookies
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      credentials: 'include',
       body: JSON.stringify({ customerCode: username, password }),
     });
 
-    const apiResponse: ApiResponse<AuthResponse> = await res.json();
-
-    if (!res.ok || isApiErrorResponse(apiResponse)) {
-      const errorResponse = apiResponse as ApiErrorResponse; // Type assertion
-      throw new Error(errorResponse.developerMessage || `HTTP error ${res.status}`);
+    if (!res.ok) {
+      // Log the error response for debugging
+      const errorText = await res.text();
+      console.error('Login error response:', {
+        status: res.status,
+        statusText: res.statusText,
+        headers: Object.fromEntries(res.headers.entries()),
+        body: errorText
+      });
+      throw new Error(`Login failed: ${res.status} ${res.statusText}`);
     }
+
+    const apiResponse: ApiResponse<AuthResponse> = await res.json();
+    if (isApiErrorResponse(apiResponse)) {
+      throw new Error(apiResponse.developerMessage || 'Login failed');
+    }
+
     const resultData = (apiResponse as ApiSuccessResponse<AuthResponse>).resultData;
     return {
       id: resultData.id,
