@@ -4,12 +4,6 @@ import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/ap
 import { isApiErrorResponse } from '@/lib/apiTypes';
 import { withErrorHandling } from './apiService';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_BASE_URL) {
-  console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
-}
-
 // Service function to fetch parcels
 async function _fetchParcels(
   filters?: ParcelFilters & { page?: number; pageSize?: number; customerCode?: string }
@@ -57,18 +51,25 @@ async function _fetchParcels(
 // Service function to update parcel status
 async function _updateParcelStatus(
   id: string,
-  status: Parcel['status'],
-  notify: boolean = true
-): Promise<Parcel> { // This is the type for the 'data' field
-  const url = `${API_BASE_URL || ''}/api/admin/parcel/${id}/status`;
-  const body = { status, notify };
+  status: Parcel['status'] | "",  // Allow empty string
+): Promise<Parcel> {
+  const url = `/api/orders/orders/${id}/status`;
+
+  // Get token from cookie
+  const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
 
   try {
     const res = await fetch(url, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       credentials: 'include',
-      body: JSON.stringify(body),
+      body: JSON.stringify({ status }),
     });
 
     const apiResponse: ApiResponse<Parcel> = await res.json();
@@ -88,7 +89,7 @@ async function _updateParcelStatus(
 
 // Service function to fetch a single parcel by ID
 async function _fetchParcelById(id: string): Promise<Parcel> { // This is the type for the 'data' field
-  const url = `${API_BASE_URL || ''}/api/orders/orders/${id}`;
+  const url = `/api/orders/orders/${id}`;  // Use relative path
 
   try {
     const res = await fetch(url, {
@@ -126,7 +127,7 @@ export interface CreateOrderPayload {
   transportation: string;
   cabinetCode: string;
   estimate: string;
-  status: string;
+  status?: string;  // Make status optional
   tracking: string;
   trackingTh: string | null;
   receiptNumber: string | null;
@@ -143,7 +144,7 @@ interface BulkCreateOrdersPayload {
 // เพิ่มฟังก์ชันใหม่
 async function _createOrders(orders: CreateOrderPayload[]): Promise<ApiResponse<any>> {
   try {
-    const url = `${API_BASE_URL || ''}/api/orders/orders`;
+    const url = '/api/orders/orders';  // Use relative path
 
     // Get token from cookie
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -201,7 +202,7 @@ const _updateOrder = async (id: string, data: Partial<Parcel>) => {
     throw new Error('No authentication token found');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/orders/orders/${id}`, {
+  const response = await fetch(`/api/orders/orders/${id}`, {  // Use relative path
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -229,7 +230,7 @@ const _deleteOrder = async (id: string) => {
     throw new Error('No authentication token found');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/orders/orders/${id}`, {
+  const response = await fetch(`/api/orders/orders/${id}`, {  // Use relative path
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`

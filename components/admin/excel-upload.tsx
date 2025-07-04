@@ -18,6 +18,12 @@ const STATUS_MAPPING: { [key: string]: string } = {
   "ส่งแล้ว": "shipped_to_customer",
   "ส่งถึงแล้ว": "delivered_to_customer",
 }
+
+// Function to map Thai status to enum value
+const mapStatus = (thaiStatus: string): string => {
+  return STATUS_MAPPING[thaiStatus] || "";  // Return empty string if no mapping found
+}
+
 interface PreviewData extends Omit<CreateOrderPayload, 'status'> {
   status: string;
   mappedStatus: string;
@@ -31,15 +37,6 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
   const [previewData, setPreviewData] = useState<PreviewData[]>([])
   const [fileName, setFileName] = useState<string>("")
   const [uploading, setUploading] = useState(false)
-
-  const mapStatus = (thaiStatus: string): string => {
-    const mappedStatus = STATUS_MAPPING[thaiStatus]
-    if (!mappedStatus) {
-      console.warn(`Unknown status: ${thaiStatus}, defaulting to arrived_cn_warehouse`)
-      return "arrived_cn_warehouse"
-    }
-    return mappedStatus
-  }
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
@@ -58,7 +55,7 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
         console.log('jsonData', jsonData)
         // Map Excel columns to our data structure
         const mappedData = jsonData.map((row: any) => {
-          const thaiStatus = row['สถานะ'] || 'ถึงโกดังจีน' // Default to ถึงโกดังจีน if no status
+          const thaiStatus = row['สถานะ'] || ''  // Default to empty string if no status
           return {
             orderNo: row['PO'] || '',
             orderDate: row['DATE'] ? moment(row['DATE'], 'YYYY-MM-DD').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),

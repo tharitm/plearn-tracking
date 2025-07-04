@@ -32,7 +32,7 @@ import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
 import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
-import { deleteOrder, createOrders, type CreateOrderPayload } from "@/services/parcelService"
+import { deleteOrder, createOrders, updateParcelStatus, type CreateOrderPayload } from "@/services/parcelService"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,27 +65,17 @@ export default function AdminDashboard() {
   const handleStatusChange = useCallback(async (parcelId: string, newStatus: Parcel["status"]) => {
     setUpdatingStatusForId(parcelId); // Set loading state
     try {
-      console.log("Attempting to update status for parcel:", parcelId, "to", newStatus);
-      const response = await fetch(`/api/admin/parcel/${parcelId}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (response.ok) {
-        const updatedParcel = await response.json();
-        updateParcel(updatedParcel);
-        showToast(`พัสดุ ${parcelId} อัปเดตสถานะเป็น ${newStatus} แล้ว`, "success");
-      } else {
-        const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
-        showToast(`ไม่สามารถอัปเดตสถานะพัสดุ ${parcelId}`, "error", { description: errorData.message || response.statusText });
-      }
+      const updatedParcel = await updateParcelStatus(parcelId, newStatus);
+      updateParcel(updatedParcel);
+      showToast(`พัสดุ ${parcelId} อัปเดตสถานะเป็น ${newStatus} แล้ว`, "success");
+      await refetch();  // Add refetch after successful update
     } catch (error) {
       console.error("Failed to update status:", error);
       showToast(`เกิดข้อผิดพลาดในการอัปเดตสถานะพัสดุ ${parcelId}`, "error");
     } finally {
       setUpdatingStatusForId(null);
     }
-  }, [updateParcel]);
+  }, [updateParcel, refetch]);
 
   const handleEdit = useCallback((parcel: Parcel) => {
     setEditingParcel(parcel);

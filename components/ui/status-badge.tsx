@@ -13,6 +13,11 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, type, className }: StatusBadgeProps) {
   if (type === "parcel") {
     const statusConfig = {
+      "": {
+        label: "ไม่มีสถานะ",
+        icon: Package,
+        className: "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200",
+      },
       arrived_cn_warehouse: {
         label: "ถึงโกดังจีน",
         icon: Package,

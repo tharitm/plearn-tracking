@@ -14,10 +14,13 @@ const nextConfig = {
   },
   devIndicators: false,
   async rewrites() {
+    const isProduction = false
     return [
       {
         source: '/api/:path*',
-        destination: 'https://plearn-tracking-be.fly.dev/api/:path*',
+        destination: isProduction 
+          ? 'https://plearn-tracking-be.fly.dev/api/:path*'
+          : 'http://localhost:3001/api/:path*',
       }
     ]
   }
