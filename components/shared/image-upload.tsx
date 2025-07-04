@@ -79,7 +79,7 @@ export function ImageUpload({
       const newUploadedFiles = compressedFiles.map(file => ({
         url: URL.createObjectURL(file),
         size: file.size
-      }))
+      })).filter(file => typeof file.url === 'string' && file.url !== '')
       setUploadedFiles(prev => [...prev, ...newUploadedFiles])
       setTotalSize(current => current + newTotalSize)
       await onFilesSelected(compressedFiles)
@@ -128,7 +128,7 @@ export function ImageUpload({
       {/* Existing Images */}
       {images.length > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {images.map((image, index) => (
+          {images.filter(image => typeof image === 'string' && image !== '').map((image, index) => (
             <div key={image} className="group relative aspect-square overflow-hidden rounded-lg border">
               <Image
                 src={image}
