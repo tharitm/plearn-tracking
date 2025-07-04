@@ -14,7 +14,7 @@ const nextConfig = {
   },
   devIndicators: false,
   async rewrites() {
-    const isProduction = false
+    const isProduction = process.env.NODE_ENV === 'production'
     return [
       {
         source: '/api/:path*',
