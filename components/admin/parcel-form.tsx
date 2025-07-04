@@ -413,12 +413,12 @@ export function ParcelForm({
             {/* Transportation */}
             <div className="space-y-2">
               <Label htmlFor="transportation">ช่องทางขนส่ง</Label>
-              <Input id="transportation" {...register("transportation", { required: true })} />
+              <Input id="transportation" {...register("transportation")} />
             </div>
             {/* Cabinet Code */}
             <div className="space-y-2">
               <Label htmlFor="cabinetCode">Cabinet Code</Label>
-              <Input id="cabinetCode" {...register("cabinetCode", { required: true })} />
+              <Input id="cabinetCode" {...register("cabinetCode")} />
             </div>
 
             {/* Status */}
