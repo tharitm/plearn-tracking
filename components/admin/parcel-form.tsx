@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useAuthStore } from "@/stores/auth-store"
-import { createOrders, updateOrder } from "@/services/parcelService"
+import { createOrders, updateOrder, uploadOrderPictures } from "@/services/parcelService"
 import { showToast } from "@/lib/toast-utils"
+import { ImageUpload } from "@/components/shared/image-upload"
 
 import {
   AlertDialog,
@@ -45,6 +46,7 @@ export interface ParcelFormData {
   shippingRates: number | null
   picture: string | null
   orderDate: string
+  images: string[]
 }
 
 export interface ParcelFormProps {
@@ -66,7 +68,8 @@ export function ParcelForm({
 }: ParcelFormProps) {
   const { user } = useAuthStore()
   const isAdmin = user?.role === 'admin'
-  const [images, setImages] = useState<File[]>([])
+  const [isUploading, setIsUploading] = useState(false)
+  const [images, setImages] = useState<string[]>(initialData?.images || [])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const {
@@ -74,9 +77,9 @@ export function ParcelForm({
     handleSubmit,
     reset,
     setValue,
-    control, // Added control for Controller
+    control,
     watch,
-    formState: { errors, isDirty }, // Added isDirty to check if form has been touched
+    formState: { errors, isDirty },
   } = useForm<ParcelFormData>({
     defaultValues: {
       orderNo: initialData?.orderNo || "",
@@ -99,11 +102,12 @@ export function ParcelForm({
       shippingRates: initialData?.shippingRates || null,
       picture: initialData?.images?.[0] || null,
       orderDate: initialData?.orderDate || new Date().toISOString().split('T')[0],
+      images: initialData?.images || [],
     },
   })
 
   useEffect(() => {
-    if (open) { // Only reset/initialize when sheet opens
+    if (open) {
       if (isEditMode && initialData) {
         const formData: ParcelFormData = {
           orderNo: initialData.orderNo || "",
@@ -126,9 +130,10 @@ export function ParcelForm({
           shippingRates: initialData.shippingRates || null,
           picture: initialData.images?.[0] || null,
           orderDate: initialData.orderDate || new Date().toISOString().split('T')[0],
+          images: initialData.images || [],
         };
         reset(formData);
-        setImages([])
+        setImages(initialData.images || [])
       } else {
         reset({
           orderNo: "",
@@ -151,6 +156,7 @@ export function ParcelForm({
           shippingRates: null,
           picture: null,
           orderDate: new Date().toISOString().split('T')[0],
+          images: [],
         });
         setImages([])
       }
@@ -171,12 +177,6 @@ export function ParcelForm({
     setValue("shippingCost", parseFloat(calculatedShippingCost.toFixed(2)))
   }, [watch("width"), watch("length"), watch("height"), watch("shippingRates"), setValue])
 
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImages(Array.from(e.target.files))
-    }
-  }
-
   const handleFormSubmit = async (data: ParcelFormData) => {
     try {
       const formattedData = {
@@ -189,6 +189,7 @@ export function ParcelForm({
         length: Number(data.length),
         width: Number(data.width),
         height: Number(data.height),
+        images: images,
       }
 
       if (isEditMode && initialData?.id) {
@@ -212,6 +213,25 @@ export function ParcelForm({
       showToast(isEditMode ? "แก้ไขข้อมูลไม่สำเร็จ" : "เพิ่มข้อมูลไม่สำเร็จ", "error")
     }
   };
+
+  const handleImagesSelected = async (files: File[]) => {
+    if (!initialData?.id && !isEditMode) {
+      showToast("กรุณาบันทึกข้อมูลก่อนอัพโหลดรูปภาพ", "error")
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const newImages = await uploadOrderPictures(initialData!.id, files)
+      setImages(prev => [...prev, ...newImages])
+      showToast("อัพโหลดรูปภาพสำเร็จ")
+    } catch (error) {
+      console.error("Failed to upload images:", error)
+      showToast("อัพโหลดรูปภาพไม่สำเร็จ", "error")
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   const handleDelete = async () => {
     try {
@@ -452,20 +472,13 @@ export function ParcelForm({
 
             {isAdmin ? (
               <div className="space-y-2">
-                <Label htmlFor="images">รูปภาพพัสดุ</Label>
-                <Input id="images" type="file" multiple onChange={handleImagesChange} />
-                {images.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {images.map((file, index) => (
-                      <img
-                        key={index}
-                        src={URL.createObjectURL(file)}
-                        className="h-16 w-16 object-cover rounded-md"
-                        alt="preview"
-                      />
-                    ))}
-                  </div>
-                )}
+                <Label>รูปภาพสินค้า</Label>
+                <ImageUpload
+                  images={images}
+                  onImagesChange={setImages}
+                  onFilesSelected={handleImagesSelected}
+                  isUploading={isUploading}
+                />
               </div>
             ) : (
               initialData?.images && initialData.images.length > 0 && (
@@ -488,7 +501,7 @@ export function ParcelForm({
 
             <div className="flex justify-between items-center pt-4">
               <div className="flex gap-2">
-                <Button type="submit" disabled={!isAdmin}>
+                <Button type="submit" disabled={!isAdmin || isUploading}>
                   {submitButtonText}
                 </Button>
                 <Button

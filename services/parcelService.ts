@@ -3,6 +3,7 @@ import type { Parcel, ParcelFilters, ParcelListResponse } from '@/lib/types';
 import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/apiTypes';
 import { isApiErrorResponse } from '@/lib/apiTypes';
 import { withErrorHandling } from './apiService';
+import { CLOUDINARY_CONFIG } from '@/lib/constants';
 
 // Service function to fetch parcels
 async function _fetchParcels(
@@ -249,6 +250,64 @@ const _deleteOrder = async (id: string) => {
   return response.json();
 };
 
+// Upload image to Cloudinary directly from browser
+async function uploadToCloudinary(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset!);
+  formData.append('folder', CLOUDINARY_CONFIG.folder);
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`,
+    {
+      method: 'POST',
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to upload image to Cloudinary');
+  }
+
+  const data = await response.json();
+  return data.secure_url;
+}
+
+// Upload multiple images and save to backend
+async function _uploadOrderPictures(orderId: string, files: File[]): Promise<string[]> {
+  try {
+    // First, upload all images to Cloudinary
+    const uploadPromises = files.map(file => uploadToCloudinary(file));
+    const imageUrls = await Promise.all(uploadPromises);
+
+    // Then, save URLs to backend
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`/api/orders/orders/${orderId}/upload-pictures`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      credentials: 'include',
+      body: JSON.stringify({ pictures: imageUrls }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save image URLs to backend');
+    }
+
+    const data = await response.json();
+    return data.pictures;
+  } catch (error) {
+    console.error('[_uploadOrderPictures service error]:', error);
+    throw error;
+  }
+}
+
 // Export wrapped functions
 export const fetchParcels = withErrorHandling(_fetchParcels);
 export const updateParcelStatus = withErrorHandling(_updateParcelStatus);
@@ -256,3 +315,4 @@ export const fetchParcelById = withErrorHandling(_fetchParcelById);
 export const createOrders = withErrorHandling(_createOrders);
 export const updateOrder = withErrorHandling(_updateOrder);
 export const deleteOrder = withErrorHandling(_deleteOrder);
+export const uploadOrderPictures = withErrorHandling(_uploadOrderPictures);

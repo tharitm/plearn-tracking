@@ -30,3 +30,9 @@ export const PAYMENT_STATUS_LABELS = {
   [PAYMENT_STATUS.PARTIAL]: "ชำระบางส่วน",
 } as const;
 
+export const CLOUDINARY_CONFIG = {
+  cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
+  folder: 'plearn-tracking/orders',
+} as const;
+
