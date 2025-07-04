@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useAuthStore } from "@/stores/auth-store"
-import { createOrders, updateOrder, uploadOrderPictures } from "@/services/parcelService"
+import { createOrders, updateOrder, uploadOrderPictures, uploadToCloudinary } from "@/services/parcelService"
 import { showToast } from "@/lib/toast-utils"
 import { ImageUpload } from "@/components/shared/image-upload"
 
@@ -70,6 +70,7 @@ export function ParcelForm({
   const isAdmin = user?.role === 'admin'
   const [isUploading, setIsUploading] = useState(false)
   const [images, setImages] = useState<string[]>(initialData?.images || [])
+  const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const {
@@ -77,6 +78,7 @@ export function ParcelForm({
     handleSubmit,
     reset,
     setValue,
+    getValues,
     control,
     watch,
     formState: { errors, isDirty },
@@ -177,8 +179,15 @@ export function ParcelForm({
     setValue("shippingCost", parseFloat(calculatedShippingCost.toFixed(2)))
   }, [watch("width"), watch("length"), watch("height"), watch("shippingRates"), setValue])
 
+  const handleImagesSelected = async (files: File[]) => {
+    // เก็บไฟล์ไว้ใน state แทนที่จะอัพโหลดทันที
+    setPendingFiles(prev => [...prev, ...files])
+  }
+
   const handleFormSubmit = async (data: ParcelFormData) => {
     try {
+      setIsUploading(true)
+
       const formattedData = {
         ...data,
         shippingCost: data.shippingCost,
@@ -189,21 +198,45 @@ export function ParcelForm({
         length: Number(data.length),
         width: Number(data.width),
         height: Number(data.height),
-        images: images,
+        images: images, // ใช้รูปเดิมที่มีอยู่
       }
+
+      let orderId: string;
 
       if (isEditMode && initialData?.id) {
-        // Update existing order
         await updateOrder(initialData.id, formattedData)
+        orderId = initialData.id
         showToast("แก้ไขข้อมูลสำเร็จ")
-        await refetch()
       } else {
-        // Create new order
-        await createOrders([formattedData])
+        // สร้าง order ใหม่
+        const createdOrders = await createOrders([formattedData])
+        orderId = createdOrders[0].id
         showToast("เพิ่มข้อมูลสำเร็จ")
-        await refetch()
+      }
+      // ถ้ามีรูปใหม่ ค่อยอัพโหลด
+      if (pendingFiles.length > 0) {
+        try {
+          // ดึงรูปเก่าจาก form state
+          const previousImages = getValues("images") || []
+
+          // เรียก uploadOrderPictures โดยส่งไฟล์ใหม่ และรูปเก่ารวมกันไป
+          const uploadedImages = await uploadOrderPictures(orderId, pendingFiles, previousImages)
+          if (Array.isArray(uploadedImages)) {
+            await updateOrder(orderId, { images: uploadedImages })
+            setImages(uploadedImages)
+            setValue("images", uploadedImages)
+            showToast("อัพโหลดรูปภาพสำเร็จ")
+          } else {
+            console.error("Unexpected response format from uploadOrderPictures")
+            showToast("อัพโหลดรูปภาพไม่สำเร็จ แต่บันทึกข้อมูลสินค้าแล้ว", "warning")
+          }
+        } catch (error) {
+          console.error("Failed to upload images:", error)
+          showToast("อัพโหลดรูปภาพไม่สำเร็จ แต่บันทึกข้อมูลสินค้าแล้ว", "warning")
+        }
       }
 
+      await refetch()
       if (onSubmit) {
         onSubmit(formattedData)
       }
@@ -211,23 +244,6 @@ export function ParcelForm({
     } catch (error) {
       console.error("Failed to submit form:", error)
       showToast(isEditMode ? "แก้ไขข้อมูลไม่สำเร็จ" : "เพิ่มข้อมูลไม่สำเร็จ", "error")
-    }
-  };
-
-  const handleImagesSelected = async (files: File[]) => {
-    if (!initialData?.id && !isEditMode) {
-      showToast("กรุณาบันทึกข้อมูลก่อนอัพโหลดรูปภาพ", "error")
-      return
-    }
-
-    setIsUploading(true)
-    try {
-      const newImages = await uploadOrderPictures(initialData!.id, files)
-      setImages(prev => [...prev, ...newImages])
-      showToast("อัพโหลดรูปภาพสำเร็จ")
-    } catch (error) {
-      console.error("Failed to upload images:", error)
-      showToast("อัพโหลดรูปภาพไม่สำเร็จ", "error")
     } finally {
       setIsUploading(false)
     }
@@ -470,33 +486,22 @@ export function ParcelForm({
               />
             </div>
 
-            {isAdmin ? (
+            {isAdmin && (
               <div className="space-y-2">
                 <Label>รูปภาพสินค้า</Label>
                 <ImageUpload
-                  images={images}
-                  onImagesChange={setImages}
+                  images={[...images, ...pendingFiles.map(file => URL.createObjectURL(file))]}
+                  onImagesChange={(newImages) => {
+                    // ลบรูปที่เลือกออก
+                    const remainingImages = newImages.filter(img => !pendingFiles.some(file => URL.createObjectURL(file) === img))
+                    const remainingFiles = pendingFiles.filter(file => newImages.includes(URL.createObjectURL(file)))
+                    setImages(remainingImages)
+                    setPendingFiles(remainingFiles)
+                  }}
                   onFilesSelected={handleImagesSelected}
                   isUploading={isUploading}
                 />
               </div>
-            ) : (
-              initialData?.images && initialData.images.length > 0 && (
-                <div className="space-y-2">
-                  <Label>รูปภาพพัสดุ</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {initialData.images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={image}
-                        onClick={() => window.open(image, '_blank')}
-                        className="h-16 w-16 object-cover rounded-md cursor-pointer"
-                        alt={`parcel image ${index + 1}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )
             )}
 
             <div className="flex justify-between items-center pt-4">

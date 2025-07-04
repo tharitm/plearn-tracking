@@ -19,6 +19,7 @@ import {
   ALL_COLUMN_IDS // Import ALL_COLUMN_IDS
 } from "@/lib/column-configs"; // Import new configs
 import { ParcelGalleryModal } from "../parcel/parcel-gallery-modal";
+import { useParcelStore } from "@/stores/parcel-store";
 
 const statusOptions: Parcel["status"][] = [
   "arrived_cn_warehouse",        // สินค้าถึงโกดังจีน
@@ -103,32 +104,28 @@ export const getParcelTableColumns = ({
         </Button>
       ),
     }),
-    // images: () => ({
-    //   id: "images",
-    //   header: "รูปภาพ",
-    //   cell: ({ row }) => {
-    //     const parcel = row.original;
-    //     const [isGalleryModalOpen, setGalleryModalOpen] = useState(false);
-    //     const images = parcel.images ?? [];
-    //     const thumb = images.length > 0 ? images[0] : "https://placehold.co/600x400";
-    //     return (
-    //       <>
-    //         <img
-    //           src={thumb}
-    //           alt="thumbnail"
-    //           className="h-24 w-24 cursor-pointer rounded object-cover"
-    //           onClick={() => setGalleryModalOpen(true)}
-    //         />
-    //         <ParcelGalleryModal
-    //           images={images}
-    //           open={isGalleryModalOpen}
-    //           onClose={() => setGalleryModalOpen(false)}
-    //         />
-    //       </>
-    //     );
-    //   },
-    //   enableSorting: false,
-    // }),
+    images: () => ({
+      id: "images",
+      header: "รูปภาพ",
+      cell: ({ row }) => {
+        const parcel = row.original;
+        const images = parcel.images ?? [];
+        const thumb = images.length > 0 ? images[0] : "https://www.themgroup.co.uk/wp-content/uploads/2020/12/landscape-placeholder-e1608289113759.png";
+        const setGalleryImages = useParcelStore(state => state.setGalleryImages);
+
+        return (
+          <div className="relative w-16 aspect-square">
+            <img
+              src={thumb}
+              alt="thumbnail"
+              className="absolute inset-0 w-full h-full object-cover rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+              onClick={() => setGalleryImages(images)}
+            />
+          </div>
+        );
+      },
+      enableSorting: false,
+    }),
     receiveDate: () => ({
       accessorKey: "orderDate",
       header: ({ column }) => (

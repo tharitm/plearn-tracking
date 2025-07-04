@@ -143,7 +143,7 @@ interface BulkCreateOrdersPayload {
 }
 
 // เพิ่มฟังก์ชันใหม่
-async function _createOrders(orders: CreateOrderPayload[]): Promise<ApiResponse<any>> {
+async function _createOrders(orders: CreateOrderPayload[]): Promise<Parcel[]> {
   try {
     const url = '/api/orders/orders';  // Use relative path
 
@@ -181,14 +181,14 @@ async function _createOrders(orders: CreateOrderPayload[]): Promise<ApiResponse<
       body: JSON.stringify(payload)
     });
 
-    const apiResponse: ApiResponse<any> = await res.json();
+    const apiResponse: ApiResponse<Parcel[]> = await res.json();
 
     if (!res.ok || isApiErrorResponse(apiResponse)) {
       const errorResponse = apiResponse as ApiErrorResponse;
       throw new Error(errorResponse.developerMessage || `HTTP error ${res.status}`);
     }
 
-    return apiResponse;
+    return (apiResponse as ApiSuccessResponse<Parcel[]>).resultData;
 
   } catch (error) {
     console.error('[_createOrders service error]:', error instanceof Error ? error.message : error);
@@ -251,7 +251,7 @@ const _deleteOrder = async (id: string) => {
 };
 
 // Upload image to Cloudinary directly from browser
-async function uploadToCloudinary(file: File): Promise<string> {
+export async function uploadToCloudinary(file: File): Promise<string> {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset!);
@@ -274,12 +274,13 @@ async function uploadToCloudinary(file: File): Promise<string> {
 }
 
 // Upload multiple images and save to backend
-async function _uploadOrderPictures(orderId: string, files: File[]): Promise<string[]> {
+async function _uploadOrderPictures(orderId: string, files: File[], previousImageUrls: string[] = []): Promise<string[]> {
   try {
     // First, upload all images to Cloudinary
     const uploadPromises = files.map(file => uploadToCloudinary(file));
     const imageUrls = await Promise.all(uploadPromises);
 
+    const allImages = [...previousImageUrls, ...imageUrls];
     // Then, save URLs to backend
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
     if (!token) {
@@ -293,7 +294,7 @@ async function _uploadOrderPictures(orderId: string, files: File[]): Promise<str
         'Authorization': `Bearer ${token}`
       },
       credentials: 'include',
-      body: JSON.stringify({ pictures: imageUrls }),
+      body: JSON.stringify({ pictures: allImages }),
     });
 
     if (!response.ok) {
@@ -301,7 +302,7 @@ async function _uploadOrderPictures(orderId: string, files: File[]): Promise<str
     }
 
     const data = await response.json();
-    return data.pictures;
+    return data.resultData
   } catch (error) {
     console.error('[_uploadOrderPictures service error]:', error);
     throw error;

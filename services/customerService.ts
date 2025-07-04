@@ -10,12 +10,6 @@ import type { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '@/lib/ap
 import { isApiErrorResponse } from '@/lib/apiTypes';
 import { withErrorHandling } from './apiService';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_BASE_URL) {
-  console.warn('NEXT_PUBLIC_API_URL is not defined. API calls will likely fail.');
-}
-
 async function _fetchCustomers(params: CustomerQuery): Promise<CustomerListResponse> {
   const url = '/api/admin/users';
 
@@ -57,7 +51,7 @@ async function _fetchCustomers(params: CustomerQuery): Promise<CustomerListRespo
 
 async function _addCustomer(customerData: CreateCustomerPayload): Promise<Customer> {
   try {
-    const url = `${API_BASE_URL || ''}/api/admin/users`;
+    const url = '/api/admin/users';
 
     // Get token from cookie
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -90,7 +84,7 @@ async function _addCustomer(customerData: CreateCustomerPayload): Promise<Custom
 
 async function _fetchCustomerById(customerId: number): Promise<Customer> {
   try {
-    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}`;
+    const url = `/api/admin/users/${customerId}`;
 
     // Get token from cookie
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -125,7 +119,7 @@ async function _updateCustomer(customerId: number, customerData: UpdateCustomerP
     // First, fetch the current customer data
     const currentCustomer = await _fetchCustomerById(customerId);
 
-    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}`;
+    const url = `/api/admin/users/${customerId}`;
 
     // Get token from cookie
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -164,7 +158,7 @@ async function _updateCustomer(customerId: number, customerData: UpdateCustomerP
 
 async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage> {
   try {
-    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}`;
+    const url = `/api/admin/users/${customerId}`;
 
     // Get token from cookie
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
@@ -196,7 +190,7 @@ async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage
 
 async function _resetPassword(customerId: number): Promise<SimpleSuccessMessage> {
   try {
-    const url = `${API_BASE_URL || ''}/api/admin/users/${customerId}/reset-password`;
+    const url = `/api/admin/users/${customerId}/reset-password`;
 
     // Get token from cookie
     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
