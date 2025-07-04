@@ -70,7 +70,7 @@ async function _updateParcelStatus(
         'Authorization': `Bearer ${token}`
       },
       credentials: 'include',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status: status === '' ? null : status }),
     });
 
     const apiResponse: ApiResponse<Parcel> = await res.json();
@@ -127,8 +127,8 @@ export interface CreateOrderPayload {
   cbm: number;
   transportation: string;
   cabinetCode: string;
-  estimate: string;
-  status?: string;  // Make status optional
+  estimate: string | null;
+  status?: string | null;  // Make status optional and nullable
   tracking: string;
   trackingTh: string | null;
   receiptNumber: string | null;
@@ -167,7 +167,9 @@ async function _createOrders(orders: CreateOrderPayload[]): Promise<Parcel[]> {
         shippingRates: order.shippingRates ? Number(order.shippingRates) : null,
         // แปลงวันที่ให้อยู่ในรูปแบบ YYYY-MM-DD
         orderDate: new Date(order.orderDate).toISOString().split('T')[0],
-        estimate: new Date(order.estimate).toISOString().split('T')[0]
+        // แปลง empty string เป็น null
+        status: order.status === '' ? null : order.status,
+        estimate: order.estimate === '' ? null : order.estimate ? new Date(order.estimate).toISOString().split('T')[0] : null
       }))
     };
 
@@ -203,6 +205,13 @@ const _updateOrder = async (id: string, data: Partial<Parcel>) => {
     throw new Error('No authentication token found');
   }
 
+  // แปลง empty string เป็น null
+  const processedData = {
+    ...data,
+    status: data.status === '' ? null : data.status,
+    estimate: data.estimate === '' ? null : data.estimate
+  };
+
   const response = await fetch(`/api/orders/orders/${id}`, {  // Use relative path
     method: 'PATCH',
     headers: {
@@ -210,7 +219,7 @@ const _updateOrder = async (id: string, data: Partial<Parcel>) => {
       'Authorization': `Bearer ${token}`
     },
     credentials: 'include',
-    body: JSON.stringify(data),
+    body: JSON.stringify(processedData),
   });
 
   if (!response.ok) {
