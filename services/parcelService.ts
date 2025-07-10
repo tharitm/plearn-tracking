@@ -319,6 +319,39 @@ async function _uploadOrderPictures(orderId: string, files: File[], previousImag
   }
 }
 
+async function _deleteManyParcels(ids: string[]): Promise<void> {
+  try {
+    const url = '/api/orders/orders/delete-many';
+
+    // Get token from cookie
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      credentials: 'include',
+      body: JSON.stringify({ ids })
+    });
+
+    const apiResponse: ApiResponse<void> = await res.json();
+
+    if (!res.ok || isApiErrorResponse(apiResponse)) {
+      const errorResponse = apiResponse as ApiErrorResponse;
+      throw new Error(errorResponse.developerMessage || `HTTP error ${res.status}`);
+    }
+
+  } catch (error) {
+    console.error('[_deleteManyParcels service error]:', error instanceof Error ? error.message : error);
+    throw error;
+  }
+}
+
 // Export wrapped functions
 export const fetchParcels = withErrorHandling(_fetchParcels);
 export const updateParcelStatus = withErrorHandling(_updateParcelStatus);
@@ -327,3 +360,4 @@ export const createOrders = withErrorHandling(_createOrders);
 export const updateOrder = withErrorHandling(_updateOrder);
 export const deleteOrder = withErrorHandling(_deleteOrder);
 export const uploadOrderPictures = withErrorHandling(_uploadOrderPictures);
+export const deleteManyParcels = withErrorHandling(_deleteManyParcels);

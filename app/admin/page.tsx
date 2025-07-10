@@ -31,8 +31,8 @@ import { ParcelForm, ParcelFormData } from "@/components/admin/parcel-form"
 import { ExcelUpload } from "@/components/admin/excel-upload"
 import { StatCard } from "@/components/ui/stat-card"
 import { Button } from "@/components/ui/button"
-import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck } from "lucide-react" // Added PackageCheck
-import { deleteOrder, createOrders, updateParcelStatus, type CreateOrderPayload } from "@/services/parcelService"
+import { Plus, Package, DollarSign, Users, TrendingUp, PackageCheck, Trash2, Loader2 } from "lucide-react" // Added PackageCheck and Trash2
+import { deleteOrder, createOrders, updateParcelStatus, deleteManyParcels, type CreateOrderPayload } from "@/services/parcelService"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,6 +61,7 @@ export default function AdminDashboard() {
   const [editingParcel, setEditingParcel] = useState<Parcel | null>(null)
   const [updatingStatusForId, setUpdatingStatusForId] = useState<string | null>(null)
   const [deletingParcel, setDeletingParcel] = useState<Parcel | null>(null)
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false)
 
   const handleStatusChange = useCallback(async (parcelId: string, newStatus: Parcel["status"]) => {
     setUpdatingStatusForId(parcelId); // Set loading state
@@ -160,31 +161,24 @@ export default function AdminDashboard() {
 
   const breadcrumbs = [{ label: "Admin Dashboard" }]
 
-  const handleBulkDeliver = async () => {
+  const handleBulkDelete = async () => {
     const selectedIds = table.getSelectedRowModel().flatRows.map(row => row.original.id);
     if (selectedIds.length === 0) {
-      showToast("กรุณาเลือกพัสดุที่ต้องการดำเนินการ", "info");
+      showToast("กรุณาเลือกพัสดุที่ต้องการลบ", "info");
       return;
     }
 
+    setIsDeletingBulk(true);
     try {
-      const response = await fetch(`/api/admin/parcel/bulk-deliver`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedIds }),
-      });
-
-      if (response.ok) {
-        refetch();
-        showToast("พัสดุที่เลือกถูกอัปเดตสถานะเป็น 'delivered' เรียบร้อยแล้ว", "success");
-        setRowSelection({}); // Clear selection
-      } else {
-        const errorData = await response.json().catch(() => ({ message: "Failed to parse error response" }));
-        showToast("ไม่สามารถอัปเดตสถานะพัสดุที่เลือก", "error", { description: errorData.message || response.statusText });
-      }
+      await deleteManyParcels(selectedIds);
+      refetch();
+      showToast(`ลบพัสดุที่เลือกจำนวน ${selectedIds.length} รายการเรียบร้อยแล้ว`, "success");
+      setRowSelection({}); // Clear selection
     } catch (error) {
-      console.error("Failed to mark parcels as delivered:", error);
-      showToast("เกิดข้อผิดพลาดในการอัปเดตสถานะพัสดุที่เลือก", "error");
+      console.error("Failed to delete parcels:", error);
+      showToast("เกิดข้อผิดพลาดในการลบพัสดุที่เลือก", "error");
+    } finally {
+      setIsDeletingBulk(false);
     }
   };
 
@@ -263,12 +257,22 @@ export default function AdminDashboard() {
               <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <div className="flex flex-col sm:flex-row gap-2 items-center">
                   <Button
-                    onClick={handleBulkDeliver}
-                    disabled={Object.keys(rowSelection).length === 0}
-                    variant="outline"
+                    onClick={handleBulkDelete}
+                    disabled={Object.keys(rowSelection).length === 0 || isDeletingBulk}
+                    variant="destructive"
                     className="w-full sm:w-auto"
                   >
-                    <PackageCheck className="mr-2 h-4 w-4" /> Mark All Delivered ({Object.keys(rowSelection).length})
+                    {isDeletingBulk ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        กำลังลบ...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        ลบสินค้า ({Object.keys(rowSelection).length})
+                      </>
+                    )}
                   </Button>
                   <ColumnVisibilityDropdown table={table} />
                 </div>
