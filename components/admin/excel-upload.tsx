@@ -12,7 +12,7 @@ import type { CreateOrderPayload } from "@/services/parcelService"
 // Add status mapping
 const STATUS_MAPPING: { [key: string]: string } = {
   "ถึงโกดังจีน": "arrived_cn_warehouse",
-  "ตู้ปิดสินค้า": "container_closed",
+  "ปิดตู้แล้ว": "container_closed",
   "ถึงโกดังไทย": "arrived_th_warehouse",
   "เตรียมส่งลูกค้า": "ready_to_ship_to_customer",
   "ส่งแล้ว": "shipped_to_customer",
@@ -25,8 +25,7 @@ const mapStatus = (thaiStatus: string): string => {
 }
 
 interface PreviewData extends Omit<CreateOrderPayload, 'status'> {
-  status: string;
-  mappedStatus: string;
+  status: string | null;
 }
 
 interface ExcelUploadProps {
@@ -55,7 +54,7 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
         console.log('jsonData', jsonData)
         // Map Excel columns to our data structure
         const mappedData = jsonData.map((row: any) => {
-          const thaiStatus = row['สถานะ'] || ''  // Default to empty string if no status
+          const thaiStatus = row['สถานะ'] || ''  // เก็บค่าภาษาไทย
           return {
             orderNo: row['PO'] || '',
             orderDate: row['DATE'] ? moment(row['DATE'], 'YYYY-MM-DD').format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'),
@@ -78,8 +77,7 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
             estimate: row['ประมาณการ']
               ? moment(row['ประมาณการ']).format('YYYY-MM-DD')
               : moment().format('YYYY-MM-DD'),
-            status: thaiStatus,
-            mappedStatus: mapStatus(thaiStatus),
+            status: thaiStatus,  // เก็บค่าภาษาไทยสำหรับ preview
             trackingTh: null,
             receiptNumber: null,
             shippingCost: null,
@@ -109,10 +107,10 @@ export function ExcelUpload({ onImport }: ExcelUploadProps) {
   const handleImport = async () => {
     setUploading(true)
     try {
-      // Convert preview data to CreateOrderPayload format
+      // Convert preview data to CreateOrderPayload format and map status to enum
       const importData: CreateOrderPayload[] = previewData.map(data => ({
         ...data,
-        status: data.mappedStatus // Use the mapped status for API
+        status: mapStatus(data.status || '') || null // แปลงเป็น enum ตอนส่ง API
       }))
       onImport(importData)
       setPreviewData([])

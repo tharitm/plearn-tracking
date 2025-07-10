@@ -24,7 +24,7 @@ export function StatusBadge({ status, type, className }: StatusBadgeProps) {
         className: "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200",
       },
       container_closed: {
-        label: "ปิดตู้สินค้าแล้ว",
+        label: "ปิดตู้แล้ว",
         icon: AlertCircle,
         className: "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200",
       },

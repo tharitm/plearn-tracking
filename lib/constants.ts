@@ -12,7 +12,7 @@ export const PARCEL_STATUS_LABELS = {
   [PARCEL_STATUS.ALL]: "ทั้งหมด",
   [PARCEL_STATUS.PENDING]: "รอส่ง",
   [PARCEL_STATUS.SHIPPED]: "ส่งแล้ว",
-  [PARCEL_STATUS.DELIVERED]: "ปิดตู้สินค้าแล้ว",
+  [PARCEL_STATUS.DELIVERED]: "ปิดตู้แล้ว",
   [PARCEL_STATUS.CANCELLED]: "ยกเลิก",
 } as const;
 

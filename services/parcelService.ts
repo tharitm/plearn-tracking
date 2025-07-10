@@ -144,6 +144,7 @@ interface BulkCreateOrdersPayload {
 
 // เพิ่มฟังก์ชันใหม่
 async function _createOrders(orders: CreateOrderPayload[]): Promise<Parcel[]> {
+  debugger
   try {
     const url = '/api/orders/orders';  // Use relative path
 
