@@ -1,7 +1,7 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { Package, Truck, CheckCircle, XCircle, Clock, CreditCard, AlertCircle } from "lucide-react"
+import { Package, Truck, CheckCircle, XCircle, Clock, CreditCard, AlertCircle, Warehouse } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface StatusBadgeProps {
@@ -28,25 +28,30 @@ export function StatusBadge({ status, type, className }: StatusBadgeProps) {
         icon: AlertCircle,
         className: "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200",
       },
+      ready_to_ship_to_customer: {
+        label: "สินค้าอยู่ระหว่างเดินทางมาไทย",
+        icon: Truck,
+        className: "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200",
+      },
       arrived_th_warehouse: {
         label: "ถึงโกดังไทย",
         icon: Package,
         className: "bg-indigo-100 text-indigo-800 border-indigo-200 hover:bg-indigo-200",
       },
-      ready_to_ship_to_customer: {
-        label: "เตรียมส่งลูกค้า",
-        icon: Truck,
-        className: "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-200",
-      },
       shipped_to_customer: {
-        label: "ส่งแล้ว",
+        label: "ลูกค้าเข้ารับสินค้าเรียบร้อย",
         icon: Truck,
         className: "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200",
       },
       delivered_to_customer: {
-        label: "ส่งถึงแล้ว",
+        label: "จัดส่งสินค้าเรียบร้อย",
         icon: CheckCircle,
         className: "bg-green-100 text-green-800 border-green-200 hover:bg-green-200",
+      },
+      warehouse_pending: {
+        label: "สินค้าค้างโกดัง",
+        icon: Warehouse,
+        className: "bg-red-100 text-red-800 border-red-200 hover:bg-red-200",
       },
     }
 

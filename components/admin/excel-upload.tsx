@@ -13,10 +13,11 @@ import type { CreateOrderPayload } from "@/services/parcelService"
 const STATUS_MAPPING: { [key: string]: string } = {
   "ถึงโกดังจีน": "arrived_cn_warehouse",
   "ปิดตู้แล้ว": "container_closed",
+  "สินค้าอยู่ระหว่างเดินทางมาไทย": "ready_to_ship_to_customer",
   "ถึงโกดังไทย": "arrived_th_warehouse",
-  "เตรียมส่งลูกค้า": "ready_to_ship_to_customer",
-  "ส่งแล้ว": "shipped_to_customer",
-  "ส่งถึงแล้ว": "delivered_to_customer",
+  "ลูกค้าเข้ารับสินค้าเรียบร้อย": "shipped_to_customer",
+  "จัดส่งสินค้าเรียบร้อย": "delivered_to_customer",
+  "สินค้าค้างโกดัง": "warehouse_pending",
 }
 
 // Function to map Thai status to enum value

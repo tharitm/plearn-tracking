@@ -434,11 +434,12 @@ export function ParcelForm({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="arrived_cn_warehouse">ถึงโกดังจีน</SelectItem>
-                      <SelectItem value="container_closed">ตู้ปิดสินค้า</SelectItem>
+                      <SelectItem value="container_closed">ปิดตู้แล้ว</SelectItem>
+                      <SelectItem value="ready_to_ship_to_customer">สินค้าอยู่ระหว่างเดินทางมาไทย</SelectItem>
                       <SelectItem value="arrived_th_warehouse">ถึงโกดังไทย</SelectItem>
-                      <SelectItem value="ready_to_ship_to_customer">เตรียมส่งลูกค้า</SelectItem>
-                      <SelectItem value="shipped_to_customer">ส่งแล้ว</SelectItem>
-                      <SelectItem value="delivered_to_customer">ส่งถึงแล้ว</SelectItem>
+                      <SelectItem value="shipped_to_customer">ลูกค้าเข้ารับสินค้าเรียบร้อย</SelectItem>
+                      <SelectItem value="delivered_to_customer">จัดส่งสินค้าเรียบร้อย</SelectItem>
+                      <SelectItem value="warehouse_pending">สินค้าค้างโกดัง</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

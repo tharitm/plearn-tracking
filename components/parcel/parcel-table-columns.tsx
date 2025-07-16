@@ -24,10 +24,11 @@ import { useParcelStore } from "@/stores/parcel-store";
 const statusOptions: Parcel["status"][] = [
   "arrived_cn_warehouse",        // สินค้าถึงโกดังจีน
   "container_closed",            // ปิดตู้แล้ว
-  "arrived_th_warehouse",        // สินค้าถึงโกดังไทย
   "ready_to_ship_to_customer",   // เตรียมส่งลูกค้า
+  "arrived_th_warehouse",        // ถึงโกดังไทย
   "shipped_to_customer",         // ส่งแล้ว
   "delivered_to_customer",       // ส่งถึงแล้ว
+  "warehouse_pending",           // สินค้าค้างโกดัง
 ]
 
 export const getSortIcon = (isSorted: false | "asc" | "desc") => {
