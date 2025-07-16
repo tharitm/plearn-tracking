@@ -21,7 +21,7 @@ import { useEffect } from "react";
 
 // Base schema for shared fields
 const baseCustomerSchema = z.object({
-  email: z.string().email("อีเมลไม่ถูกต้อง").optional().nullable(),
+  email: z.string().email("อีเมลไม่ถูกต้อง").or(z.literal("")).optional().nullable(),
   firstName: z.string().min(1, "ชื่อจำเป็นต้องกรอก"),
   nickName: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
