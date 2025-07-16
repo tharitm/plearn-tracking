@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Customer } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, KeyRound, Edit3, User, Mail, Phone, Hash, Calendar, MapPin } from "lucide-react";
+import { ArrowUpDown, KeyRound, Edit3, User, Mail, Phone, Hash, Calendar, MapPin, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -12,9 +12,10 @@ import { th } from "date-fns/locale";
 export type CustomerTableActions = {
   onEdit: (customer: Customer) => void;
   onResetPassword: (customer: Customer) => void;
+  onDelete: (customer: Customer) => void;
 };
 
-export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableActions): ColumnDef<Customer>[] => [
+export const getCustomerColumns = ({ onEdit, onResetPassword, onDelete }: CustomerTableActions): ColumnDef<Customer>[] => [
   {
     id: "index",
     header: "#",
@@ -187,6 +188,14 @@ export const getCustomerColumns = ({ onEdit, onResetPassword }: CustomerTableAct
             onClick={() => onEdit(customer)}
           >
             <Edit3 className="h-4 w-4 text-blue-600" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0 bg-red-50 border-0 hover:bg-red-100 rounded-xl shadow-soft-sm hover:shadow-soft-md transition-all duration-200"
+            onClick={() => onDelete(customer)}
+          >
+            <Trash2 className="h-4 w-4 text-red-600" />
           </Button>
         </div>
       );

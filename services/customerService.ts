@@ -156,7 +156,7 @@ async function _updateCustomer(customerId: number, customerData: UpdateCustomerP
   }
 }
 
-async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage> {
+async function _deleteCustomer(customerId: number): Promise<SimpleSuccessMessage> {
   try {
     const url = `/api/admin/users/${customerId}`;
 
@@ -169,7 +169,6 @@ async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage
     const res = await fetch(url, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
       credentials: 'include',
@@ -188,7 +187,7 @@ async function _deleteCustomer(customerId: string): Promise<SimpleSuccessMessage
   }
 }
 
-async function _resetPassword(customerId: number): Promise<SimpleSuccessMessage> {
+async function _resetPassword(customerId: number, newPassword: string): Promise<SimpleSuccessMessage> {
   try {
     const url = `/api/admin/users/${customerId}/reset-password`;
 
@@ -205,6 +204,7 @@ async function _resetPassword(customerId: number): Promise<SimpleSuccessMessage>
         'Authorization': `Bearer ${token}`
       },
       credentials: 'include',
+      body: JSON.stringify({ newPassword }),
     });
 
     const apiResponse: ApiResponse<SimpleSuccessMessage> = await res.json();

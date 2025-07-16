@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 // Base schema for shared fields
 const baseCustomerSchema = z.object({
@@ -66,6 +67,7 @@ export function CustomerFormModal({
   initialData,
 }: CustomerFormModalProps) {
   const isEditMode = Boolean(initialData);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const {
     register,
@@ -195,7 +197,27 @@ export function CustomerFormModal({
             {!isEditMode && (
               <div className="space-y-1">
                 <Label htmlFor="password">รหัสผ่าน *</Label>
-                <Input id="password" type="password" {...register("password")} />
+                <div className="relative">
+                  <Input 
+                    id="password" 
+                    type={showPassword ? "text" : "password"} 
+                    {...register("password")} 
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-500" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-500" />
+                    )}
+                  </Button>
+                </div>
                 {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
               </div>
             )}

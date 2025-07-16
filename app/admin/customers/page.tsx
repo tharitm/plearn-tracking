@@ -12,7 +12,16 @@ import type { Customer, CreateCustomerPayload, UpdateCustomerPayload, CustomerQu
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, UserPlus, Filter, Search } from "lucide-react";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   useReactTable,
   getCoreRowModel,
@@ -32,6 +41,7 @@ import { showToast } from '@/lib/toast-utils';
 export default function AdminCustomersPage() {
   console.log('==== Admin User Management Page ====')
   const { user, isAuthenticated } = useAuthStore();
+  const { deleteCustomer } = useCustomerStore();
   const router = useRouter();
   const {
     customers,
@@ -45,8 +55,11 @@ export default function AdminCustomersPage() {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [customerForPasswordReset, setCustomerForPasswordReset] = useState<Customer | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const columns = useMemo(() => getCustomerColumns({
     onEdit: (customer) => {
@@ -56,6 +69,10 @@ export default function AdminCustomersPage() {
     onResetPassword: (customer) => {
       setCustomerForPasswordReset(customer);
       setIsResetPasswordModalOpen(true);
+    },
+    onDelete: (customer) => {
+      setCustomerToDelete(customer);
+      setIsDeleteDialogOpen(true);
     },
   }), [customers]);
 
@@ -113,11 +130,11 @@ export default function AdminCustomersPage() {
     }
   };
 
-  const handlePasswordResetConfirm = async () => {
+  const handlePasswordResetConfirm = async (newPassword: string) => {
     if (customerForPasswordReset) {
       setIsSubmitting(true);
       try {
-        await customerService.resetPassword(customerForPasswordReset.id);
+        await customerService.resetPassword(customerForPasswordReset.id, newPassword);
         showToast(`Password reset for ${customerForPasswordReset.firstName} initiated.`, "success");
       } catch (err: any) {
         console.error("Password reset error:", err);
@@ -134,6 +151,24 @@ export default function AdminCustomersPage() {
   if (!isAuthenticated || user?.role !== "admin") {
     return null;
   }
+
+  const handleDeleteConfirm = async () => {
+    if (customerToDelete) {
+      setIsDeleting(true);
+      try {
+        await deleteCustomer(customerToDelete.id);
+        showToast(`ลบลูกค้า ${customerToDelete.firstName} เรียบร้อยแล้ว`, "success");
+        await refetch();
+      } catch (err: any) {
+        console.error("Delete customer error:", err);
+        showToast(err.message || "เกิดข้อผิดพลาดในการลบลูกค้า", "error");
+      } finally {
+        setIsDeleting(false);
+        setIsDeleteDialogOpen(false);
+        setCustomerToDelete(null);
+      }
+    }
+  };
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -220,6 +255,37 @@ export default function AdminCustomersPage() {
           onConfirm={handlePasswordResetConfirm}
           customerName={customerForPasswordReset?.firstName}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <AlertDialogContent className="rounded-2xl border-0 shadow-soft-xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-lg font-semibold text-gray-800">
+                ยืนยันการลบลูกค้า
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-sm text-gray-600">
+                คุณแน่ใจหรือไม่ที่จะลบลูกค้า <span className="font-medium text-gray-800">{customerToDelete?.firstName}</span>?
+                <br />
+                การดำเนินการนี้ไม่สามารถยกเลิกได้
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-3">
+              <AlertDialogCancel
+                className="rounded-xl border-gray-200 hover:bg-gray-50"
+                disabled={isDeleting}
+              >
+                ยกเลิก
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+                className="rounded-xl bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? "กำลังลบ..." : "ลบลูกค้า"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );
